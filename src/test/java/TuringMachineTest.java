@@ -10,6 +10,7 @@ public class TuringMachineTest {
     ArrayList<State> states = new ArrayList<State>();
     states.add(state);
     TuringMachine tm = new TuringMachine(states);
+    tm.run();
     assertEquals(1, tm.getScore());
     assertEquals(1, tm.getShifts());
   }

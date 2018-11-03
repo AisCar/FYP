@@ -3,6 +3,7 @@ import java.util.ArrayList;
 public class TuringMachine {
   int score;
   int shifts;
+  ArrayList<State> states;
 
 
   /*
@@ -12,8 +13,9 @@ public class TuringMachine {
   public TuringMachine(ArrayList<State> states){
     shifts = 0;
     score = 0;
+    this.states = states;
     //Validation should have already taken place somewhere
-    run(states);
+    //run(states);
   }
 
   public TuringMachine(){
@@ -27,7 +29,7 @@ public class TuringMachine {
   main method
   */
 
-  private void run(ArrayList<State> states){
+  public void run(){
     TapeCell currentCell = new TapeCell();
     State currentState = states.get(0);
     int stateNum = 1;
@@ -72,7 +74,7 @@ public class TuringMachine {
   /*
   other methods
   */
-  
+
   private TapeCell moveLeft(TapeCell cell){
     if(cell.getLeft() == null){
       cell.setLeft(new TapeCell());
