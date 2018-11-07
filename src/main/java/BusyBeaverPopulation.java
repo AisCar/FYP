@@ -75,6 +75,35 @@ public class BusyBeaverPopulation {
   https://docs.oracle.com/javase/6/docs/api/java/util/BitSet.html
   */
 
+  public ArrayList<String> getStateTransitionTables(){
+    int i = 1;
+    ArrayList<String> strings = new ArrayList();
+    for(TuringMachine tm : turingMachines){
+      strings.add("Turing Machine " + i);
+      i++;
+      strings.addAll(getStateTransitionTable(tm));
+    }
+    return strings;
+  }
+
+  public ArrayList<String> getStateTransitionTable(TuringMachine tm){
+    ArrayList<String> strings = new ArrayList<String>();
+    strings.add("State\tRead\tWrite\tMove\tNext State");
+    int stateNum = 1;
+    for(State s : tm.getStates()){
+      String stateString = "";
+      boolean readOne = false;
+      for(int i = 0; i < 2; i++){
+        String direction = s.getMove(readOne)? "left" : "right";
+        int write = s.getWrite(readOne)? 1 : 0;
+        stateString = stateString + stateNum + "\t" + i + ":\t " + write + "\t" + direction + "\t" + s.getNextState(readOne) + "\n";
+        readOne = true;
+      }
+      strings.add(stateString);
+      stateNum++;
+    }
+    return strings;
+  }
 
 
 

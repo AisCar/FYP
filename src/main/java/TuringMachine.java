@@ -102,4 +102,8 @@ public class TuringMachine {
     return shifts;
   }
 
+  public ArrayList<State> getStates(){
+    return states;
+  }
+
 }
