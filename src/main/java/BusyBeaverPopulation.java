@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.BitSet;
 
 public class BusyBeaverPopulation {
   public ArrayList<TuringMachine> turingMachines;
@@ -67,17 +68,36 @@ public class BusyBeaverPopulation {
 
 
   /*
-  TODO  implement methods that get turing machines in diff formats
-  state transition diagrams for UserInterface
-  bit strings for GeneticAlgorithm
+  methods for translating TuringMachine objects into BitSets and state transition tables
+   */
 
-  note: java.util.BitSet comes with a lot of methods that could use for mutation etc.
-  https://docs.oracle.com/javase/6/docs/api/java/util/BitSet.html
-  */
+  public ArrayList<BitSet> getBitSets(){
+    ArrayList<BitSet> bitSets = new ArrayList<BitSet>();
+    for(TuringMachine tm : turingMachines){
+      bitSets.add(getBitSet(tm));
+    }
+    return bitSets;
+  }
+
+  public BitSet getBitSet(TuringMachine tm){
+    int numStates = tm.getStates().size();
+    int numBitsForStates;
+    int remainder;//todo get coffee, switch brain back on
+    //comment to explain the line below TODO
+    BitSet tmBitSet = new BitSet(numStates*2*(2+numBitsForStates));
+    //TODO - today
+
+    for(State s : tm.getStates()){
+
+    }
+
+    return tmBitSet;
+
+  }
 
   public ArrayList<String> getStateTransitionTables(){
     int i = 1;
-    ArrayList<String> strings = new ArrayList();
+    ArrayList<String> strings = new ArrayList<String>();
     for(TuringMachine tm : turingMachines){
       strings.add("Turing Machine " + i);
       i++;
