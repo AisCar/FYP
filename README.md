@@ -2,7 +2,7 @@
 Repository for Final Year Project
 
 
-Busy Beavers and Genetic Algorithms
+## Busy Beavers and Genetic Algorithms
 
 The aim of the busy beaver game is to find the n-state Turing machine,
 for any natural number n, which writes the highest number of values to a
@@ -14,7 +14,7 @@ This code is for a research project that will investigate whether the use of gen
 to generate busy beavers with high Σ(n) is a good alternative to
 generating and examining all n-state Turing machines.
 
-Code in this Repository
+## Code in this Repository
 
 The code includes:
 - a genetic algorithm implementation
