@@ -81,18 +81,52 @@ public class BusyBeaverPopulation {
 
   public BitSet getBitSet(TuringMachine tm){
     int numStates = tm.getStates().size();
-    int numBitsForStates;
-    int remainder;//todo get coffee, switch brain back on
-    //comment to explain the line below TODO
-    BitSet tmBitSet = new BitSet(numStates*2*(2+numBitsForStates));
-    //TODO - today
+    //get number of bits needed to represent the nextState attribute
+    int numBitsForNextState = Integer.toBinaryString(numStates).length();
+    //each state has 2 * (1 bit write, 1 bit move, numBitsForNextState bits next state)
+    int stateLength = 2 * (2 + numBitsForNextState);
+    BitSet tmBitSet = new BitSet(numStates * stateLength);//numStates*2*(2+numBitsForNextState));
+    //boolean[] boolArray = new boolean[numStates * stateLength]; //Alternative to BitSet
+    int bitIndex = 0;
 
     for(State s : tm.getStates()){
+      //Encode instructions for reading zero
+      //Encode write as one bit (using boolean)
+      tmBitSet.set(bitIndex, s.getWrite(false));
+      bitIndex++;
+      //Encode move as one bit
+      tmBitSet.set(bitIndex, s.getMove(false));
+      bitIndex++;
+      //Encode next state as several bits
+      String binaryString = Integer.toBinaryString(s.getNextState(false));
+      int bitSectionEnd = bitIndex + numBitsForNextState;
+      for(int stringEnd = binaryString.length(); stringEnd > 0; stringEnd--){
+        if(binaryString.charAt(stringEnd-1) == '1'){
+          tmBitSet.set(bitSectionEnd);
+        }
+        bitSectionEnd--;
+      }
+      bitIndex = bitIndex + numBitsForNextState;
 
+      //Encode instructions for reading one
+      //Encode write as one bit
+      tmBitSet.set(bitIndex, s.getWrite(true));
+      bitIndex++;
+      //Encode move as one bit
+      tmBitSet.set(bitIndex, s.getMove(true));
+      bitIndex++;
+      //Encode next state as several bits
+      binaryString = Integer.toBinaryString(s.getNextState(true));
+      bitSectionEnd = bitIndex + numBitsForNextState;
+      for(int stringEnd = binaryString.length(); stringEnd > 0; stringEnd--){
+        if(binaryString.charAt(stringEnd-1) == '1'){
+          tmBitSet.set(bitSectionEnd);
+        }
+        bitSectionEnd--;
+      }
+      bitIndex = bitIndex + numBitsForNextState;
     }
-
     return tmBitSet;
-
   }
 
   public ArrayList<String> getStateTransitionTables(){
@@ -123,6 +157,10 @@ public class BusyBeaverPopulation {
       stateNum++;
     }
     return strings;
+  }
+
+  public ArrayList<TuringMachine> getTuringMachines(){
+    return turingMachines;
   }
 
 
