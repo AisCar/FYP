@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.BitSet;
 
 public class BusyBeaverPopulation {
   public ArrayList<TuringMachine> turingMachines;
@@ -67,17 +68,70 @@ public class BusyBeaverPopulation {
 
 
   /*
-  TODO  implement methods that get turing machines in diff formats
-  state transition diagrams for UserInterface
-  bit strings for GeneticAlgorithm
+  methods for translating TuringMachine objects into BitSets and state transition tables
+   */
 
-  note: java.util.BitSet comes with a lot of methods that could use for mutation etc.
-  https://docs.oracle.com/javase/6/docs/api/java/util/BitSet.html
-  */
+  public ArrayList<BitSet> getBitSets(){
+    ArrayList<BitSet> bitSets = new ArrayList<BitSet>();
+    for(TuringMachine tm : turingMachines){
+      bitSets.add(getBitSet(tm));
+    }
+    return bitSets;
+  }
+
+  public BitSet getBitSet(TuringMachine tm){
+    int numStates = tm.getStates().size();
+    //get number of bits needed to represent the nextState attribute
+    int numBitsForNextState = Integer.toBinaryString(numStates).length();
+    //each state has 2 * (1 bit write, 1 bit move, numBitsForNextState bits next state)
+    int stateLength = 2 * (2 + numBitsForNextState);
+    BitSet tmBitSet = new BitSet(numStates * stateLength);//numStates*2*(2+numBitsForNextState));
+    //boolean[] boolArray = new boolean[numStates * stateLength]; //Alternative to BitSet
+    int bitIndex = 0;
+
+    for(State s : tm.getStates()){
+      //Encode instructions for reading zero
+      //Encode write as one bit (using boolean)
+      tmBitSet.set(bitIndex, s.getWrite(false));
+      bitIndex++;
+      //Encode move as one bit
+      tmBitSet.set(bitIndex, s.getMove(false));
+      bitIndex++;
+      //Encode next state as several bits
+      String binaryString = Integer.toBinaryString(s.getNextState(false));
+      int bitSectionEnd = bitIndex + numBitsForNextState;
+      for(int stringEnd = binaryString.length(); stringEnd > 0; stringEnd--){
+        if(binaryString.charAt(stringEnd-1) == '1'){
+          tmBitSet.set(bitSectionEnd);
+        }
+        bitSectionEnd--;
+      }
+      bitIndex = bitIndex + numBitsForNextState;
+
+      //Encode instructions for reading one
+      //Encode write as one bit
+      tmBitSet.set(bitIndex, s.getWrite(true));
+      bitIndex++;
+      //Encode move as one bit
+      tmBitSet.set(bitIndex, s.getMove(true));
+      bitIndex++;
+      //Encode next state as several bits
+      binaryString = Integer.toBinaryString(s.getNextState(true));
+      bitSectionEnd = bitIndex + numBitsForNextState;
+      for(int stringEnd = binaryString.length(); stringEnd > 0; stringEnd--){
+        if(binaryString.charAt(stringEnd-1) == '1'){
+          tmBitSet.set(bitSectionEnd);
+        }
+        bitSectionEnd--;
+      }
+      bitIndex = bitIndex + numBitsForNextState;
+    }
+    return tmBitSet;
+  }
 
   public ArrayList<String> getStateTransitionTables(){
     int i = 1;
-    ArrayList<String> strings = new ArrayList();
+    ArrayList<String> strings = new ArrayList<String>();
     for(TuringMachine tm : turingMachines){
       strings.add("Turing Machine " + i);
       i++;
@@ -103,6 +157,10 @@ public class BusyBeaverPopulation {
       stateNum++;
     }
     return strings;
+  }
+
+  public ArrayList<TuringMachine> getTuringMachines(){
+    return turingMachines;
   }
 
 
