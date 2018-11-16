@@ -71,62 +71,71 @@ public class BusyBeaverPopulation {
   methods for translating TuringMachine objects into BitSets and state transition tables
    */
 
-  public ArrayList<BitSet> getBitSets(){
-    ArrayList<BitSet> bitSets = new ArrayList<BitSet>();
+  public ArrayList<boolean[]> getBitSets(){
+    ArrayList<boolean[]> bitSets = new ArrayList<boolean[]>();
     for(TuringMachine tm : turingMachines){
       bitSets.add(getBitSet(tm));
     }
     return bitSets;
   }
 
-  public BitSet getBitSet(TuringMachine tm){
+  public boolean[] getBitSet(TuringMachine tm){
     int numStates = tm.getStates().size();
     //get number of bits needed to represent the nextState attribute
     int numBitsForNextState = Integer.toBinaryString(numStates).length();
     //each state has 2 * (1 bit write, 1 bit move, numBitsForNextState bits next state)
     int stateLength = 2 * (2 + numBitsForNextState);
-    BitSet tmBitSet = new BitSet(numStates * stateLength);//numStates*2*(2+numBitsForNextState));
-    //boolean[] boolArray = new boolean[numStates * stateLength]; //Alternative to BitSet
+    boolean[] bitStream = new boolean[numStates * stateLength];
     int bitIndex = 0;
 
     for(State s : tm.getStates()){
       //Encode instructions for reading zero
       //Encode write as one bit (using boolean)
-      tmBitSet.set(bitIndex, s.getWrite(false));
+      bitStream[bitIndex] = s.getWrite(false);
       bitIndex++;
       //Encode move as one bit
-      tmBitSet.set(bitIndex, s.getMove(false));
+      bitStream[bitIndex] = s.getMove(false);
       bitIndex++;
       //Encode next state as several bits
       String binaryString = Integer.toBinaryString(s.getNextState(false));
-      int bitSectionEnd = bitIndex + numBitsForNextState;
+      int bitSectionEnd = bitIndex + numBitsForNextState - 1;
       for(int stringEnd = binaryString.length(); stringEnd > 0; stringEnd--){
         if(binaryString.charAt(stringEnd-1) == '1'){
-          tmBitSet.set(bitSectionEnd);
+          bitStream[bitSectionEnd] = true;
         }
+        /*
+        else{
+          bitStream[bitSectionEnd] = false; //Prob not needed, is false by default
+        }
+        */
         bitSectionEnd--;
       }
       bitIndex = bitIndex + numBitsForNextState;
 
       //Encode instructions for reading one
       //Encode write as one bit
-      tmBitSet.set(bitIndex, s.getWrite(true));
+      bitStream[bitIndex] = s.getWrite(true);
       bitIndex++;
       //Encode move as one bit
-      tmBitSet.set(bitIndex, s.getMove(true));
+      bitStream[bitIndex] = s.getMove(true);
       bitIndex++;
       //Encode next state as several bits
       binaryString = Integer.toBinaryString(s.getNextState(true));
-      bitSectionEnd = bitIndex + numBitsForNextState;
+      bitSectionEnd = bitIndex + numBitsForNextState - 1;
       for(int stringEnd = binaryString.length(); stringEnd > 0; stringEnd--){
         if(binaryString.charAt(stringEnd-1) == '1'){
-          tmBitSet.set(bitSectionEnd);
+          bitStream[bitSectionEnd] = true;
         }
+        /*
+        else{
+          bitStream[bitSectionEnd] = false;
+        }
+        */
         bitSectionEnd--;
       }
       bitIndex = bitIndex + numBitsForNextState;
     }
-    return tmBitSet;
+    return bitStream;
   }
 
   public ArrayList<String> getStateTransitionTables(){
@@ -150,7 +159,8 @@ public class BusyBeaverPopulation {
       for(int i = 0; i < 2; i++){
         String direction = s.getMove(readOne)? "left" : "right";
         int write = s.getWrite(readOne)? 1 : 0;
-        stateString = stateString + stateNum + "\t" + i + ":\t " + write + "\t" + direction + "\t" + s.getNextState(readOne) + "\n";
+        stateString = stateString + stateNum + "\t" + i + ":\t " + write +
+          "\t" + direction + "\t" + s.getNextState(readOne) + "\n";
         readOne = true;
       }
       strings.add(stateString);

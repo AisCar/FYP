@@ -47,15 +47,15 @@ public class GeneticAlgorithm {
   population management methods
  */
 
-  private void repair(ArrayList<BitSet> population){
+  private void repair(ArrayList<boolean[]> population){
     //TODO
     //next state num could be > num states - modify to fix
     //any other issues?
   }
 
-  private void nextGeneration(ArrayList<BitSet> population){
+  private void nextGeneration(ArrayList<boolean[]> population){
     //TODO
-    //Handles crossover, mutation, repair - then updates population 
+    //Handles crossover, mutation, repair - then updates population
   }
 
   /*
