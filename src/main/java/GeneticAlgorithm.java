@@ -10,6 +10,10 @@ public class GeneticAlgorithm {
     Constructors
    */
 
+   protected GeneticAlgorithm(){
+     //Constructor for tests only - will update later TODO
+   }
+
   public GeneticAlgorithm(int populationSize, int numStates){//keep? remove?
     pop = new BusyBeaverPopulation(numStates, populationSize);
     population = pop.getTuringMachines();
@@ -68,15 +72,36 @@ public class GeneticAlgorithm {
       //TODO
   }
 
-  private void crossover(BitSet parent1, BitSet parent2){
-      //TODO
+  private void crossover(boolean[] parent1, boolean[] parent2){
+    if(parent1.length != parent2.length){
+      throw new Exception("Parent chromosomes have different lengths");
+    }
+    /*
+    To consider: Crossover at random points? Crossover only at state boundaries?
+    */
+    int crossoverPoint = (int) (Math.random() * (parent1.length - 1));
+    boolean[] child1, child2 = new boolean[parent1.length];
+    for(int i = 0; i < crossoverPoint; i++){
+      child1[i] = parent1[i];
+      child2[i] = parent2[i];
+    }
+    for(int i = crossoverPoint; i < parent1.length; i++){
+      child1[i] = parent2[i];
+      child2[i] = parent1[i];
+    }
+    //wait what now? Am I overwriting parents or keeping them?
+    //If keeping them, then how do I add these children to the population?
+    //TODO come back to this once you make decisions about generation management
   }
 
-  private void mutate(BitSet parent){
-      //TODO
-      /*
-      Note to self: java BitSet - flip(int bitIndex) - Sets the bit at the specified index to the complement of its current value.
-       */
+  protected boolean[] mutate(boolean[] parent){
+      int geneToMutate = (int) (Math.random() * (parent.length - 1));
+      boolean[] child  = new boolean[parent.length];
+      for(int i = 0; i < parent.length; i++){
+        child[i] = parent[i];
+      }
+      child[geneToMutate] = !parent[geneToMutate];
+      return child;
    }
 
 
