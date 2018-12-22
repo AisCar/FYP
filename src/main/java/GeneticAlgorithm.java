@@ -74,13 +74,15 @@ public class GeneticAlgorithm {
 
   private void crossover(boolean[] parent1, boolean[] parent2){
     if(parent1.length != parent2.length){
-      throw new Exception("Parent chromosomes have different lengths");
+      //throw new Exception("Parent chromosomes have different lengths");
+      //todo error handling
     }
     /*
     To consider: Crossover at random points? Crossover only at state boundaries?
     */
     int crossoverPoint = (int) (Math.random() * (parent1.length - 1));
-    boolean[] child1, child2 = new boolean[parent1.length];
+    boolean[] child1 = new boolean[parent1.length];
+    boolean[] child2 = new boolean[parent1.length];
     for(int i = 0; i < crossoverPoint; i++){
       child1[i] = parent1[i];
       child2[i] = parent2[i];
