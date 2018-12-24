@@ -47,16 +47,10 @@ public class GeneticAlgorithm {
       //TODO
   }
 
+
   /*
-  population management methods
- */
-
-  private void repair(ArrayList<boolean[]> turingMachine){//population){
-    //TODO
-    //next state num could be > num states - modify to fix
-    //any other issues?
-  }
-
+  Method to create next generation of Turing Machines using crossover, mutation
+  */
   private void nextGeneration(){//ArrayList<TuringMachine> population){//ArrayList<boolean[]> population){
     ArrayList<TuringMachine> nextGeneration = new ArrayList<TuringMachine>();
     //Sort population by fitness
@@ -121,6 +115,17 @@ public class GeneticAlgorithm {
       }
       child[geneToMutate] = !parent[geneToMutate];
       return child;
+   }
+
+
+   /*
+   method to repair new Turing Machines that are invalid
+  */
+
+   private void repair(ArrayList<boolean[]> turingMachine){//population){
+     //TODO
+     //next state num could be > num states - modify to fix
+     //any other issues?
    }
 
 

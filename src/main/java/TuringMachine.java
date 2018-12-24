@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class TuringMachine {
+public class TuringMachine implements Comparable<TuringMachine> {
   int score;
   int shifts;
   ArrayList<State> states;
@@ -104,6 +104,18 @@ public class TuringMachine {
 
   public ArrayList<State> getStates(){
     return states;
+  }
+
+
+  /*
+  Override compareTo for sorting of Turing Machine Collections
+  */
+
+  @Override
+  public int compareTo(TuringMachine other){
+    //return this.score - other.score; //Wait, descending order makes more sense than ascending?
+    //TODO decide
+    return (other.score - this.score);
   }
 
 }
