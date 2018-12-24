@@ -71,15 +71,18 @@ public class BusyBeaverPopulation {
   methods for translating TuringMachine objects into BitSets and state transition tables
    */
 
-  public ArrayList<boolean[]> getBitSets(){
+  public ArrayList<boolean[]> getBitArrays(){ //Probably not needed TODO remove?
     ArrayList<boolean[]> bitSets = new ArrayList<boolean[]>();
     for(TuringMachine tm : turingMachines){
-      bitSets.add(getBitSet(tm));
+      bitSets.add(getBitArray(tm));
     }
     return bitSets;
   }
 
-  public boolean[] getBitSet(TuringMachine tm){
+  /*
+  Method to translate a TuringMachine object into a bit array
+  */
+  public boolean[] getBitArray(TuringMachine tm){
     int numStates = tm.getStates().size();
     //get number of bits needed to represent the nextState attribute
     int numBitsForNextState = Integer.toBinaryString(numStates).length();
@@ -138,6 +141,10 @@ public class BusyBeaverPopulation {
     return bitStream;
   }
 
+  /*
+  Methods to translate TuringMachine objects to state transition tables
+  (for not-yet-implemented user interface - may change a lot later)
+  */
   public ArrayList<String> getStateTransitionTables(){
     int i = 1;
     ArrayList<String> strings = new ArrayList<String>();
@@ -169,8 +176,17 @@ public class BusyBeaverPopulation {
     return strings;
   }
 
-  public ArrayList<TuringMachine> getTuringMachines(){
+
+  /*
+  Getters and setters
+  */
+
+  public ArrayList<TuringMachine> getPopulation(){
     return turingMachines;
+  }
+
+  public void setPopulation(ArrayList<TuringMachine> nextGeneration){
+    this.turingMachines = nextGeneration;
   }
 
 

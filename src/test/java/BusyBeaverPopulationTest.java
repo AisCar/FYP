@@ -37,10 +37,10 @@ public class BusyBeaverPopulationTest {
 
 
   @Test
-  public void testGetBitSet(){
-    System.out.println("\nTest: testGetBitSet");
+  public void testGetBitArray(){
+    System.out.println("\nTest: testGetBitArray");
     BusyBeaverPopulation bbpop = new BusyBeaverPopulation(1,1);
-    TuringMachine tm = bbpop.getTuringMachines().get(0);
+    TuringMachine tm = bbpop.getPopulation().get(0);
     /*
     int numStates = tm.getStates().size();
     System.out.println("Size: " + numStates);
@@ -48,7 +48,7 @@ public class BusyBeaverPopulationTest {
     System.out.println("String length: " + numBitsForNextState);
     System.out.println("Total states length: " +  2 * (2 + numBitsForNextState));
     */
-    boolean[] bitStream = bbpop.getBitSet(tm);
+    boolean[] bitStream = bbpop.getBitArray(tm);
     assertEquals(6, bitStream.length);
     String bitString = "";
     for(int i = 0; i < bitStream.length; i++){

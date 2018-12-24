@@ -16,7 +16,7 @@ public class GeneticAlgorithm {
 
   public GeneticAlgorithm(int populationSize, int numStates){//keep? remove?
     pop = new BusyBeaverPopulation(numStates, populationSize);
-    population = pop.getTuringMachines();
+    population = pop.getPopulation();
     crossoverRate = 0.5;
     mutationRate = 0.01;
     //run();
@@ -24,7 +24,7 @@ public class GeneticAlgorithm {
 
   public GeneticAlgorithm(int populationSize, int numStates, double crossoverRate, double mutationRate){
     pop = new BusyBeaverPopulation(numStates, populationSize);
-    population = pop.getTuringMachines();
+    population = pop.getPopulation();
     this.crossoverRate = crossoverRate;
     this.mutationRate = mutationRate;
     //run();
@@ -40,9 +40,9 @@ public class GeneticAlgorithm {
         for(TuringMachine busyBeaver : population){
           busyBeaver.run();
           //int score = busyBeaver.getScore();
-          calculateFitness(busyBeaver);
+          int fitness = calculateFitness(busyBeaver);//what was I doing here?
         }
-        nextGeneration(pop.getBitSets());//If this implementation, then will have to update in bbPop too...TODO
+        nextGeneration();
       }
       //TODO
   }
@@ -51,25 +51,42 @@ public class GeneticAlgorithm {
   population management methods
  */
 
-  private void repair(ArrayList<boolean[]> population){
+  private void repair(ArrayList<boolean[]> turingMachine){//population){
     //TODO
     //next state num could be > num states - modify to fix
     //any other issues?
   }
 
-  private void nextGeneration(ArrayList<boolean[]> population){
-    //TODO
-    //Handles crossover, mutation, repair - then updates population
+  private void nextGeneration(){//ArrayList<TuringMachine> population){//ArrayList<boolean[]> population){
+    ArrayList<TuringMachine> nextGeneration = new ArrayList<TuringMachine>();
+    //Sort population by fitness
+    //Add Turing Machines unmodified to the next generation
+    //Select Turing Machines for crossover
+    //perform crossover
+    //Select chromosomes for mutation
+    //Perform mutation
+    //(add each to new generation)
+    //(Also validate and repair each)
+    //Update the population in population manager (and in here)
+    this.pop.setPopulation(nextGeneration);
+    //start the next generation
+
   }
 
   /*
   genetic operators
    */
 
-  private void calculateFitness(TuringMachine busyBeaver){
+  private int calculateFitness(TuringMachine busyBeaver){
       int score = busyBeaver.getScore();
       //insert calculations here...
       //TODO
+      /*
+      Future considerations: Bringing S(n) into the fitness function instead of
+      saying "Fitness = Sigma(n)"
+      But for now, fitness = Busy Beaver Function Sigma(n)
+      */
+      return score;
   }
 
   private void crossover(boolean[] parent1, boolean[] parent2){
