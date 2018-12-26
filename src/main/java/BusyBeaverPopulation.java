@@ -210,6 +210,34 @@ public class BusyBeaverPopulation {
     return strings;
   }
 
+  /*
+  Helper translation methods
+  */
+  private int getNumBitsNeeded(int num){
+    int numBits = 0;
+    while(num > (Math.pow(2,numBits) - 1)){
+      numBits++;
+    }
+    return numBits;
+  }
+
+  private boolean[] intToBinary(int num, int numBits){
+    boolean[] converted = new boolean[numBits];
+    int index = 0;
+    for(int power = numBits - 1; power >= 0; power--){
+      int twoToPower = Math.pow(2,power);
+      if((sum + twoToPower) > num){
+        converted[index] = false;
+      }
+      else{
+        converted[index] = true;
+        sum = sum + twoToPower
+      }
+      index++;
+    }
+    return converted;
+  }
+
 
   /*
   Getters and setters
