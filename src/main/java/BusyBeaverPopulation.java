@@ -3,12 +3,14 @@ import java.util.BitSet;
 
 public class BusyBeaverPopulation {
   public ArrayList<TuringMachine> turingMachines;
+  private final int numStates;
 
   /*
   Constructor
   */
 
   public BusyBeaverPopulation(int numStates, int numBusyBeavers){
+    this.numStates = numStates;
     turingMachines = generate(numStates, numBusyBeavers);
   }
 
@@ -67,22 +69,66 @@ public class BusyBeaverPopulation {
   }
 
 
-  /*
-  methods for translating TuringMachine objects into BitSets and state transition tables
-   */
 
-  public ArrayList<boolean[]> getBitArrays(){ //Probably not needed TODO remove?
-    ArrayList<boolean[]> bitSets = new ArrayList<boolean[]>();
-    for(TuringMachine tm : turingMachines){
-      bitSets.add(getBitArray(tm));
+  /*
+  Translation methods
+  */
+
+  //Method to translate bit arrays into TuringMachine objects
+  public TuringMachine toTuringMachine(boolean[] bitArray){
+    ArrayList<State> states = new ArrayList<State>();
+    int numBitsForNextState = Integer.toBinaryString(numStates).length();
+    int stateLength = 2 * (2 + numBitsForNextState);
+
+    if(bitArray.length == (stateLength*numStates)){
+      int k = 0;
+      boolean writeZero, moveZero, writeOne, moveOne;
+      int nextStateZero, nextStateOne;
+      //for all states in bit array
+      for(int i = 0; i < numStates; i++){
+        //convert the binary values to state object parameters
+        writeZero = bitArray[k];
+        k++;
+        moveZero = bitArray[k];
+        k++;
+        nextStateZero = 0;
+        for(int j = numBitsForNextState-1; j >= 0; j--){ //TODO test just this on its own
+          if(bitArray[k]){
+            nextStateZero += Math.pow(2, j);
+          }
+          k++;
+        }
+
+        writeOne = bitArray[k];
+        k++;
+        moveOne = bitArray[k];
+        nextStateOne = 0;
+        for(int j = numBitsForNextState-1; j >= 0; j--){
+          if(bitArray[k]){
+            nextStateOne += Math.pow(2, j);
+          }
+          k++;
+        }
+
+        //and create the corresponding state
+        State state = new State(writeZero, moveZero, nextStateZero, writeOne, moveOne, nextStateOne);
+        states.add(state);
+      }
     }
-    return bitSets;
+    else{
+      //TODO error handling
+      System.out.println("uh oh!");
+    }
+
+    TuringMachine tm = new TuringMachine(states);
+    return tm;
   }
 
-  /*
-  Method to translate a TuringMachine object into a bit array
-  */
-  public boolean[] getBitArray(TuringMachine tm){
+
+
+
+  //Method to translate a TuringMachine object into a bit array
+  public boolean[] toBitArray(TuringMachine tm){
     int numStates = tm.getStates().size();
     //get number of bits needed to represent the nextState attribute
     int numBitsForNextState = Integer.toBinaryString(numStates).length();
@@ -141,22 +187,10 @@ public class BusyBeaverPopulation {
     return bitStream;
   }
 
-  /*
-  Methods to translate TuringMachine objects to state transition tables
-  (for not-yet-implemented user interface - may change a lot later)
-  */
-  public ArrayList<String> getStateTransitionTables(){
-    int i = 1;
-    ArrayList<String> strings = new ArrayList<String>();
-    for(TuringMachine tm : turingMachines){
-      strings.add("Turing Machine " + i);
-      i++;
-      strings.addAll(getStateTransitionTable(tm));
-    }
-    return strings;
-  }
 
-  public ArrayList<String> getStateTransitionTable(TuringMachine tm){
+  //Method to translate TuringMachine objects to state transition tables
+  //(for not-yet-implemented user interface - may change a lot later)
+  public ArrayList<String> toStateTransitionTable(TuringMachine tm){
     ArrayList<String> strings = new ArrayList<String>();
     strings.add("State\tRead\tWrite\tMove\tNext State");
     int stateNum = 1;
@@ -166,7 +200,7 @@ public class BusyBeaverPopulation {
       for(int i = 0; i < 2; i++){
         String direction = s.getMove(readOne)? "left" : "right";
         int write = s.getWrite(readOne)? 1 : 0;
-        stateString = stateString + stateNum + "\t" + i + ":\t " + write +
+        stateString = stateString + stateNum + "\t" + i + "\t " + write +
           "\t" + direction + "\t" + s.getNextState(readOne) + "\n";
         readOne = true;
       }
@@ -189,6 +223,24 @@ public class BusyBeaverPopulation {
     this.turingMachines = nextGeneration;
   }
 
+  public ArrayList<boolean[]> getBitArrays(){ //Probably not needed TODO remove?
+    ArrayList<boolean[]> bitSets = new ArrayList<boolean[]>();
+    for(TuringMachine tm : turingMachines){
+      bitSets.add(toBitArray(tm));
+    }
+    return bitSets;
+  }
+
+  public ArrayList<String> getStateTransitionTables(){
+    int i = 1;
+    ArrayList<String> strings = new ArrayList<String>();
+    for(TuringMachine tm : turingMachines){
+      strings.add("Turing Machine " + i);
+      i++;
+      strings.addAll(toStateTransitionTable(tm));
+    }
+    return strings;
+  }
 
 
 }

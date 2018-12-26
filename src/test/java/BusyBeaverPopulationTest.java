@@ -15,7 +15,7 @@ public class BusyBeaverPopulationTest {
     assertEquals(1, pop.turingMachines.size());
 
     //print out the state transition table of the one busy beaver
-    for(String s : pop.getStateTransitionTable(pop.turingMachines.get(0))){
+    for(String s : pop.toStateTransitionTable(pop.turingMachines.get(0))){
       System.out.println(s);
     }
   }
@@ -37,8 +37,8 @@ public class BusyBeaverPopulationTest {
 
 
   @Test
-  public void testGetBitArray(){
-    System.out.println("\nTest: testGetBitArray");
+  public void testToBitArray(){
+    System.out.println("\nTest: testToBitArray");
     BusyBeaverPopulation bbpop = new BusyBeaverPopulation(1,1);
     TuringMachine tm = bbpop.getPopulation().get(0);
     /*
@@ -48,7 +48,7 @@ public class BusyBeaverPopulationTest {
     System.out.println("String length: " + numBitsForNextState);
     System.out.println("Total states length: " +  2 * (2 + numBitsForNextState));
     */
-    boolean[] bitStream = bbpop.getBitArray(tm);
+    boolean[] bitStream = bbpop.toBitArray(tm);
     assertEquals(6, bitStream.length);
     String bitString = "";
     for(int i = 0; i < bitStream.length; i++){
@@ -79,6 +79,52 @@ public class BusyBeaverPopulationTest {
     assertTrue(bitSet[6]);
     assertTrue(bitSet[9]);
     assertTrue(!bitSet[0]);
+
+  }
+
+  @Test
+  public void testBitArrayToIntConversion(){
+    boolean[] array = {true, false, true};//101 = 5
+    int number = 0;
+    int k = 0;
+    for(int j = array.length-1; j >= 0; j--){
+      if(array[k]){
+        number += Math.pow(2, j);
+      }
+      k++;
+    }
+
+    assertEquals(number, 5);
+  }
+
+  @Test
+  public void testTuringMachineToBitArrayAndBack(){
+    System.out.println("\ntestTuringMachineToBitArrayAndBack");
+    BusyBeaverPopulation bbpop = new BusyBeaverPopulation(1,1);
+    TuringMachine tm1 = bbpop.getPopulation().get(0);
+    for(String str : bbpop.toStateTransitionTable(tm1)){
+      System.out.println(str);
+    }
+    boolean[] bitArray = bbpop.toBitArray(tm1);
+    //System.out.println(bitArray);
+    for(boolean b : bitArray){
+      System.out.println(b?"1":"0");
+    }
+    TuringMachine tm2 = bbpop.toTuringMachine(bitArray);
+    for(String str : bbpop.toStateTransitionTable(tm2)){
+      System.out.println(str);
+    }
+    State s1 = tm1.getStates().get(0);
+    State s2 = tm2.getStates().get(0);
+
+/*
+    assertEquals(s1.getWrite(false), s2.getWrite(false));
+    assertEquals(s1.getWrite(true), s2.getWrite(true));
+    assertEquals(s1.getMove(false), s2.getMove(false));
+    assertEquals(s1.getMove(true), s2.getMove(true));
+    assertEquals(s1.getNextState(false), s2.getNextState(false));
+    assertEquals(s1.getNextState(true), s2.getNextState(true));
+*/
 
   }
 
