@@ -77,7 +77,8 @@ public class BusyBeaverPopulation {
   //Method to translate bit arrays into TuringMachine objects
   public TuringMachine toTuringMachine(boolean[] bitArray){
     ArrayList<State> states = new ArrayList<State>();
-    int numBitsForNextState = Integer.toBinaryString(numStates).length();
+    //int numBitsForNextState = Integer.toBinaryString(numStates).length();
+    int numBitsForNextState = getNumBitsNeeded(this.numStates);
     int stateLength = 2 * (2 + numBitsForNextState);
 
     if(bitArray.length == (stateLength*numStates)){
@@ -91,17 +92,27 @@ public class BusyBeaverPopulation {
         k++;
         moveZero = bitArray[k];
         k++;
-        nextStateZero = 0;
-        for(int j = numBitsForNextState-1; j >= 0; j--){ //TODO test just this on its own
+        //nextStateZero = 0;
+        /*
+        for(int j = numBitsForNextState-1; j >= 0; j--){
           if(bitArray[k]){
             nextStateZero += Math.pow(2, j);
           }
           k++;
         }
+        */
+        boolean[] temp = new boolean[numBitsForNextState];
+        for(int j = 0; j < numBitsForNextState; j++){
+          temp[j] = bitArray[k];
+          k++;
+        }
+        nextStateZero = binaryToInt(temp);
 
         writeOne = bitArray[k];
         k++;
         moveOne = bitArray[k];
+        k++;
+        /*
         nextStateOne = 0;
         for(int j = numBitsForNextState-1; j >= 0; j--){
           if(bitArray[k]){
@@ -109,6 +120,13 @@ public class BusyBeaverPopulation {
           }
           k++;
         }
+        */
+        temp = new boolean[numBitsForNextState];
+        for(int j = 0; j < numBitsForNextState; j++){
+          temp[j] = bitArray[k];
+          k++;
+        }
+        nextStateOne = binaryToInt(temp);
 
         //and create the corresponding state
         State state = new State(writeZero, moveZero, nextStateZero, writeOne, moveOne, nextStateOne);
@@ -125,11 +143,10 @@ public class BusyBeaverPopulation {
   }
 
 
-
-
+  /*
   //Method to translate a TuringMachine object into a bit array
   public boolean[] toBitArray(TuringMachine tm){
-    int numStates = tm.getStates().size();
+    int numStates = tm.getStates().size();//TODO remove - is now an object variable
     //get number of bits needed to represent the nextState attribute
     int numBitsForNextState = Integer.toBinaryString(numStates).length();
     //each state has 2 * (1 bit write, 1 bit move, numBitsForNextState bits next state)
@@ -146,21 +163,12 @@ public class BusyBeaverPopulation {
       bitStream[bitIndex] = s.getMove(false);
       bitIndex++;
       //Encode next state as several bits
-      String binaryString = Integer.toBinaryString(s.getNextState(false));
-      int bitSectionEnd = bitIndex + numBitsForNextState - 1;
-      for(int stringEnd = binaryString.length(); stringEnd > 0; stringEnd--){
-        if(binaryString.charAt(stringEnd-1) == '1'){
-          bitStream[bitSectionEnd] = true;
-        }
-        /*
-        else{
-          bitStream[bitSectionEnd] = false; //Prob not needed, is false by default
-        }
-        */
-        bitSectionEnd--;
+      int numBits = getNumBitsNeeded(this.numStates);
+      boolean[] temp = intToBinary(s.getNextState(false), numBits);
+      for(boolean b : temp){
+        bitStream[bitIndex] = b;
+        bitIndex++;
       }
-      bitIndex = bitIndex + numBitsForNextState;
-
       //Encode instructions for reading one
       //Encode write as one bit
       bitStream[bitIndex] = s.getWrite(true);
@@ -169,23 +177,90 @@ public class BusyBeaverPopulation {
       bitStream[bitIndex] = s.getMove(true);
       bitIndex++;
       //Encode next state as several bits
-      binaryString = Integer.toBinaryString(s.getNextState(true));
-      bitSectionEnd = bitIndex + numBitsForNextState - 1;
-      for(int stringEnd = binaryString.length(); stringEnd > 0; stringEnd--){
-        if(binaryString.charAt(stringEnd-1) == '1'){
-          bitStream[bitSectionEnd] = true;
-        }
-        /*
-        else{
-          bitStream[bitSectionEnd] = false;
-        }
-        */
-        bitSectionEnd--;
+      boolean[] temp2 = intToBinary(s.getNextState(false), numBits);
+      for(boolean b : temp2){
+        bitStream[bitIndex] = b;
+        bitIndex++;
       }
-      bitIndex = bitIndex + numBitsForNextState;
     }
     return bitStream;
   }
+
+  */
+
+  //Method to translate a TuringMachine object into a bit array
+  public boolean[] toBitArray(TuringMachine tm){
+    //Temporary bug fix so that I can focus elsewhere and come back to this
+    //(If it's dumb, but it works...)
+    //TODO fix issues with original version (commented out below)
+    String str = "";
+    int numBits = getNumBitsNeeded(this.numStates);
+    for(State s : tm.getStates()){
+      str = str + (s.getWrite(false)? "1":"0");
+      str = str + (s.getMove(false)? "1":"0");
+      boolean[] zeroTempArr = intToBinary(s.getNextState(false), numBits);
+      for(int i = 0; i < numBits; i++){
+        str = str + (zeroTempArr[i]? "1":"0");
+      }
+      str = str + (s.getWrite(true)? "1":"0");
+      str = str + (s.getMove(true)? "1":"0");
+      boolean[] oneTempArr = intToBinary(s.getNextState(true), numBits);
+      for(int i = 0; i < numBits; i++){
+        str = str + (oneTempArr[i]? "1":"0");
+      }
+    }
+
+    boolean[] bitArray = new boolean[str.length()];
+
+    for(int i = 0; i < str.length(); i++){
+      if(str.charAt(i)=='1'){
+        bitArray[i] = true;
+      }
+      else{
+        bitArray[i] = false;
+      }
+    }
+
+    /*
+    int bitIndex = 0;
+    int bitsForNextState = getNumBitsNeeded(this.numStates);
+    int sizeArray = this.numStates*2*(1+1+bitsForNextState);
+    boolean[] bitArray = new boolean[sizeArray];
+
+    for(State s : tm.getStates()){
+      //Encode instructions for reading zero
+      //Encode write as one bit (using boolean)
+      bitArray[bitIndex] = s.getWrite(false);
+      bitIndex++;
+      //Encode move as one bit
+      bitArray[bitIndex] = s.getMove(false);
+      bitIndex++;
+      //Encode next state as several bits
+      int numBits = getNumBitsNeeded(this.numStates);
+      boolean[] temp = intToBinary(s.getNextState(false), numBits);
+      for(boolean b : temp){
+        bitArray[bitIndex] = b;
+        bitIndex++;
+      }
+      //Encode instructions for reading one
+      //Encode write as one bit
+      bitArray[bitIndex] = s.getWrite(true);
+      bitIndex++;
+      //Encode move as one bit
+      bitArray[bitIndex] = s.getMove(true);
+      bitIndex++;
+      //Encode next state as several bits
+      boolean[] temp2 = intToBinary(s.getNextState(false), numBits);
+      for(boolean b : temp2){
+        bitArray[bitIndex] = b;
+        bitIndex++;
+      }
+    }
+    */
+    return bitArray;
+  }
+
+
 
 
   //Method to translate TuringMachine objects to state transition tables
@@ -213,7 +288,7 @@ public class BusyBeaverPopulation {
   /*
   Helper translation methods
   */
-  private int getNumBitsNeeded(int num){
+  protected int getNumBitsNeeded(int num){
     int numBits = 0;
     while(num > (Math.pow(2,numBits) - 1)){
       numBits++;
@@ -224,18 +299,31 @@ public class BusyBeaverPopulation {
   private boolean[] intToBinary(int num, int numBits){
     boolean[] converted = new boolean[numBits];
     int index = 0;
+    int sum = 0;
     for(int power = numBits - 1; power >= 0; power--){
-      int twoToPower = Math.pow(2,power);
+      int twoToPower = (int)(Math.pow(2,power));
       if((sum + twoToPower) > num){
         converted[index] = false;
       }
       else{
         converted[index] = true;
-        sum = sum + twoToPower
+        sum = sum + twoToPower;
       }
       index++;
     }
     return converted;
+  }
+
+  private int binaryToInt(boolean[] binaryArr){
+    int num = 0;
+    int power = binaryArr.length - 1;
+    for(boolean b : binaryArr){
+      if(b){
+        num = num + (int) Math.pow(2,power);
+      }
+      power--;
+    }
+    return num;
   }
 
 

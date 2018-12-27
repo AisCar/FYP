@@ -9,7 +9,7 @@ public class State {
     instructions[1][0] = readOneWriteOne;
     //instructions[x][1] are which direction to move (true = left, false = right)
     instructions[0][1] = readZeroMoveLeft;
-    instructions[0][1] = readOneMoveLeft;
+    instructions[1][1] = readOneMoveLeft;
     //next state is only instruction that can have more than two values, so use ints.
     this.zeroNextState = zeroNextState;
     this.oneNextState = oneNextState;

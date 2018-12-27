@@ -116,7 +116,6 @@ public class BusyBeaverPopulationTest {
     }
     State s1 = tm1.getStates().get(0);
     State s2 = tm2.getStates().get(0);
-
 /*
     assertEquals(s1.getWrite(false), s2.getWrite(false));
     assertEquals(s1.getWrite(true), s2.getWrite(true));
@@ -124,8 +123,18 @@ public class BusyBeaverPopulationTest {
     assertEquals(s1.getMove(true), s2.getMove(true));
     assertEquals(s1.getNextState(false), s2.getNextState(false));
     assertEquals(s1.getNextState(true), s2.getNextState(true));
-*/
+    */
+  }
 
+  @Test
+  public void testGetNumBits(){
+    //System.out.println("\ntestGetNumBits");
+    BusyBeaverPopulation bbpop = new BusyBeaverPopulation(1,1);
+    assertEquals(1, bbpop.getNumBitsNeeded(1));
+    assertEquals(2, bbpop.getNumBitsNeeded(2));
+    assertEquals(3, bbpop.getNumBitsNeeded(4));
+    assertEquals(3, bbpop.getNumBitsNeeded(7));
+    assertEquals(4, bbpop.getNumBitsNeeded(8));
   }
 
   /*
