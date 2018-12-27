@@ -4,7 +4,10 @@ import java.util.BitSet;
 public class GeneticAlgorithm {
   private double mutationRate, crossoverRate;
   private ArrayList<TuringMachine> population;
-  private BusyBeaverPopulation pop;
+  //private BusyBeaverPopulation pop;
+  private PopulationGenerator pop;
+  private Translator translator;
+
 
   /*
     Constructors
@@ -15,16 +18,18 @@ public class GeneticAlgorithm {
    }
 
   public GeneticAlgorithm(int populationSize, int numStates){//keep? remove?
-    pop = new BusyBeaverPopulation(numStates, populationSize);
+    pop = new PopulationGenerator(numStates, populationSize);
     population = pop.getPopulation();
+    translator = new Translator(numStates);
     crossoverRate = 0.5;
     mutationRate = 0.01;
     //run();
   }
 
   public GeneticAlgorithm(int populationSize, int numStates, double crossoverRate, double mutationRate){
-    pop = new BusyBeaverPopulation(numStates, populationSize);
+    pop = new PopulationGenerator(numStates, populationSize);
     population = pop.getPopulation();
+    translator = new Translator(numStates);
     this.crossoverRate = crossoverRate;
     this.mutationRate = mutationRate;
     //run();
@@ -66,8 +71,7 @@ public class GeneticAlgorithm {
     //Perform elitist selection
     //TODO
 
-    //Update the population in population manager
-    this.pop.setPopulation(nextGeneration);
+    //Update the population
     population = nextGeneration;
     */
   }
@@ -99,8 +103,8 @@ public class GeneticAlgorithm {
     ArrayList<boolean[]> temp2 = new ArrayList<boolean[]>();
 
     for(int i = 0; i < numParents; i += 2){
-      boolean[] parent1 = pop.toBitArray(temp.get(i));
-      boolean[] parent2 = pop.toBitArray(temp.get(i+1));
+      boolean[] parent1 = this.translator.toBitArray(temp.get(i));
+      boolean[] parent2 = this.translator.toBitArray(temp.get(i+1));
       //temp2.addAll
       boolean[][] children = crossoverSingle(parent1,parent2);
       temp2.add(children[0]);
@@ -149,7 +153,7 @@ public class GeneticAlgorithm {
       for(boolean[] bitArray : bitMachines){
         boolean[] mutatedBitArray = mutateSingle(bitArray);
         //TODO validation - here or there?
-        TuringMachine mutatedTuringMachine = pop.toTuringMachine(mutatedBitArray);
+        TuringMachine mutatedTuringMachine = translator.toTuringMachine(mutatedBitArray);
         machines.add(mutatedTuringMachine);
       }
     }
