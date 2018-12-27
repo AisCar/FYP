@@ -81,30 +81,32 @@ public class TranslatorTest {
   @Test
   public void testTuringMachineToBitArrayAndBack(){
     System.out.println("\ntestTuringMachineToBitArrayAndBack");
-
+    //Create a TuringMachine
     for(String str : this.t.toStateTransitionTable(this.tm)){
       System.out.println(str);
     }
+    //Convert it to a binary array
     boolean[] bitArray = this.t.toBitArray(this.tm);
     String binaryStr = "Binary chromosome representation: ";
     for(boolean b : bitArray){
       binaryStr = binaryStr + (b?"1":"0");
     }
     System.out.println(binaryStr);
+    //Convert it back to a TuringMachine
     TuringMachine tm2 = this.t.toTuringMachine(bitArray);
     for(String str : this.t.toStateTransitionTable(tm2)){
       System.out.println(str);
     }
+
+    //Confirm that twice translated TuringMachine is identical to original
     State s1 = this.tm.getStates().get(0);
     State s2 = tm2.getStates().get(0);
-
     assertEquals(s1.getWrite(false), s2.getWrite(false));
     assertEquals(s1.getWrite(true), s2.getWrite(true));
     assertEquals(s1.getMove(false), s2.getMove(false));
     assertEquals(s1.getMove(true), s2.getMove(true));
     assertEquals(s1.getNextState(false), s2.getNextState(false));
     assertEquals(s1.getNextState(true), s2.getNextState(true));
-
   }
 
   @Test

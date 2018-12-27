@@ -71,39 +71,6 @@ public class Translator {
 
   //Method to translate a TuringMachine object into a bit array
   public boolean[] toBitArray(TuringMachine tm){
-    //Temporary bug fix so that I can focus elsewhere and come back to this
-    //(If it's dumb, but it works...)
-    //TODO fix issues with original version (commented out below)
-    String str = "";
-    int numBits = getNumBitsNeeded(this.numStates);
-    for(State s : tm.getStates()){
-      str = str + (s.getWrite(false)? "1":"0");
-      str = str + (s.getMove(false)? "1":"0");
-      boolean[] zeroTempArr = intToBinary(s.getNextState(false), numBits);
-      for(int i = 0; i < numBits; i++){
-        str = str + (zeroTempArr[i]? "1":"0");
-      }
-      str = str + (s.getWrite(true)? "1":"0");
-      str = str + (s.getMove(true)? "1":"0");
-      boolean[] oneTempArr = intToBinary(s.getNextState(true), numBits);
-      for(int i = 0; i < numBits; i++){
-        str = str + (oneTempArr[i]? "1":"0");
-      }
-    }
-
-    boolean[] bitArray = new boolean[str.length()];
-
-    for(int i = 0; i < str.length(); i++){
-      if(str.charAt(i)=='1'){
-        bitArray[i] = true;
-      }
-      else{
-        bitArray[i] = false;
-      }
-    }
-
-    //Old code - TODO fix the bug (read1goToState is zero when it shouldnt be)
-    /*
     int bitIndex = 0;
     int bitsForNextState = getNumBitsNeeded(this.numStates);
     int sizeArray = this.numStates*2*(1+1+bitsForNextState);
@@ -132,13 +99,12 @@ public class Translator {
       bitArray[bitIndex] = s.getMove(true);
       bitIndex++;
       //Encode next state as several bits
-      boolean[] temp2 = intToBinary(s.getNextState(false), numBits);
+      boolean[] temp2 = intToBinary(s.getNextState(true), numBits);
       for(boolean b : temp2){
         bitArray[bitIndex] = b;
         bitIndex++;
       }
     }
-    */
     return bitArray;
   }
 
