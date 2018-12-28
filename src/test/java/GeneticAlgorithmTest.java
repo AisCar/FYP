@@ -2,6 +2,7 @@ import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
 
 public class GeneticAlgorithmTest {
   GeneticAlgorithm ga;
@@ -28,7 +29,7 @@ public class GeneticAlgorithmTest {
 
   @Test
   public void crossoverTest(){
-    //TODO - this isnt an actual test, really
+    System.out.println("\ncrossoverTest");
     boolean[] parent1 = {true, true, true, true, true, true};
     boolean[] parent2 = {false, false, false, false, false, false};
     boolean[][] children = this.ga.crossoverSingle(parent1, parent2);
@@ -62,10 +63,21 @@ public class GeneticAlgorithmTest {
       }
     }
 
-    //if(p1 != null && p2 != null && c1 != null && c2 != null)
     System.out.println("Parent Chromosomes: " + p1 + " " + p2);
     System.out.println("Child Chromosomes: " + c1 + " " + c2);
     assertTrue(crossedOver);
+
+  }
+
+  @Test
+  public void testSelection(){
+    //generate 10 1-state TuringMachines
+    GeneticAlgorithm ga2 = new GeneticAlgorithm(10, 1);
+    //select 4 of them
+    ArrayList<TuringMachine> selected = ga2.select(4);
+    //TODO make test better
+    assertEquals(4, selected.size());
+    assertTrue(!selected.get(0).equals(selected.get(1))); //could coincidentally be same
 
   }
 

@@ -1,10 +1,9 @@
 import java.util.ArrayList;
-import java.util.BitSet;
+import java.util.Collections;
 
 public class GeneticAlgorithm {
   private double mutationRate, crossoverRate;
   private ArrayList<TuringMachine> population;
-  //private BusyBeaverPopulation pop;
   private PopulationGenerator pop;
   private Translator translator;
 
@@ -57,8 +56,6 @@ public class GeneticAlgorithm {
   Method to create next generation of Turing Machines using crossover, mutation
   */
   protected void nextGeneration(){
-    //Need to implement other methods first, will look like:
-    /*
     //Sort current population by fitness (descending)
     Collections.sort(population);
 
@@ -69,11 +66,13 @@ public class GeneticAlgorithm {
     nextGeneration.addAll(mutation());
 
     //Perform elitist selection
-    //TODO
+    double elitismRate = 0.2;
+    int numElite = (int) (population.size() * elitismRate);
+    nextGeneration.addAll(population.subList(0, numElite));
 
     //Update the population
     population = nextGeneration;
-    */
+
   }
 
   /*
@@ -82,11 +81,7 @@ public class GeneticAlgorithm {
 
   protected int calculateFitness(TuringMachine busyBeaver){
       int score = busyBeaver.getScore();
-      /*
-      Future considerations: Bringing S(n) into the fitness function instead of
-      saying "Fitness = Sigma(n)"
-      But for now, fitness = Busy Beaver Function Sigma(n)
-      */
+      //Could make this more complicated but for now is fine
       return score;
   }
 
@@ -99,7 +94,7 @@ public class GeneticAlgorithm {
     }
 
     ArrayList<TuringMachine> temp = new ArrayList<TuringMachine>();
-    temp.addAll(select(numParents));//Note: Not yet implemented
+    temp.addAll(select(numParents));
     ArrayList<boolean[]> temp2 = new ArrayList<boolean[]>();
 
     for(int i = 0; i < numParents; i += 2){
@@ -171,9 +166,43 @@ public class GeneticAlgorithm {
    }
 
    public ArrayList<TuringMachine> select(int numToSelect){
-     ArrayList<TuringMachine> selected = new ArrayList<TuringMachine>();
-     //TODO
+     /*
+     Create an array of cumulative selection probability upperbounds where the
+     first element is k times more likely than the last to be chosen
+     Each interval has size (j/denominator) for j descending in range (1, k)
+     */
+     int k = population.size();
+     int denominator = 0;
+     for(int i = k; i > 0; i--){
+       denominator += i;
+     }
 
+     double[] selectionProbs = new double[population.size()];
+
+     if(denominator != 0){
+       double cumulativeProbability = 0.0;
+       for(int i = 0; i < population.size(); i++){
+         double interval = ((float) k) / denominator;
+         cumulativeProbability += interval;
+         selectionProbs[i] = cumulativeProbability;
+         k--;
+       }
+     }
+
+     //finally select numToSelect TuringMachines and return them in an ArrayList
+     ArrayList<TuringMachine> selected = new ArrayList<TuringMachine>();
+     double rand;
+     while(selected.size() < numToSelect){
+       rand = Math.random();
+       //find the TuringMachine corresponding to rand
+       for(int i = 0; i < selectionProbs.length; i++){
+         if(rand <= selectionProbs[i]){
+           //Add the corresponding TM to the arraylist
+           selected.add(population.get(i));
+           break; //out of for loop, not while
+         }
+       }
+     }
      return selected;
    }
 
@@ -198,6 +227,10 @@ public class GeneticAlgorithm {
 
   public void setCrossoverRate(float crossoverRate){
     this.crossoverRate = crossoverRate;
+  }
+
+  public ArrayList<TuringMachine> getPopulation(){//same name as method in PopulationGenerator ... should rename?
+    return this.population;
   }
 
 }

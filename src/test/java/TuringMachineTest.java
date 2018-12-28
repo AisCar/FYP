@@ -6,7 +6,7 @@ import java.util.Collections;
 public class TuringMachineTest {
 
   @Test
-  public void TestOneStateBusyBeaver(){
+  public void testOneStateBusyBeaver(){
     State state = new State(true, true, 0, true, true, 0);
     ArrayList<State> states = new ArrayList<State>();
     states.add(state);
