@@ -41,14 +41,12 @@ public class GeneticAlgorithm {
     public void run(){
       int numGenerations = 10; //To start with - TODO max num generations and solution convergence
       for(int i = 0; i < numGenerations; i++){
-        for(TuringMachine busyBeaver : population){
+        for(TuringMachine busyBeaver : population){//TODO don't rerun TuringMachines carried over and already run
           busyBeaver.run();
-          //int score = busyBeaver.getScore();
-          int fitness = calculateFitness(busyBeaver);//what was I doing here?
         }
         nextGeneration();
       }
-      //TODO
+      //TODO - proper convergence
   }
 
 
@@ -85,27 +83,30 @@ public class GeneticAlgorithm {
       return score;
   }
 
+
   protected ArrayList<TuringMachine> crossover(){
-    //TODO come back to this once select is implemented
     ArrayList<TuringMachine> machines = new ArrayList<TuringMachine>();
+
+    //Select parent TuringMachines
+    ArrayList<TuringMachine> parents = new ArrayList<TuringMachine>();
     int numParents = (int)(population.size()*crossoverRate);
     if(numParents % 2 != 0) { //need an even number of parents
       numParents++;
     }
-
-    ArrayList<TuringMachine> temp = new ArrayList<TuringMachine>();
-    temp.addAll(select(numParents));
-    ArrayList<boolean[]> temp2 = new ArrayList<boolean[]>();
+    parents.addAll(select(numParents));
 
     for(int i = 0; i < numParents; i += 2){
-      boolean[] parent1 = this.translator.toBitArray(temp.get(i));
-      boolean[] parent2 = this.translator.toBitArray(temp.get(i+1));
-      //temp2.addAll
-      boolean[][] children = crossoverSingle(parent1,parent2);
-      temp2.add(children[0]);
-      temp2.add(children[1]);
-    }
+      //Encode pairs of TuringMachines as binary chromosomes
+      boolean[] parent1 = this.translator.toBitArray(parents.get(i));
+      boolean[] parent2 = this.translator.toBitArray(parents.get(i+1));
 
+      //Perform crossover on the pair, get 2 child chromosomes
+      boolean[][] children = crossoverSingle(parent1,parent2);
+
+      //Decode new chromosomes and add to ArrayList
+      machines.add(this.translator.toTuringMachine(children[0]));
+      machines.add(this.translator.toTuringMachine(children[1]));
+    }
     return machines;
   }
 
@@ -129,26 +130,32 @@ public class GeneticAlgorithm {
       child2[i] = parent1[i];
     }
 
-    //TODO: Validation and repairs
+    if(!isValidChromosome(child1)){
+      child1 = repair(child1);
+    }
+    if(!isValidChromosome(child2)){
+      child2 = repair(child2);
+    }
 
     boolean[][] children = {child1, child2};
     return children;
   }
 
+
   protected ArrayList<TuringMachine> mutation(){
-    //TODO come back to this once select is implemented
     ArrayList<TuringMachine> machines = new ArrayList<TuringMachine>();
-    //Select TuringMachines from current population using mutationRate
     int numToMutate = (int) (population.size() * mutationRate);
+
     if(numToMutate != 0){
-      ArrayList<TuringMachine> temp = select(numToMutate);//TODO implement select
-      //Translate them to bit arrays
-      ArrayList<boolean[]> bitMachines = new ArrayList<boolean[]>();
-      //mutate the bit arrays
-      for(boolean[] bitArray : bitMachines){
-        boolean[] mutatedBitArray = mutateSingle(bitArray);
-        //TODO validation - here or there?
+      //select TuringMachines from the population to mutate
+      ArrayList<TuringMachine> selectedForMutation = select(numToMutate);
+      for(TuringMachine tm : selectedForMutation){
+        //encode, mutate and decode each selected TuringMachine
+        boolean[] encodedChromosome = translator.toBitArray(tm);
+        boolean[] mutatedBitArray = mutateSingle(encodedChromosome);
         TuringMachine mutatedTuringMachine = translator.toTuringMachine(mutatedBitArray);
+
+        //add mutated result to list of TuringMachines that the method returns
         machines.add(mutatedTuringMachine);
       }
     }
@@ -162,8 +169,12 @@ public class GeneticAlgorithm {
         child[i] = parent[i];
       }
       child[geneToMutate] = !parent[geneToMutate];
+      if(!isValidChromosome(child)){
+        child = repair(child);
+      }
       return child;
    }
+
 
    public ArrayList<TuringMachine> select(int numToSelect){
      /*
@@ -211,10 +222,23 @@ public class GeneticAlgorithm {
    method to repair new Turing Machines that are invalid
   */
 
-   protected void repair(ArrayList<boolean[]> turingMachine){//population){
+   protected boolean[] repair(boolean[] chromosome){
      //TODO
+     //no halt condition -> introduce one somewhere (Where??)
      //next state num could be > num states - modify to fix
      //any other issues?
+     return chromosome; //to prevent compilation errors
+   }
+
+   protected boolean isValidChromosome(boolean[] chromosome){
+     //TODO
+     /*
+     Potential invalid chromosomes (that we can detect):
+     - have no halt condition
+     - nextState > numStates
+     - ???
+     */
+     return true; //to prevent compilation errors
    }
 
 

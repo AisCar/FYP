@@ -78,12 +78,25 @@ public class GeneticAlgorithmTest {
     //TODO make test better
     assertEquals(4, selected.size());
     assertTrue(!selected.get(0).equals(selected.get(1))); //could coincidentally be same
-
   }
 
-  //TODO test the other crossover and mutation methods once select is implemented
-  //TODO test and implement select and nextGeneration
 
-
+  @Test
+  public void testNextGeneration(){
+    System.out.println("\ntestNextGeneration");
+    GeneticAlgorithm ga2 = new GeneticAlgorithm(10, 1);
+    ArrayList<TuringMachine> initialPop = ga2.getPopulation();
+    for(TuringMachine tm : initialPop){
+      System.out.println(tm);
+    }
+    System.out.println("-----");
+    ga2.nextGeneration(); //note TuringMachines arent run so sorting is pointless
+    ArrayList<TuringMachine> nextPop = ga2.getPopulation();
+    for(TuringMachine tm : nextPop){
+      System.out.println(tm);
+    }
+    //This isn't really a proper test but I'm satisifed just for now
+    //TODO more exhaustive tests
+  }
 
 }
