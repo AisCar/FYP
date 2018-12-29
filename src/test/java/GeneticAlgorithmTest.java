@@ -77,7 +77,7 @@ public class GeneticAlgorithmTest {
     ArrayList<TuringMachine> selected = ga2.select(4);
     //TODO make test better
     assertEquals(4, selected.size());
-    assertTrue(!selected.get(0).equals(selected.get(1))); //could coincidentally be same
+    //assertTrue(!selected.get(0).equals(selected.get(1))); //could coincidentally be same
   }
 
 

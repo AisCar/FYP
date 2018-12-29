@@ -42,7 +42,9 @@ public class GeneticAlgorithm {
       int numGenerations = 10; //To start with - TODO max num generations and solution convergence
       for(int i = 0; i < numGenerations; i++){
         for(TuringMachine busyBeaver : population){//TODO don't rerun TuringMachines carried over and already run
-          busyBeaver.run();
+          if(!busyBeaver.previouslyRun()){
+            busyBeaver.run();
+          }
         }
         nextGeneration();
       }

@@ -4,6 +4,8 @@ public class TuringMachine implements Comparable<TuringMachine> {
   int score;
   int shifts;
   ArrayList<State> states;
+  boolean notHalting;
+  boolean hasRun;
 
 
   /*
@@ -14,6 +16,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
     shifts = 0;
     score = 0;
     this.states = states;
+    hasRun = false;
     //Validation should have already taken place somewhere
     //run(states);
   }
@@ -35,9 +38,11 @@ public class TuringMachine implements Comparable<TuringMachine> {
     int stateNum = 1;
     shifts = 0;//redundant unless we decide to run twice
     score = 0;
+    notHalting = true;
+    hasRun = true;
 
     //For now: halt after 1million shifts (or reach halt condition)- may change later
-    while(true && shifts < 1000000000){ //remember: max int = 2,147,483,647
+    while(notHalting && shifts < 1000000000){ //remember: max int = 2,147,483,647
       //If read one from tape
       if(currentCell.readOne()){
         //write
@@ -49,7 +54,10 @@ public class TuringMachine implements Comparable<TuringMachine> {
         shifts++;
         //next state
         stateNum = currentState.getNextState(true);
-        if(stateNum == 0) break; //check if halting
+        if(stateNum == 0) { //check if halting
+          notHalting = false;
+          break;
+        }
         currentState = states.get(stateNum-1);
       }
       //If read zero from tape
@@ -63,10 +71,17 @@ public class TuringMachine implements Comparable<TuringMachine> {
         shifts++;
         //next state
         stateNum = currentState.getNextState(false);
-        if(stateNum == 0) break; //check if halting
+        if(stateNum == 0) { //check if halting
+          notHalting = false;
+          break;
+        }
         currentState = states.get(stateNum-1);
       }
     }//End while
+
+    if(notHalting){
+      score = -1;
+    }
     //System.out.println("Score: " + score + " Shifts: " + shifts);
   }
 
@@ -104,6 +119,15 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
   public ArrayList<State> getStates(){
     return states;
+  }
+
+  public boolean previouslyRun(){
+    return hasRun;
+  }
+
+  //Note: do not use this unless wasAlreadyRun returns true
+  public boolean isHalting(){
+    return !notHalting;
   }
 
 
