@@ -16,6 +16,42 @@ public class TuringMachineTest {
     assertEquals(1, tm.getShifts());
   }
 
+  @Test
+  public void testTwoStateBusyBeaver(){
+    ArrayList<State> states = new ArrayList<State>();
+    states.add(new State(true, false, 2, true, true, 2));
+    states.add(new State(true, true, 1, true, true, 0));
+    TuringMachine tm = new TuringMachine(states);
+    tm.run();
+    assertEquals(4, tm.getScore());
+    assertEquals(6, tm.getShifts());
+  }
+
+  @Test
+  public void testThreeStateBusyBeaver(){
+    ArrayList<State> states = new ArrayList<State>();
+    states.add(new State(true, false, 2, true, false, 0));
+    states.add(new State(false, false, 3, true, false, 2));
+    states.add(new State(true, true, 3, true, true, 1));
+    TuringMachine tm = new TuringMachine(states);
+    tm.run();
+    assertEquals(6, tm.getScore());
+    assertEquals(14, tm.getShifts());
+  }
+
+  @Test
+  public void testFourStateBusyBeaver(){
+    ArrayList<State> states = new ArrayList<State>();
+    states.add(new State(true, false, 2, true, true, 2));
+    states.add(new State(true, true, 1, false, true, 3));
+    states.add(new State(true, false, 0, true, true, 4));
+    states.add(new State(true, false, 4, false, false, 1));
+    TuringMachine tm = new TuringMachine(states);
+    tm.run();
+    assertEquals(13, tm.getScore());
+    assertEquals(107, tm.getShifts());
+  }
+
   //TODO: 2, 3, 4 state Busy Beavers
 
   //TODO: non-halting Busy Beaver(s)
