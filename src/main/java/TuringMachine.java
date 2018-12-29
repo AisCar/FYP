@@ -42,7 +42,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
     hasRun = true;
 
     //For now: halt after 1million shifts (or reach halt condition)- may change later
-    while(notHalting && shifts < 1000000000){ //remember: max int = 2,147,483,647
+    while(notHalting && shifts < 1000){//1000000000){ //remember: max int = 2,147,483,647 //TODO uncomment once tests run
       //If read one from tape
       if(currentCell.readOne()){
         //write

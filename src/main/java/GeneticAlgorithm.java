@@ -21,7 +21,7 @@ public class GeneticAlgorithm {
     population = pop.getPopulation();
     translator = new Translator(numStates);
     crossoverRate = 0.5;
-    mutationRate = 0.01;
+    mutationRate = 0.05;
     //run();
   }
 
@@ -41,12 +41,20 @@ public class GeneticAlgorithm {
     public void run(){
       int numGenerations = 10; //To start with - TODO max num generations and solution convergence
       for(int i = 0; i < numGenerations; i++){
-        for(TuringMachine busyBeaver : population){//TODO don't rerun TuringMachines carried over and already run
+        //Run every TuringMachine (that hasnt already been run) in the current population
+        for(TuringMachine busyBeaver : population){
           if(!busyBeaver.previouslyRun()){
             busyBeaver.run();
           }
         }
-        nextGeneration();
+        //If running another generation, create that population
+        if(i != numGenerations-1){
+          nextGeneration();
+        }
+        //If not, sort the population by fitness for easier results parsing
+        else{
+          Collections.sort(population);
+        }
       }
       //TODO - proper convergence
   }
@@ -66,7 +74,7 @@ public class GeneticAlgorithm {
     nextGeneration.addAll(mutation());
 
     //Perform elitist selection
-    double elitismRate = 0.2;
+    double elitismRate = 0.3;
     int numElite = (int) (population.size() * elitismRate);
     nextGeneration.addAll(population.subList(0, numElite));
 

@@ -99,4 +99,20 @@ public class GeneticAlgorithmTest {
     //TODO more exhaustive tests
   }
 
+  @Test
+  public void testRun(){
+    //Definitely do not run this once run allows more than 10 generations
+
+    GeneticAlgorithm bigGA = new GeneticAlgorithm(60, 3); //30 2-state TMs
+    ArrayList<TuringMachine> initialPop = bigGA.getPopulation();
+    bigGA.run();
+    ArrayList<TuringMachine> finalPop = bigGA.getPopulation();
+    System.out.println("\ntestRun\nRan 10 generations\n");
+    System.out.println("Population size: " + initialPop.size() + " -> " + finalPop.size());
+    TuringMachine someTM = finalPop.get(0);
+
+    System.out.println("Best score: " + finalPop.get(0).getScore());
+
+  }
+
 }

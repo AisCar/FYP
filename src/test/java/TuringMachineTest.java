@@ -52,8 +52,6 @@ public class TuringMachineTest {
     assertEquals(107, tm.getShifts());
   }
 
-  //TODO: 2, 3, 4 state Busy Beavers
-
   //TODO: non-halting Busy Beaver(s)
 
   @Test
