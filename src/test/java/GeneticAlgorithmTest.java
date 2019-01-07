@@ -115,4 +115,26 @@ public class GeneticAlgorithmTest {
 
   }
 
+  @Test
+  public void testRepair(){
+    System.out.println("\ntestRepair");
+    GeneticAlgorithm ga2 = new GeneticAlgorithm(1, 4);
+    //set next state to 5 (101) and 7 (111)
+    boolean[] gene = {true, false, true, false, true, false, true, true, true, true};
+    //add same gene to chromosome 4 times (4 states are identical)
+    boolean[] chromosome = new boolean[(4*gene.length)];
+    for(int i = 0; i < (4*gene.length); i++){
+      chromosome[i] = gene[i % gene.length];
+    }
+
+    //repair the chromosome
+    chromosome = ga2.repair(chromosome);
+
+    System.out.println("Old\tNew");
+    for(int i = 0; i < gene.length; i++){
+      System.out.println(gene[i] + "\t" + chromosome[i]);
+    }
+    //TODO asserts etc
+  }
+
 }

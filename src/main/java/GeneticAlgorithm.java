@@ -6,6 +6,7 @@ public class GeneticAlgorithm {
   private ArrayList<TuringMachine> population;
   private PopulationGenerator pop;
   private Translator translator;
+  private int numStates;
 
 
   /*
@@ -18,6 +19,7 @@ public class GeneticAlgorithm {
     translator = new Translator(numStates);
     crossoverRate = 0.5;
     mutationRate = 0.05;
+    this.numStates = numStates;
     //run();
   }
 
@@ -136,12 +138,8 @@ public class GeneticAlgorithm {
       child2[i] = parent1[i];
     }
 
-    if(!isValidChromosome(child1)){
-      child1 = repair(child1);
-    }
-    if(!isValidChromosome(child2)){
-      child2 = repair(child2);
-    }
+    child1 = repair(child1);
+    child2 = repair(child2);
 
     boolean[][] children = {child1, child2};
     return children;
@@ -175,9 +173,8 @@ public class GeneticAlgorithm {
         child[i] = parent[i];
       }
       child[geneToMutate] = !parent[geneToMutate];
-      if(!isValidChromosome(child)){
-        child = repair(child);
-      }
+
+      child = repair(child);
       return child;
    }
 
@@ -229,23 +226,72 @@ public class GeneticAlgorithm {
   */
 
    protected boolean[] repair(boolean[] chromosome){
-     //TODO
-     //no halt condition -> introduce one somewhere (Where??)
-     //next state num could be > num states - modify to fix
-     //any other issues?
+     int numBitsForNextState = translator.getNumBitsNeeded(numStates);
+     int geneLength = 4 + (2 * numBitsForNextState);
+     boolean haltConditionExists = false;
+     boolean[] nextStateBinary = new boolean[numBitsForNextState];
+     int nextStateInt;
+     int index;
+
+     //loop through every gene (state) in the chromosome (TuringMachine)
+     for(int i = 0; i < (chromosome.length); i+= geneLength){
+       //move and write can't be wrong - only repair nextState sections
+
+       //check that next state is in valid range when reading zero
+       index = i + 2;
+       for(int j = 0; j < numBitsForNextState; j++){
+         nextStateBinary[j] = chromosome[index];
+         index++;
+       }
+       nextStateInt = translator.binaryToInt(nextStateBinary);
+       if(nextStateInt > numStates){
+         //if not in valid range, change the value of nextStateInt
+         nextStateInt = nextStateInt % numStates;
+         //System.out.println("Debug: (new value = " + nextStateInt +")");
+         boolean[] validNextState = translator.intToBinary(nextStateInt, numBitsForNextState);
+         //update corresponding section of chromosome
+         index = i + 2;
+         for(int j = 0; j < numBitsForNextState; j++){
+           chromosome[index] = validNextState[j];
+           index++;
+         }
+       }
+       if(nextStateInt == 0){
+         haltConditionExists = true;
+       }
+
+       //check that next state is in valid range when reading one
+       index = i + (geneLength - numBitsForNextState);
+       for(int j = 0; j < numBitsForNextState; j++){
+         nextStateBinary[j] = chromosome[index];
+         index++;
+       }
+       nextStateInt = translator.binaryToInt(nextStateBinary);
+       if(nextStateInt > numStates){
+         //if not in valid range, change the value of nextStateInt
+         nextStateInt = nextStateInt % numStates;
+         boolean[] validNextState = translator.intToBinary(nextStateInt, numBitsForNextState);
+         //update corresponding section of chromosome
+         index = i + (geneLength - numBitsForNextState);
+         for(int j = 0; j < numBitsForNextState; j++){
+           chromosome[index] = validNextState[j];
+           index++;
+         }
+
+       }
+       if(nextStateInt == 0){
+         haltConditionExists = true;
+       }
+     }//end for loop through all chromosome bits
+
+     //check that a halt condition exists (if not, insert one)
+     if(!haltConditionExists){
+       //TODO introduce one randomly
+     }
+
      return chromosome; //to prevent compilation errors
    }
 
-   protected boolean isValidChromosome(boolean[] chromosome){
-     //TODO
-     /*
-     Potential invalid chromosomes (that we can detect):
-     - have no halt condition
-     - nextState > numStates
-     - ???
-     */
-     return true; //to prevent compilation errors
-   }
 
 
   /*

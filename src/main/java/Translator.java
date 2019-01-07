@@ -145,7 +145,7 @@ public class Translator {
     return numBits;
   }
 
-  private boolean[] intToBinary(int num, int numBits){
+  protected boolean[] intToBinary(int num, int numBits){
     boolean[] converted = new boolean[numBits];
     int index = 0;
     int sum = 0;
@@ -163,7 +163,7 @@ public class Translator {
     return converted;
   }
 
-  private int binaryToInt(boolean[] binaryArr){
+  public int binaryToInt(boolean[] binaryArr){
     int num = 0;
     int power = binaryArr.length - 1;
     for(boolean b : binaryArr){
