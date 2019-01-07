@@ -12,10 +12,6 @@ public class GeneticAlgorithm {
     Constructors
    */
 
-   protected GeneticAlgorithm(){
-     //Constructor for tests only - will update later TODO
-   }
-
   public GeneticAlgorithm(int populationSize, int numStates){//keep? remove?
     pop = new PopulationGenerator(numStates, populationSize);
     population = pop.getPopulation();

@@ -9,7 +9,7 @@ public class GeneticAlgorithmTest {
 
   @Before
   public void initialise(){
-    ga = new GeneticAlgorithm();
+    ga = new GeneticAlgorithm(1,1);
   }
 
   @Test
