@@ -37,7 +37,7 @@ public class GeneticAlgorithm {
   */
 
     public void run(){
-      int numGenerations = 10; //To start with - TODO max num generations and solution convergence
+      int numGenerations = 10000; //To start with - TODO max num generations and solution convergence
       for(int i = 0; i < numGenerations; i++){
         //Run every TuringMachine (that hasnt already been run) in the current population
         for(TuringMachine busyBeaver : population){

@@ -101,9 +101,15 @@ public class GeneticAlgorithmTest {
 
   @Test
   public void testRun(){
-    //Definitely do not run this once run allows more than 10 generations
+    /*
+    Temporary test: See if GA successfully evolves 2, 3, 4 state machines with highest state Busy Beaver Score
+    Known high scores:
+    2-state:
+    3-state: 6 (success!)
+    4-state: 13 (still working on it...)
+     */
 
-    GeneticAlgorithm bigGA = new GeneticAlgorithm(60, 3); //30 2-state TMs
+    GeneticAlgorithm bigGA = new GeneticAlgorithm(200, 4); //change this line as needed
     ArrayList<TuringMachine> initialPop = bigGA.getPopulation();
     bigGA.run();
     ArrayList<TuringMachine> finalPop = bigGA.getPopulation();
