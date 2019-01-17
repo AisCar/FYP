@@ -109,11 +109,11 @@ public class GeneticAlgorithmTest {
     4-state: 13 (still working on it...)
      */
 
-    GeneticAlgorithm bigGA = new GeneticAlgorithm(200, 4); //change this line as needed
+    GeneticAlgorithm bigGA = new GeneticAlgorithm(250, 4); //change this line as needed
     ArrayList<TuringMachine> initialPop = bigGA.getPopulation();
     bigGA.run();
     ArrayList<TuringMachine> finalPop = bigGA.getPopulation();
-    System.out.println("\ntestRun\nRan 10 generations\n");
+    System.out.println("\ntestRun\n");
     System.out.println("Population size: " + initialPop.size() + " -> " + finalPop.size());
     TuringMachine someTM = finalPop.get(0);
 
