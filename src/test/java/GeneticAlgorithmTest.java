@@ -109,7 +109,23 @@ public class GeneticAlgorithmTest {
     4-state: 13 (still working on it...)
      */
 
-    GeneticAlgorithm bigGA = new GeneticAlgorithm(250, 4); //change this line as needed
+    //ok run 4 overnight, see how goes.
+    ArrayList<TuringMachine> best = new ArrayList<TuringMachine>();
+    for(int i = 0; i < 4; i++){
+      GeneticAlgorithm bigGA = new GeneticAlgorithm(200, 4);
+      bigGA.run();
+      best.add(bigGA.getPopulation().get(0));
+    }
+    //TODO print out TMs, not just their scores
+    int j = 0;
+    for(TuringMachine tm : best){
+      System.out.println("Best score " + j + ": " + tm.getScore());
+      j++;
+    }
+
+
+/*
+    GeneticAlgorithm bigGA = new GeneticAlgorithm(200, 4); //change this line as needed
     ArrayList<TuringMachine> initialPop = bigGA.getPopulation();
     bigGA.run();
     ArrayList<TuringMachine> finalPop = bigGA.getPopulation();
@@ -118,6 +134,7 @@ public class GeneticAlgorithmTest {
     TuringMachine someTM = finalPop.get(0);
 
     System.out.println("Best score: " + finalPop.get(0).getScore());
+    */
 
   }
 

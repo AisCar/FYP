@@ -7,6 +7,7 @@ public class GeneticAlgorithm {
   private PopulationGenerator pop;
   private Translator translator;
   private int numStates;
+  private int numGenerations;
 
 
   /*
@@ -17,9 +18,10 @@ public class GeneticAlgorithm {
     pop = new PopulationGenerator(numStates, populationSize);
     population = pop.getPopulation();
     translator = new Translator(numStates);
-    crossoverRate = 0.5;
-    mutationRate = 0.05;
+    crossoverRate = 0.6;
+    mutationRate = 0.1;
     this.numStates = numStates;
+    numGenerations = 0;
     //run();
   }
 
@@ -29,6 +31,7 @@ public class GeneticAlgorithm {
     translator = new Translator(numStates);
     this.crossoverRate = crossoverRate;
     this.mutationRate = mutationRate;
+    numGenerations = 0;
     //run();
   }
 
@@ -37,10 +40,15 @@ public class GeneticAlgorithm {
   */
 
     public void run(){
-      int numGenerations = 1500; //To start with - TODO max num generations and solution convergence
-      for(int i = 0; i < numGenerations; i++){
-        if(i % 1000 == 0){
-          System.out.println("Running generation " + i + "...");// (best score: " + this.population.get(0).getScore() + ")");
+      numGenerations = 0;
+      int score = 0;
+      //int i = 0;
+      int increaseGen = 0;
+      while(score < 13 && numGenerations < 21470000){//2147000000){ //max int value = 2147483647 anyway so this is a good cutoff point
+        //however, at this rate that will take like 500 hours...
+        //aim for like 12? or 6? Want to run multiple in one night. Can increase if doesnt work.
+        if(numGenerations % 1000 == 0){
+          //System.out.println("Running generation " + numGenerations + "...");
         }
         //Run every TuringMachine (that hasnt already been run) in the current population
         for(TuringMachine busyBeaver : population){
@@ -48,16 +56,51 @@ public class GeneticAlgorithm {
             busyBeaver.run();
           }
         }
+
+        Collections.sort(population); //TODO remove this from elsewhere in thi s method and nextGen
+
+        TuringMachine tm = this.population.get(0);
+        int currBestScore = tm.getScore();
+        if(currBestScore > score){
+          score = currBestScore;
+          increaseGen = numGenerations;
+          System.out.println("New best score: " + score);
+          System.out.println("State transition table of TM with score " + score);
+          System.out.println("Generation: " + numGenerations);
+          for(String row : translator.toStateTransitionTable(tm)){
+            System.out.println(row);
+          }
+        }
+        /*
+        if(numGenerations % 1000 == 0){
+          System.out.println("Debug " + tm + " " + tm.getScore());
+          int numToMutate = (int) (population.size() * mutationRate);
+          System.out.println("Debug mutating " + numToMutate);
+        }
+        */
+
+
         //If running another generation, create that population
-        if(i != numGenerations-1){
+        if(score < 13){
           this.population = nextGeneration();
         }
         //If not, sort the population by fitness for easier results parsing
         else{
           Collections.sort(population);
         }
+
+        //If hasn't improved in a long time, perform mutation an extra time? TODO hide this behind some config flag?
+
+        if(numGenerations - increaseGen == 100000){
+          System.out.println("Now mutating twice in each generation");
+        }
+        if(numGenerations - increaseGen > 100000) {
+          population = mutation(population);
+        }
+        numGenerations++;
       }
       //TODO - proper convergence
+
   }
 
 
