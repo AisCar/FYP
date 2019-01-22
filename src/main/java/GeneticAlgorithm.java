@@ -97,34 +97,27 @@ public class GeneticAlgorithm {
 
 
   protected ArrayList<TuringMachine> crossover(ArrayList<TuringMachine> machines){
-    ArrayList<TuringMachine> parents = new ArrayList<TuringMachine>();
+    //Shuffle population
+    Collections.shuffle(machines);
+    int numToCrossOver = (int) (machines.size() * crossoverRate);
 
-    //Select parents for crossover
-    for (TuringMachine tm : machines){
-      double prob = Math.random();
-      if(prob < crossoverRate){
-        parents.add(tm);
-        //indexes.add(machines.indexOf(tm));
-      }
+    //Make sure to have an even number of parents
+    if(numToCrossOver % 2 != 0){
+      numToCrossOver++; //or -- instead?
     }
 
-    if(parents.size() % 2 != 0){ //if uneven number of parents, drop the last one
-      parents.remove(parents.size()-1);
-    }
-
-    //Perform crossover on all parents
-    int numParents = parents.size() / 2;
-    for(int i = 0; i < numParents; i += 2){
+    //Perform crossover on the first numToCrossOver parents in the population
+    for(int i = 0; i < numToCrossOver; i+=2){
       //Encode pairs of TuringMachines as binary chromosomes
-      boolean[] parent1 = this.translator.toBitArray(parents.get(i));
-      boolean[] parent2 = this.translator.toBitArray(parents.get(i+1));
+      boolean[] parent1 = this.translator.toBitArray(machines.get(i));
+      boolean[] parent2 = this.translator.toBitArray(machines.get(i+1));
 
       //Perform crossover on the pair, get 2 child chromosomes
       boolean[][] children = crossoverSingle(parent1,parent2);
 
       //Decode new chromosomes and add replace parent turing machines with their children
-      machines.set(machines.indexOf(parents.get(i)), this.translator.toTuringMachine(children[0]));
-      machines.set(machines.indexOf(parents.get(i+1)), this.translator.toTuringMachine(children[1]));
+      machines.set(i, this.translator.toTuringMachine(children[0]));
+      machines.set((i+1), this.translator.toTuringMachine(children[1]));
 
     }
 
@@ -162,13 +155,14 @@ public class GeneticAlgorithm {
 
 
   protected ArrayList<TuringMachine> mutation(ArrayList<TuringMachine> machines){
-    for (TuringMachine tm : machines){
-      double prob = Math.random();
-      if(prob < mutationRate){
-        boolean[] encodedChromosome = translator.toBitArray(tm);
+    Collections.shuffle(machines);
+    int numToMutate = (int) (machines.size() * mutationRate);
+
+    //mutate the first numToMutate TMs in the population
+    for(int i = 0; i < numToMutate; i++){
+        boolean[] encodedChromosome = translator.toBitArray(machines.get(i));
         boolean[] mutatedBitArray = mutateSingle(encodedChromosome);
-        tm = translator.toTuringMachine(mutatedBitArray);
-      }
+        machines.set(i, translator.toTuringMachine(mutatedBitArray));
     }
     return machines;
   }
