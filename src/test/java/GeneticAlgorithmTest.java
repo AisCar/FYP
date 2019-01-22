@@ -74,9 +74,9 @@ public class GeneticAlgorithmTest {
     //generate 10 1-state TuringMachines
     GeneticAlgorithm ga2 = new GeneticAlgorithm(10, 1);
     //select 4 of them
-    ArrayList<TuringMachine> selected = ga2.select(4);
+    ArrayList<TuringMachine> selected = ga2.select();
     //TODO make test better
-    assertEquals(4, selected.size());
+    assertEquals(10, selected.size()); //now redundant - testing old functionality - had to be changed - remove?
     //assertTrue(!selected.get(0).equals(selected.get(1))); //could coincidentally be same
   }
 

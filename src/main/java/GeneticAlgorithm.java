@@ -37,7 +37,7 @@ public class GeneticAlgorithm {
   */
 
     public void run(){
-      int numGenerations = 150000; //To start with - TODO max num generations and solution convergence
+      int numGenerations = 1500; //To start with - TODO max num generations and solution convergence
       for(int i = 0; i < numGenerations; i++){
         if(i % 1000 == 0){
           System.out.println("Running generation " + i + "...");// (best score: " + this.population.get(0).getScore() + ")");
@@ -50,7 +50,7 @@ public class GeneticAlgorithm {
         }
         //If running another generation, create that population
         if(i != numGenerations-1){
-          nextGeneration();
+          this.population = nextGeneration();
         }
         //If not, sort the population by fitness for easier results parsing
         else{
@@ -64,25 +64,24 @@ public class GeneticAlgorithm {
   /*
   Method to create next generation of Turing Machines using crossover, mutation
   */
-  protected void nextGeneration(){
+  protected ArrayList<TuringMachine> nextGeneration(){
     //Sort current population by fitness (descending)
     Collections.sort(population);
 
     ArrayList<TuringMachine> nextGeneration = new ArrayList<TuringMachine>();
 
-    //perform crossover and mutation
-    nextGeneration.addAll(crossover());
-    nextGeneration.addAll(mutation());
 
-    //Perform elitist selection
-    //double elitismRate = 0.3;
-    //int numElite = (int) (population.size() * elitismRate);
-    //todo sort out population size stuff
-    int numElite = population.size() - nextGeneration.size();
-    nextGeneration.addAll(population.subList(0, numElite));
+    //Perform selection
+    nextGeneration = select();
 
-    //Update the population
-    population = nextGeneration;
+    //Perform crossover
+    nextGeneration = crossover(nextGeneration);
+
+    //Perform mutation
+    nextGeneration = mutation(nextGeneration);
+
+    //Return the new population
+    return nextGeneration;
 
   }
 
@@ -97,17 +96,24 @@ public class GeneticAlgorithm {
   }
 
 
-  protected ArrayList<TuringMachine> crossover(){
-    ArrayList<TuringMachine> machines = new ArrayList<TuringMachine>();
-
-    //Select parent TuringMachines
+  protected ArrayList<TuringMachine> crossover(ArrayList<TuringMachine> machines){
     ArrayList<TuringMachine> parents = new ArrayList<TuringMachine>();
-    int numParents = (int)(population.size()*crossoverRate);
-    if(numParents % 2 != 0) { //need an even number of parents
-      numParents++;
-    }
-    parents.addAll(select(numParents));
 
+    //Select parents for crossover
+    for (TuringMachine tm : machines){
+      double prob = Math.random();
+      if(prob < crossoverRate){
+        parents.add(tm);
+        //indexes.add(machines.indexOf(tm));
+      }
+    }
+
+    if(parents.size() % 2 != 0){ //if uneven number of parents, drop the last one
+      parents.remove(parents.size()-1);
+    }
+
+    //Perform crossover on all parents
+    int numParents = parents.size() / 2;
     for(int i = 0; i < numParents; i += 2){
       //Encode pairs of TuringMachines as binary chromosomes
       boolean[] parent1 = this.translator.toBitArray(parents.get(i));
@@ -116,12 +122,16 @@ public class GeneticAlgorithm {
       //Perform crossover on the pair, get 2 child chromosomes
       boolean[][] children = crossoverSingle(parent1,parent2);
 
-      //Decode new chromosomes and add to ArrayList
-      machines.add(this.translator.toTuringMachine(children[0]));
-      machines.add(this.translator.toTuringMachine(children[1]));
+      //Decode new chromosomes and add replace parent turing machines with their children
+      machines.set(machines.indexOf(parents.get(i)), this.translator.toTuringMachine(children[0]));
+      machines.set(machines.indexOf(parents.get(i+1)), this.translator.toTuringMachine(children[1]));
+
     }
+
+    //Return population containing crossed over chromosomes
     return machines;
   }
+
 
   protected boolean[][] crossoverSingle(boolean[] parent1, boolean[] parent2){
     if(parent1.length != parent2.length){
@@ -151,21 +161,13 @@ public class GeneticAlgorithm {
   }
 
 
-  protected ArrayList<TuringMachine> mutation(){
-    ArrayList<TuringMachine> machines = new ArrayList<TuringMachine>();
-    int numToMutate = (int) (population.size() * mutationRate);
-
-    if(numToMutate != 0){
-      //select TuringMachines from the population to mutate
-      ArrayList<TuringMachine> selectedForMutation = select(numToMutate);
-      for(TuringMachine tm : selectedForMutation){
-        //encode, mutate and decode each selected TuringMachine
+  protected ArrayList<TuringMachine> mutation(ArrayList<TuringMachine> machines){
+    for (TuringMachine tm : machines){
+      double prob = Math.random();
+      if(prob < mutationRate){
         boolean[] encodedChromosome = translator.toBitArray(tm);
         boolean[] mutatedBitArray = mutateSingle(encodedChromosome);
-        TuringMachine mutatedTuringMachine = translator.toTuringMachine(mutatedBitArray);
-
-        //add mutated result to list of TuringMachines that the method returns
-        machines.add(mutatedTuringMachine);
+        tm = translator.toTuringMachine(mutatedBitArray);
       }
     }
     return machines;
@@ -184,7 +186,8 @@ public class GeneticAlgorithm {
    }
 
 
-   public ArrayList<TuringMachine> select(int numToSelect){
+   public ArrayList<TuringMachine> select(){
+    int numToSelect = population.size();
      /*
      Create an array of cumulative selection probability upperbounds where the
      first element is k times more likely than the last to be chosen
