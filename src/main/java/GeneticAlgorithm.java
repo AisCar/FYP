@@ -9,6 +9,8 @@ public class GeneticAlgorithm {
   private int numStates;
   private int numGenerations;
 
+  private double originalMutationRate;//This is a temporary workaround - if yields results then implement better TODO
+
 
   /*
     Constructors
@@ -40,11 +42,14 @@ public class GeneticAlgorithm {
   */
 
     public void run(){
+      this.originalMutationRate = this.mutationRate;
       numGenerations = 0;
       int score = 0;
+      int mutationMultiplier = 1;
       //int i = 0;
       int increaseGen = 0;
-      while(score < 13 && numGenerations < 21470000){//2147000000){ //max int value = 2147483647 anyway so this is a good cutoff point
+      int maxGenerations = 51470000;
+      while(score < 13 && numGenerations < maxGenerations){ //max int value = 2147483647 anyway so this is a good cutoff point
         //however, at this rate that will take like 500 hours...
         //aim for like 12? or 6? Want to run multiple in one night. Can increase if doesnt work.
         if(numGenerations % 1000 == 0){
@@ -63,6 +68,8 @@ public class GeneticAlgorithm {
         int currBestScore = tm.getScore();
         if(currBestScore > score){
           score = currBestScore;
+          mutationRate = originalMutationRate;
+          mutationMultiplier = 1;
           increaseGen = numGenerations;
           System.out.println("New best score: " + score);
           System.out.println("State transition table of TM with score " + score);
@@ -81,21 +88,26 @@ public class GeneticAlgorithm {
 
 
         //If running another generation, create that population
-        if(score < 13){
+        if(score < 13 && numGenerations < maxGenerations-1 ){
           this.population = nextGeneration();
         }
         //If not, sort the population by fitness for easier results parsing
+
         else{
           Collections.sort(population);
         }
 
         //If hasn't improved in a long time, perform mutation an extra time? TODO hide this behind some config flag?
 
-        if(numGenerations - increaseGen == 100000){
-          System.out.println("Now mutating twice in each generation");
-        }
         if(numGenerations - increaseGen > 100000) {
-          population = mutation(population);
+          if( (numGenerations - increaseGen) % 100000 == 0){
+            mutationMultiplier++;
+            System.out.println("Now mutating x" + mutationMultiplier + " as much in each generation");
+            mutationRate = originalMutationRate * (double) mutationMultiplier;
+            if(mutationRate > 1.0){
+              mutationRate = 1.0; //Just in case.
+            }
+          }
         }
         numGenerations++;
       }

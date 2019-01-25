@@ -112,9 +112,10 @@ public class GeneticAlgorithmTest {
     //ok run 4 overnight, see how goes.
     ArrayList<TuringMachine> best = new ArrayList<TuringMachine>();
     for(int i = 0; i < 4; i++){
-      GeneticAlgorithm bigGA = new GeneticAlgorithm(200, 4);
+      GeneticAlgorithm bigGA = new GeneticAlgorithm(300, 4);
       bigGA.run();
       best.add(bigGA.getPopulation().get(0));
+      System.out.println("Test: " + bigGA.getPopulation().get(0).getScore());
     }
     //TODO print out TMs, not just their scores
     int j = 0;
