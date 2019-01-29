@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class GeneticAlgorithm {
+  //class variables
   private double mutationRate, crossoverRate;
   private ArrayList<TuringMachine> population;
   private PopulationGenerator pop;
@@ -9,8 +10,9 @@ public class GeneticAlgorithm {
   private int numStates;
   private int numGenerations;
 
-  private double originalMutationRate;//This is a temporary workaround - if yields results then implement better TODO
-
+  //increase mutation variables
+  private boolean increaseMutation;
+  private double currentMutationRate;
 
   /*
     Constructors
@@ -22,6 +24,7 @@ public class GeneticAlgorithm {
     translator = new Translator(numStates);
     crossoverRate = 0.6;
     mutationRate = 0.1;
+    currentMutationRate = mutationRate;
     this.numStates = numStates;
     numGenerations = 0;
     //run();
@@ -33,6 +36,7 @@ public class GeneticAlgorithm {
     translator = new Translator(numStates);
     this.crossoverRate = crossoverRate;
     this.mutationRate = mutationRate;
+    currentMutationRate = mutationRate;
     numGenerations = 0;
     //run();
   }
@@ -42,73 +46,82 @@ public class GeneticAlgorithm {
   */
 
     public void run(){
-      this.originalMutationRate = this.mutationRate;
       numGenerations = 0;
       int score = 0;
+      int maxGenerations = 10000; //51470000; //21474836
+
+      //increase mutation variables
+      this.currentMutationRate = this.mutationRate;
       int mutationMultiplier = 1;
-      //int i = 0;
       int increaseGen = 0;
-      int maxGenerations = 51470000;
-      while(score < 13 && numGenerations < maxGenerations){ //max int value = 2147483647 anyway so this is a good cutoff point
-        //however, at this rate that will take like 500 hours...
-        //aim for like 12? or 6? Want to run multiple in one night. Can increase if doesnt work.
+
+      //TODO remove score < 13 before running 5-state
+      while(score < 13 && numGenerations < maxGenerations){ //max int value = 2147483647 anyway so could be cutoff point
+        //Provide user feedback
         if(numGenerations % 1000 == 0){
           //System.out.println("Running generation " + numGenerations + "...");
         }
-        //Run every TuringMachine (that hasnt already been run) in the current population
+
+        //Run every TuringMachine (that hasn't already been run) in the current population
         for(TuringMachine busyBeaver : population){
           if(!busyBeaver.previouslyRun()){
             busyBeaver.run();
           }
         }
 
+        //Sort population (highest scoring in this generation will be first)
         Collections.sort(population); //TODO remove this from elsewhere in thi s method and nextGen
 
+        //Check if score has increased
         TuringMachine tm = this.population.get(0);
         int currBestScore = tm.getScore();
         if(currBestScore > score){
+          //update variables
           score = currBestScore;
-          mutationRate = originalMutationRate;
-          mutationMultiplier = 1;
           increaseGen = numGenerations;
+          //update variables for the increase mutation feature
+          currentMutationRate = mutationRate;
+          mutationMultiplier = 1;
+          //Print out details of new highest scoring tm
           System.out.println("New best score: " + score);
           System.out.println("State transition table of TM with score " + score);
           System.out.println("Generation: " + numGenerations);
           for(String row : translator.toStateTransitionTable(tm)){
             System.out.println(row);
           }
-        }
-        /*
-        if(numGenerations % 1000 == 0){
-          System.out.println("Debug " + tm + " " + tm.getScore());
-          int numToMutate = (int) (population.size() * mutationRate);
-          System.out.println("Debug mutating " + numToMutate);
-        }
-        */
 
 
+        }
+
+        //Optional feature: If score hasn't increased in many generations, increase the mutation rate
+        int generationsSinceChange = numGenerations - increaseGen;
+        if(increaseMutation && (generationsSinceChange > 1) && (generationsSinceChange % 100000 == 0)){
+          mutationMultiplier++;
+          currentMutationRate = (mutationMultiplier * mutationRate);
+          if(currentMutationRate > 1.0){
+            currentMutationRate = 1.0;
+          }
+          System.out.println("Mutation rate is now " + currentMutationRate + "%");
+        }
+
+
+        //If max score found, exit (on
+        if((numStates == 4 && score < 13)){
+          Collections.sort(population);
+          break;
+        }
         //If running another generation, create that population
-        if(score < 13 && numGenerations < maxGenerations-1 ){
+        else if(numGenerations < maxGenerations-1){
           this.population = nextGeneration();
         }
         //If not, sort the population by fitness for easier results parsing
-
         else{
-          Collections.sort(population);
+          Collections.sort(population);//This already done above?
         }
 
-        //If hasn't improved in a long time, perform mutation an extra time? TODO hide this behind some config flag?
 
-        if(numGenerations - increaseGen > 100000) {
-          if( (numGenerations - increaseGen) % 100000 == 0){
-            mutationMultiplier++;
-            System.out.println("Now mutating x" + mutationMultiplier + " as much in each generation");
-            mutationRate = originalMutationRate * (double) mutationMultiplier;
-            if(mutationRate > 1.0){
-              mutationRate = 1.0; //Just in case.
-            }
-          }
-        }
+
+
         numGenerations++;
       }
       //TODO - proper convergence
@@ -211,7 +224,7 @@ public class GeneticAlgorithm {
 
   protected ArrayList<TuringMachine> mutation(ArrayList<TuringMachine> machines){
     Collections.shuffle(machines);
-    int numToMutate = (int) (machines.size() * mutationRate);
+    int numToMutate = (int) (machines.size() * currentMutationRate);
 
     //mutate the first numToMutate TMs in the population
     for(int i = 0; i < numToMutate; i++){
@@ -364,6 +377,10 @@ public class GeneticAlgorithm {
 
   public ArrayList<TuringMachine> getPopulation(){//same name as method in PopulationGenerator ... should rename?
     return this.population;
+  }
+
+  public void increaseMutationRate(boolean bool){
+    increaseMutation = bool;
   }
 
 }
