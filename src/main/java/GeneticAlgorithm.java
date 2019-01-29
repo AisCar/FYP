@@ -2,12 +2,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class GeneticAlgorithm {
+  //class variables
   private double mutationRate, crossoverRate;
   private ArrayList<TuringMachine> population;
   private PopulationGenerator pop;
   private Translator translator;
   private int numStates;
+  private int numGenerations;
 
+  //increase mutation variables
+  private boolean increaseMutation;
+  private double currentMutationRate;
 
   /*
     Constructors
@@ -17,9 +22,11 @@ public class GeneticAlgorithm {
     pop = new PopulationGenerator(numStates, populationSize);
     population = pop.getPopulation();
     translator = new Translator(numStates);
-    crossoverRate = 0.5;
-    mutationRate = 0.05;
+    crossoverRate = 0.6;
+    mutationRate = 0.1;
+    currentMutationRate = mutationRate;
     this.numStates = numStates;
+    numGenerations = 0;
     //run();
   }
 
@@ -29,6 +36,8 @@ public class GeneticAlgorithm {
     translator = new Translator(numStates);
     this.crossoverRate = crossoverRate;
     this.mutationRate = mutationRate;
+    currentMutationRate = mutationRate;
+    numGenerations = 0;
     //run();
   }
 
@@ -37,27 +46,95 @@ public class GeneticAlgorithm {
   */
 
     public void run(){
-      int numGenerations = 1500; //To start with - TODO max num generations and solution convergence
-      for(int i = 0; i < numGenerations; i++){
-        if(i % 1000 == 0){
-          System.out.println("Running generation " + i + "...");// (best score: " + this.population.get(0).getScore() + ")");
+      numGenerations = 0;
+      int score = 0;
+      int maxGenerations = 10000; //51470000; //21474836
+
+      //increase mutation variables
+      this.currentMutationRate = this.mutationRate;
+      int mutationMultiplier = 1;
+      int increaseGen = 0;
+
+      //TODO remove score < 13 before running 5-state
+      while(score < 13 && numGenerations < maxGenerations){ //max int value = 2147483647 anyway so could be cutoff point
+        //Provide user feedback
+        if(numGenerations % 1000 == 0){
+          //System.out.println("Running generation " + numGenerations + "...");
         }
-        //Run every TuringMachine (that hasnt already been run) in the current population
+
+        //Run every TuringMachine (that hasn't already been run) in the current population
         for(TuringMachine busyBeaver : population){
           if(!busyBeaver.previouslyRun()){
             busyBeaver.run();
           }
         }
+
+        //Sort population (highest scoring in this generation will be first)
+        Collections.sort(population); //TODO remove this from elsewhere in thi s method and nextGen
+
+        //Check if score has increased
+        TuringMachine tm = this.population.get(0);
+        int currBestScore = tm.getScore();
+        if(currBestScore > score){
+          //update variables
+          score = currBestScore;
+          increaseGen = numGenerations;
+          //update variables for the increase mutation feature
+          currentMutationRate = mutationRate;
+          mutationMultiplier = 1;
+          //Print out details of new highest scoring tm
+          System.out.println("New best score: " + score);
+          System.out.println("State transition table of TM with score " + score);
+          System.out.println("Generation: " + numGenerations);
+          for(String row : translator.toStateTransitionTable(tm)){
+            System.out.println(row);
+          }
+
+
+        }
+
+        //Optional feature: If score hasn't increased in many generations, increase the mutation rate
+        int generationsSinceChange = numGenerations - increaseGen;
+        if(increaseMutation && (generationsSinceChange > 1) && (generationsSinceChange % 100000 == 0)){
+          mutationMultiplier++;
+          currentMutationRate = (mutationMultiplier * mutationRate);
+          if(currentMutationRate > 1.0){
+            currentMutationRate = 1.0;
+          }
+          System.out.println("Mutation rate is now " + currentMutationRate + "%");
+        }
+
+
+        //If max score found, exit (on
+        if((numStates == 4 && score < 13)){
+          Collections.sort(population);
+          break;
+        }
         //If running another generation, create that population
-        if(i != numGenerations-1){
+        else if(numGenerations < maxGenerations-1){
           this.population = nextGeneration();
         }
         //If not, sort the population by fitness for easier results parsing
         else{
-          Collections.sort(population);
+          Collections.sort(population);//This already done above?
         }
+
+
+
+
+        numGenerations++;
       }
       //TODO - proper convergence
+
+      //Print out a summary.
+      System.out.println("Current highest scoring tm: ");
+      for(String str : translator.toStateTransitionTable(population.get(0))){
+        System.out.println(str);
+      }
+      System.out.println("Score: " + population.get(0).getScore());
+      System.out.println("Highest score achieved: " + score);
+
+
   }
 
 
@@ -156,7 +233,7 @@ public class GeneticAlgorithm {
 
   protected ArrayList<TuringMachine> mutation(ArrayList<TuringMachine> machines){
     Collections.shuffle(machines);
-    int numToMutate = (int) (machines.size() * mutationRate);
+    int numToMutate = (int) (machines.size() * currentMutationRate);
 
     //mutate the first numToMutate TMs in the population
     for(int i = 0; i < numToMutate; i++){
@@ -309,6 +386,10 @@ public class GeneticAlgorithm {
 
   public ArrayList<TuringMachine> getPopulation(){//same name as method in PopulationGenerator ... should rename?
     return this.population;
+  }
+
+  public void increaseMutationRate(boolean bool){
+    increaseMutation = bool;
   }
 
 }
