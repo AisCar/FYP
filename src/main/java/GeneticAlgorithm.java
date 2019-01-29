@@ -126,6 +126,15 @@ public class GeneticAlgorithm {
       }
       //TODO - proper convergence
 
+      //Print out a summary.
+      System.out.println("Current highest scoring tm: ");
+      for(String str : translator.toStateTransitionTable(population.get(0))){
+        System.out.println(str);
+      }
+      System.out.println("Score: " + population.get(0).getScore());
+      System.out.println("Highest score achieved: " + score);
+
+
   }
 
 
