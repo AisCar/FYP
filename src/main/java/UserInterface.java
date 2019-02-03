@@ -17,9 +17,9 @@ mutation rate etc.) as well as n (number of states)
 public class UserInterface extends JFrame{
   //TODO: Rename other variables so that you can rename these ones w/o mixing them up
   private double crossover, mutation;
-  private int populationSize, numGenerations;
+  private int populationSize, numGenerations, numStates;
   private boolean increaseMutation;
-  private JTextField crossoverField, mutationField, generationsField, populationField;
+  private JTextField crossoverField, mutationField, generationsField, populationField, numStatesField;
   private JTextArea description;
   private JCheckBox increaseMutationCheckbox;
 
@@ -31,8 +31,9 @@ public class UserInterface extends JFrame{
     mutation = 0.05;
     numGenerations = -1;
     populationSize = -1;
+    numStates = -1;
 
-    //set up window details (move this line down?)
+    //set up window size
     setSize(600,400);
 
     //Panel 1: Header area
@@ -42,9 +43,12 @@ public class UserInterface extends JFrame{
     p1.add(title);
 
 
-    //Panel 2: Set crossover rate, mutation rate, population size and num generations
+    /*
+    Panel 2: Set crossover rate, mutation rate, number of states, population
+    size and num generations
+    */
     JPanel p2 = new JPanel();
-    p2.setLayout(new GridLayout(10,1));
+    p2.setLayout(new GridLayout(12,1));
     p2.setPreferredSize(new Dimension(175, 500));
 
     //user inputs crossover rate and mutation rate into JTextFields
@@ -64,13 +68,18 @@ public class UserInterface extends JFrame{
     //user inputs maximum number of generations and population size into JTextFields
     JLabel popSizeLabel = new JLabel("population size");
     JLabel numGenLabel = new JLabel("max number of generations");
+    JLabel numStatesLabel = new JLabel("num states in Turing machines");
     populationField = new JTextField(1);
     generationsField = new JTextField(1);
+    numStatesField = new JTextField(1);
     IntInputHandler popGenHandler = new IntInputHandler();
     populationField.addActionListener(popGenHandler);
     generationsField.addActionListener(popGenHandler);
+    numStatesField.addActionListener(popGenHandler);
 
     //add all the components to panel 2
+    p2.add(numStatesLabel);
+    p2.add(numStatesField);
     p2.add(crossoverLabel);
     p2.add(crossoverField);
     p2.add(mutationLabel);
@@ -82,18 +91,11 @@ public class UserInterface extends JFrame{
     p2.add(generationsField);
 
 
-    //Panel 3: A large text area containing information ...
+    //Panel 3: A large text area containing information about the genetic algorithm
     JPanel p3 = new JPanel();
-    //JTextArea
     description = new JTextArea("Input genetic algorithm parameters on the left", 10, 10);
     description.setPreferredSize(new Dimension(375, 500));
     description.setEditable(false);
-    //going for a console look?
-    /*
-    description.setForeground(Color.WHITE);
-    description.setBackground(Color.BLACK);
-    description.setFont(Font.getFont(Font.DIALOG_INPUT)); //not noticing a difference... uh oh.
-    */
     p3.add(description);
 
 
@@ -112,7 +114,7 @@ public class UserInterface extends JFrame{
 
     //Add all panels to the frame
     getContentPane().add(BorderLayout.NORTH, p1);
-    getContentPane().add(BorderLayout.WEST, p2); //p2a and p2b?
+    getContentPane().add(BorderLayout.WEST, p2);
     getContentPane().add(BorderLayout.EAST, p3);
     getContentPane().add(BorderLayout.SOUTH, runGAButton);
     setVisible(true);
@@ -138,6 +140,7 @@ public class UserInterface extends JFrame{
     @Override
     public void actionPerformed(ActionEvent event){
       String currentDescription = description.getText();
+      //User enters a value into the crossover rate field
       if(event.getSource() == crossoverField){
         try{
           Double d = Double.parseDouble(crossoverField.getText());
@@ -153,6 +156,7 @@ public class UserInterface extends JFrame{
           currentDescription = currentDescription + "\nInvalid crossover rate. Please input a double between 0 and 1.";
         }
       }
+      //User enters a value into the mutation rate field
       else if (event.getSource() == mutationField){
         try{
           Double d = Double.parseDouble(mutationField.getText());
@@ -168,6 +172,7 @@ public class UserInterface extends JFrame{
           currentDescription = currentDescription + "\nInvalid mutation rate. Please input a double between 0 and 1.";
         }
       }
+      //Provide feedback that a change has been made (or an error has ocurred)
       description.setText(currentDescription);
       description.setVisible(true);
     }
@@ -178,6 +183,7 @@ public class UserInterface extends JFrame{
     @Override
     public void actionPerformed(ActionEvent event){
       String currentDescription = description.getText();
+      //User enters a value into the population size field
       if(event.getSource() == populationField){
         try{
           Integer pop = Integer.parseInt(populationField.getText());
@@ -193,6 +199,7 @@ public class UserInterface extends JFrame{
           currentDescription = currentDescription + "\nInvalid population size. Please input an integer.";
         }
       }
+      //User enters a value into the number of generations field
       else if (event.getSource() == generationsField){
         try{
           Integer numGen = Integer.parseInt(generationsField.getText());
@@ -208,6 +215,23 @@ public class UserInterface extends JFrame{
           currentDescription = currentDescription + "\nInvalid number of generations. Please input an integer.";
         }
       }
+      //User enters a value into the number of states field
+      else if (event.getSource() == numStatesField){
+        try{
+          Integer numStatesInt = Integer.parseInt(numStatesField.getText());
+          if(numStatesInt < 0){
+            currentDescription = currentDescription + "\nNumber of states in each Turing machine cannot be negative. Please enter a positive integer.";
+          }
+          else{
+            numStates = (int) numStatesInt;
+            currentDescription = currentDescription + "\nGenetic algorithm will run " + numStates + "-state Turing machines.";
+          }
+        }
+        catch(NumberFormatException nfe){
+          currentDescription = currentDescription + "\nInvalid number of states. Please input an integer.";
+        }
+      }
+      //Provide user with feedback (either that value has changed or error has occurred)
       description.setText(currentDescription);
       description.setVisible(true);
     }
@@ -228,14 +252,28 @@ public class UserInterface extends JFrame{
 
   /*
   Method that creates the genetic algorithm and displays information about it
-  (called by button event handler in constructor)
+  (called by button event handler in UserInterface constructor)
   */
 
   private void runGeneticAlgorithm(){
-    //TODO: on hitting run GA button, initialise a GeneticAlgorithm object
-    //periodically get description from this object
-    //display the info on the description jtextarea
-    
+    //If user doesn't specify population size or number of generations, set it to 100
+    int pop = (populationSize > 0? populationSize : 100);
+    int gen = (numGenerations > 0? numGenerations : 100);
+    int states = (numStates > 0? numStates : 5); //5? Is that a good default?
+
+    //create a GeneticAlgorithm object
+    GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(pop, states, crossover, mutation);
+
+    //set optional features
+    geneticAlgorithm.increaseMutationRate(increaseMutation);
+
+    //run and monitor the genetic algorithm
+    geneticAlgorithm.run();
+    //TODO: get info about it & update description JTextArea
+    String summary = ""; //geneticAlgorithm.getSummary(); //TODO
+    description.setText(summary);
+    description.setVisible(true);
+
 
   }
 

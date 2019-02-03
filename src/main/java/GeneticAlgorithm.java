@@ -41,6 +41,8 @@ public class GeneticAlgorithm {
     //run();
   }
 
+  //TODO: Genetic Algorithm constructor with number of generations parameter
+
   /*
     main genetic algorithm method
   */
