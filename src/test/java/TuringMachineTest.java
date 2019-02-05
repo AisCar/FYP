@@ -1,5 +1,6 @@
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -76,6 +77,22 @@ public class TuringMachineTest {
     Collections.sort(arrayList);
     assertEquals(arrayList.get(0).score, 9);
     assertEquals(arrayList.get(9).score, 0);
+  }
+
+  @Test
+  public void testAreStatesReachable() {
+    System.out.println("\n\ntestAreStatesReachable");
+    ArrayList<State> states = new ArrayList<State>();
+    states.add(new State(true, false, 2, true, true, 2));
+    states.add(new State(true, true, 1, true, true, 0));
+    states.add(new State(true, true, 1, true, true, 0)); //3rd state same as 2nd
+    TuringMachine tm = new TuringMachine(states);
+    tm.areStatesReachable(1);
+    //System.out.println(tm.stateReachable[0] + " " + tm.stateReachable[1] + " " + tm.stateReachable[2]);
+    assertTrue(tm.stateReachable[0]);
+    assertTrue(tm.stateReachable[1]);
+    assertTrue(!tm.stateReachable[2]);
+
   }
 
 }

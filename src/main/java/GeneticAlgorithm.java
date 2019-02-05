@@ -166,12 +166,13 @@ public class GeneticAlgorithm {
   genetic operators
    */
 
+  /* //moved to TuringMachine
   protected int calculateFitness(TuringMachine busyBeaver){
       int score = busyBeaver.getScore();
       //Could make this more complicated but for now is fine
       return score;
   }
-
+  */
 
   protected ArrayList<TuringMachine> crossover(ArrayList<TuringMachine> machines){
     //Shuffle population

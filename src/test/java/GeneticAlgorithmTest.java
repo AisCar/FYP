@@ -106,10 +106,11 @@ public class GeneticAlgorithmTest {
     Known high scores:
     2-state:
     3-state: 6 (success!)
-    4-state: 13 (still working on it...)
+    4-state: 13 (success!! eventually)
      */
 
     //ok run 4 overnight, see how goes.
+    /*
     ArrayList<TuringMachine> best = new ArrayList<TuringMachine>();
     for(int i = 0; i < 4; i++){
       GeneticAlgorithm bigGA = new GeneticAlgorithm(300, 4);
@@ -123,6 +124,7 @@ public class GeneticAlgorithmTest {
       System.out.println("Best score " + j + ": " + tm.getScore());
       j++;
     }
+    */
 
 
 /*

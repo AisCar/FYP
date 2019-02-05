@@ -7,6 +7,10 @@ public class TuringMachine implements Comparable<TuringMachine> {
   boolean notHalting;
   boolean hasRun;
 
+  //variables for new feature TODO comment
+  boolean stateReachable[];
+  int numHalts;
+
 
   /*
   Constructors
@@ -17,6 +21,13 @@ public class TuringMachine implements Comparable<TuringMachine> {
     score = 0;
     this.states = states;
     hasRun = false;
+
+    stateReachable = new boolean[states.size()];
+    for(int i = 0; i < stateReachable.length; i++){
+      stateReachable[i] = false;
+    }
+    numHalts = 0;
+
     //Validation should have already taken place somewhere
     //run(states);
   }
@@ -139,7 +150,40 @@ public class TuringMachine implements Comparable<TuringMachine> {
   public int compareTo(TuringMachine other){
     //return this.score - other.score; //Wait, descending order makes more sense than ascending?
     //TODO decide
-    return (other.score - this.score);
+    return (other.calculateFitness() - this.calculateFitness());
   }
 
+  protected int calculateFitness(){
+    //TODO
+    int fitness = this.score;
+
+    //Fitness Part 1: Is halting
+    // -> Has one halt state (TODO numHalts is now set in areStatesReachable code)
+    // -> Does halt (score != -1) (if has run, obvi)
+
+    //Fitness Part 2: All states are reachable
+    areStatesReachable(1);
+    //TODO use the boolean array stateReachable to calculate fitness
+
+
+
+    //Fitness Part 3: TODO Michael's suggestion from email - started on another branch
+
+    return fitness;
+
+  }
+
+
+  protected void areStatesReachable(int stateNum){
+    int index = stateNum - 1;
+    if(index == -1){
+      numHalts++;
+    }
+    else if(!stateReachable[index]) {
+      stateReachable[index] = true;
+      State current = states.get(index);
+      areStatesReachable(current.getNextState(false));
+      areStatesReachable(current.getNextState(true));
+    }
+  }
 }
