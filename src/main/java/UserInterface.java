@@ -34,7 +34,7 @@ public class UserInterface extends JFrame{
     numStates = -1;
 
     //set up window size
-    setSize(600,400);
+    setSize(650,400);
 
     //Panel 1: Header area
     JPanel p1 = new JPanel();
@@ -49,7 +49,7 @@ public class UserInterface extends JFrame{
     */
     JPanel p2 = new JPanel();
     p2.setLayout(new GridLayout(12,1));
-    p2.setPreferredSize(new Dimension(175, 500));
+    p2.setPreferredSize(new Dimension(200, 500));
 
     //user inputs crossover rate and mutation rate into JTextFields
     JLabel crossoverLabel = new JLabel("crossover rate");
@@ -94,8 +94,9 @@ public class UserInterface extends JFrame{
     //Panel 3: A large text area containing information about the genetic algorithm
     JPanel p3 = new JPanel();
     description = new JTextArea("Input genetic algorithm parameters on the left", 10, 10);
-    description.setPreferredSize(new Dimension(375, 500));
+    description.setPreferredSize(new Dimension(400, 500));
     description.setEditable(false);
+    //JScrollPane scrollPane = new JScrollPane(description); //TODO
     p3.add(description);
 
 
@@ -258,21 +259,27 @@ public class UserInterface extends JFrame{
   private void runGeneticAlgorithm(){
     //If user doesn't specify population size or number of generations, set it to 100
     int pop = (populationSize > 0? populationSize : 100);
-    int gen = (numGenerations > 0? numGenerations : 100);
-    int states = (numStates > 0? numStates : 5); //5? Is that a good default?
+    int gen = (numGenerations > 0? numGenerations : 10000);
+    int states = (numStates > 0? numStates : 5); //TODO what is a good default value?
+
+    crossoverField.setEnabled(false);
+    mutationField.setEnabled(false);
+    generationsField.setEnabled(false);
+    populationField.setEnabled(false);
+    numStatesField.setEnabled(false);
+    increaseMutationCheckbox.setEnabled(false);
 
     //create a GeneticAlgorithm object
-    GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(pop, states, crossover, mutation);
+    GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(pop, states, numGenerations, crossover, mutation);
 
     //set optional features
     geneticAlgorithm.increaseMutationRate(increaseMutation);
 
     //run and monitor the genetic algorithm
     geneticAlgorithm.run();
-    //TODO: get info about it & update description JTextArea
-    String summary = ""; //geneticAlgorithm.getSummary(); //TODO
-    description.setText(summary);
+    //TODO: update description JTextArea in real time
     description.setVisible(true);
+
 
 
   }

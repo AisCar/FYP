@@ -75,6 +75,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
           notHalting = false;
           break;
         }
+        //System.out.println(stateNum-1);
         currentState = states.get(stateNum-1);
       }
     }//End while
