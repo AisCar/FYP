@@ -9,10 +9,12 @@ public class GeneticAlgorithm {
   private Translator translator;
   private int numStates;
   private int numGenerations;
+  private int maxGenerations = 10000;
 
   //increase mutation variables
   private boolean increaseMutation;
   private double currentMutationRate;
+
 
   /*
     Constructors
@@ -41,22 +43,31 @@ public class GeneticAlgorithm {
     //run();
   }
 
+  public GeneticAlgorithm(int populationSize, int numStates, int maxGenerations, double crossoverRate, double mutationRate){
+    pop = new PopulationGenerator(numStates, populationSize);
+    population = pop.getPopulation();
+    translator = new Translator(numStates);
+    this.crossoverRate = crossoverRate;
+    this.mutationRate = mutationRate;
+    currentMutationRate = mutationRate;
+    numGenerations = 0;
+    this.maxGenerations = maxGenerations;
+  }
+
+
   /*
     main genetic algorithm method
   */
-
     public void run(){
       numGenerations = 0;
       int score = 0;
-      int maxGenerations = 10000; //51470000; //21474836
 
       //increase mutation variables
       this.currentMutationRate = this.mutationRate;
       int mutationMultiplier = 1;
       int increaseGen = 0;
 
-      //TODO remove score < 13 before running 5-state
-      while(score < 13 && numGenerations < maxGenerations){ //max int value = 2147483647 anyway so could be cutoff point
+      while(numGenerations < maxGenerations){ //max int value = 2147483647
         //Provide user feedback
         if(numGenerations % 1000 == 0){
           //System.out.println("Running generation " + numGenerations + "...");
@@ -70,7 +81,7 @@ public class GeneticAlgorithm {
         }
 
         //Sort population (highest scoring in this generation will be first)
-        Collections.sort(population); //TODO remove this from elsewhere in thi s method and nextGen
+        Collections.sort(population);
 
         //Check if score has increased
         TuringMachine tm = this.population.get(0);
@@ -104,37 +115,30 @@ public class GeneticAlgorithm {
           System.out.println("Mutation rate is now " + currentMutationRate + "%");
         }
 
+        if(numGenerations % 1000 == 0){
+          //Print out a summary.
+          System.out.println("Current highest scoring tm: ");
+          for(String str : translator.toStateTransitionTable(population.get(0))){
+            System.out.println(str);
+          }
+          System.out.println("Score: " + population.get(0).getScore());
+          System.out.println("Highest score achieved: " + score);
+        }
 
-        //If max score found, exit (on
-        if((numStates == 4 && score < 13)){
-          Collections.sort(population);
+
+        //If max score found, exit
+        if((numStates == 4 && score == 13)){
           break;
         }
         //If running another generation, create that population
         else if(numGenerations < maxGenerations-1){
           this.population = nextGeneration();
         }
-        //If not, sort the population by fitness for easier results parsing
-        else{
-          Collections.sort(population);//This already done above?
-        }
-
-
 
 
         numGenerations++;
       }
       //TODO - proper convergence
-
-      //Print out a summary.
-      System.out.println("Current highest scoring tm: ");
-      for(String str : translator.toStateTransitionTable(population.get(0))){
-        System.out.println(str);
-      }
-      System.out.println("Score: " + population.get(0).getScore());
-      System.out.println("Highest score achieved: " + score);
-
-
   }
 
 
@@ -374,6 +378,7 @@ public class GeneticAlgorithm {
 
 
 
+
   /*
   accessor/mutator methods
    */
@@ -392,5 +397,10 @@ public class GeneticAlgorithm {
   public void increaseMutationRate(boolean bool){
     increaseMutation = bool;
   }
+
+  public void setNumGenerations(int maxGenerations){
+    this.maxGenerations = maxGenerations;
+  }
+
 
 }
