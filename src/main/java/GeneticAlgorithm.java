@@ -81,7 +81,7 @@ public class GeneticAlgorithm {
         }
 
         //Sort population (highest scoring in this generation will be first)
-        Collections.sort(population);
+        Collections.sort(population); //This is part of current bug stack trace TODO
 
         //Check if score has increased
         TuringMachine tm = this.population.get(0);
@@ -370,7 +370,7 @@ public class GeneticAlgorithm {
 
      //check that a halt condition exists (if not, insert one)
      if(!haltConditionExists){
-       //TODO introduce one randomly
+       //TODO introduce one randomly - or not
      }
 
      return chromosome; //to prevent compilation errors

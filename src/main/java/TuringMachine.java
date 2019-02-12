@@ -21,15 +21,12 @@ public class TuringMachine implements Comparable<TuringMachine> {
     score = 0;
     this.states = states;
     hasRun = false;
-
-    stateReachable = new boolean[states.size()];
-    for(int i = 0; i < stateReachable.length; i++){
-      stateReachable[i] = false;
-    }
     numHalts = 0;
 
-    //Validation should have already taken place somewhere
-    //run(states);
+    stateReachable = new boolean[states.size()];
+    for(int i = 0; i < stateReachable.length; i++) {
+      stateReachable[i] = false;
+    }
   }
 
   public TuringMachine(){
@@ -177,14 +174,65 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
   protected void areStatesReachable(int stateNum){
     int index = stateNum - 1;
+    System.out.println(index);
     if(index == -1){
       numHalts++;
     }
-    else if(!stateReachable[index]) {
+    else if(!stateReachable[index]) { //BUG: Getting index = n instead of n-1 TODO fix
       stateReachable[index] = true;
       State current = states.get(index);
       areStatesReachable(current.getNextState(false));
       areStatesReachable(current.getNextState(true));
     }
+
+    /*
+    (Running 6-state TMs)
+    ...
+    0
+0
+0
+0
+0
+0
+0
+0
+2
+4
+3
+2
+3
+0
+2
+-1
+0
+4
+2
+6
+Exception in thread "AWT-EventQueue-0" java.lang.ArrayIndexOutOfBoundsException: 6
+        at TuringMachine.areStatesReachable(TuringMachine.java:181)
+        at TuringMachine.areStatesReachable(TuringMachine.java:184)
+        at TuringMachine.areStatesReachable(TuringMachine.java:184)
+        at TuringMachine.areStatesReachable(TuringMachine.java:184)
+        at TuringMachine.calculateFitness(TuringMachine.java:163)
+        at TuringMachine.compareTo(TuringMachine.java:151)
+
+    Exception in thread "AWT-EventQueue-0" java.lang.ArrayIndexOutOfBoundsException: 6
+        at TuringMachine.areStatesReachable(TuringMachine.java:205)
+        at TuringMachine.areStatesReachable(TuringMachine.java:209)
+        at TuringMachine.areStatesReachable(TuringMachine.java:208)
+        at TuringMachine.calculateFitness(TuringMachine.java:166)
+        at TuringMachine.compareTo(TuringMachine.java:154)
+        at TuringMachine.compareTo(TuringMachine.java:3)
+        at java.util.ComparableTimSort.binarySort(ComparableTimSort.java:262)
+
+        see also:
+
+    Exception in thread "AWT-EventQueue-0" java.lang.IndexOutOfBoundsException: Index: 6, Size: 6 (6 state tm - was 5 for 5 state)
+        at java.util.ArrayList.rangeCheck(ArrayList.java:653)
+        at java.util.ArrayList.get(ArrayList.java:429)
+        at TuringMachine.run(TuringMachine.java:90)
+        at GeneticAlgorithm.run(GeneticAlgorithm.java:79)
+        at UserInterface.runGeneticAlgorithm(UserInterface.java:279)
+     */
   }
 }
