@@ -83,7 +83,6 @@ public class TuringMachine implements Comparable<TuringMachine> {
           notHalting = false;
           break;
         }
-        //System.out.println(stateNum-1);
         currentState = states.get(stateNum-1);
       }
     }//End while
@@ -173,15 +172,10 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
 
   protected void areStatesReachable(int stateNum) {
-    System.out.println(stateNum - 1);
-    if(stateNum > states.size()){//for debugging, remove later
-      System.out.println(this.toString());
-    }
-    //System.out.println(hasRun); //Always true (Remove after bug fixed)
     if (stateNum == 0) {
       numHalts++;
     }
-    else if (!stateReachable[stateNum - 1]) { //BUG: Getting index = n instead of n-1 TODO fix
+    else if (!stateReachable[stateNum - 1]) {
       stateReachable[stateNum - 1] = true;
       State current = states.get(stateNum - 1);
       areStatesReachable(current.getNextState(false));

@@ -21,6 +21,7 @@ public class GeneticAlgorithm {
    */
 
   public GeneticAlgorithm(int populationSize, int numStates){//keep? remove?
+    this.numStates = numStates;
     pop = new PopulationGenerator(numStates, populationSize);
     population = pop.getPopulation();
     translator = new Translator(numStates);
@@ -33,6 +34,7 @@ public class GeneticAlgorithm {
   }
 
   public GeneticAlgorithm(int populationSize, int numStates, double crossoverRate, double mutationRate){
+    this.numStates = numStates;
     pop = new PopulationGenerator(numStates, populationSize);
     population = pop.getPopulation();
     translator = new Translator(numStates);
@@ -44,6 +46,7 @@ public class GeneticAlgorithm {
   }
 
   public GeneticAlgorithm(int populationSize, int numStates, int maxGenerations, double crossoverRate, double mutationRate){
+    this.numStates = numStates;
     pop = new PopulationGenerator(numStates, populationSize);
     population = pop.getPopulation();
     translator = new Translator(numStates);
