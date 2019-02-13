@@ -163,14 +163,5 @@ public class GeneticAlgorithmTest {
     //TODO asserts etc
   }
 
-  @Test
-  public void testRepair2() {
-    //TODO: Create a 5 state TM with nextState = 6 and translate and repair
-    //7  = 111, 6 = 110
-    GeneticAlgorithm ga2 = new GeneticAlgorithm(1, 4);
-    //set next state to 5 (101) and 7 (111)
-    boolean[] gene = {true, false, true, false, true, false, true, true, true, true};
-
-  }
 
 }

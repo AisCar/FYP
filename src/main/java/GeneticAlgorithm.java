@@ -84,7 +84,7 @@ public class GeneticAlgorithm {
         }
 
         //Sort population (highest scoring in this generation will be first)
-        Collections.sort(population); //This is part of current bug stack trace TODO
+        Collections.sort(population);
 
         //Check if score has increased
         TuringMachine tm = this.population.get(0);
