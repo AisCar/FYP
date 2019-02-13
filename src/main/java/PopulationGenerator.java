@@ -27,10 +27,10 @@ public class PopulationGenerator {
       for(int j = 0; j < numStates; j++){
         boolean readZeroWriteOne = Math.random() >= 0.5;
         boolean leftZero = Math.random()>= 0.5;
-        int nextStateZero = (int)(100 * Math.random()) % (numStates + 1);
+        int nextStateZero = ((int)(100 * Math.random())) % (numStates + 1);
         boolean readOneWriteOne = Math.random() >= 0.5;
         boolean leftOne = Math.random()>= 0.5;
-        int nextStateOne = (int)(100 * Math.random()) % (numStates + 1);
+        int nextStateOne = ((int)(100 * Math.random())) % (numStates + 1);
         State state = new State(readZeroWriteOne, leftZero, nextStateZero, readOneWriteOne, leftOne, nextStateOne);
         states.add(state);
       }//end inner for loop (generate random states)

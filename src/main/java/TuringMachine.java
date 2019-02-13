@@ -172,67 +172,32 @@ public class TuringMachine implements Comparable<TuringMachine> {
   }
 
 
-  protected void areStatesReachable(int stateNum){
-    int index = stateNum - 1;
-    System.out.println(index);
-    if(index == -1){
+  protected void areStatesReachable(int stateNum) {
+    System.out.println(stateNum - 1);
+    if(stateNum > states.size()){//for debugging, remove later
+      System.out.println(this.toString());
+    }
+    //System.out.println(hasRun); //Always true (Remove after bug fixed)
+    if (stateNum == 0) {
       numHalts++;
     }
-    else if(!stateReachable[index]) { //BUG: Getting index = n instead of n-1 TODO fix
-      stateReachable[index] = true;
-      State current = states.get(index);
+    else if (!stateReachable[stateNum - 1]) { //BUG: Getting index = n instead of n-1 TODO fix
+      stateReachable[stateNum - 1] = true;
+      State current = states.get(stateNum - 1);
       areStatesReachable(current.getNextState(false));
       areStatesReachable(current.getNextState(true));
     }
+  }
 
-    /*
-    (Running 6-state TMs)
-    ...
-    0
-0
-0
-0
-0
-0
-0
-0
-2
-4
-3
-2
-3
-0
-2
--1
-0
-4
-2
-6
-Exception in thread "AWT-EventQueue-0" java.lang.ArrayIndexOutOfBoundsException: 6
-        at TuringMachine.areStatesReachable(TuringMachine.java:181)
-        at TuringMachine.areStatesReachable(TuringMachine.java:184)
-        at TuringMachine.areStatesReachable(TuringMachine.java:184)
-        at TuringMachine.areStatesReachable(TuringMachine.java:184)
-        at TuringMachine.calculateFitness(TuringMachine.java:163)
-        at TuringMachine.compareTo(TuringMachine.java:151)
-
-    Exception in thread "AWT-EventQueue-0" java.lang.ArrayIndexOutOfBoundsException: 6
-        at TuringMachine.areStatesReachable(TuringMachine.java:205)
-        at TuringMachine.areStatesReachable(TuringMachine.java:209)
-        at TuringMachine.areStatesReachable(TuringMachine.java:208)
-        at TuringMachine.calculateFitness(TuringMachine.java:166)
-        at TuringMachine.compareTo(TuringMachine.java:154)
-        at TuringMachine.compareTo(TuringMachine.java:3)
-        at java.util.ComparableTimSort.binarySort(ComparableTimSort.java:262)
-
-        see also:
-
-    Exception in thread "AWT-EventQueue-0" java.lang.IndexOutOfBoundsException: Index: 6, Size: 6 (6 state tm - was 5 for 5 state)
-        at java.util.ArrayList.rangeCheck(ArrayList.java:653)
-        at java.util.ArrayList.get(ArrayList.java:429)
-        at TuringMachine.run(TuringMachine.java:90)
-        at GeneticAlgorithm.run(GeneticAlgorithm.java:79)
-        at UserInterface.runGeneticAlgorithm(UserInterface.java:279)
-     */
+  public String toString(){
+    String str = "State\tRead\tWrite\tMove\tNext State\n";
+    int currState = 1;
+    for(State s : this.states){
+      str = str + currState + "\t0" + (s.getWrite(false)? "\t1" : "\t0") + (s.getMove(false)? "\tleft\t" : "\tright\t")
+              + s.getNextState(false) + "\n" + currState + "\t1" + (s.getWrite(true)? "\t1" : "\t0")
+              + (s.getMove(true)? "\tleft\t" : "\tright\t") + s.getNextState(true) + "\n";
+      currState++;
+    }
+    return str;
   }
 }
