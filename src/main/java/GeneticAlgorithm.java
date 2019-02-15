@@ -150,7 +150,7 @@ public class GeneticAlgorithm {
   */
   protected ArrayList<TuringMachine> nextGeneration(){
     //Sort current population by fitness (descending)
-    Collections.sort(population);
+    Collections.sort(population); //prob unnecessary - TODO remove
 
     ArrayList<TuringMachine> nextGeneration = new ArrayList<TuringMachine>();
 

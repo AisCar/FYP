@@ -6,6 +6,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
   ArrayList<State> states;
   boolean notHalting;
   boolean hasRun;
+  int fitness = -2000000; //int? can change
 
   //variables for new feature TODO comment
   boolean stateReachable[];
@@ -95,7 +96,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
 
   /*
-  other methods
+  Turing machine head movement methods
   */
 
   private TapeCell moveLeft(TapeCell cell){
@@ -116,43 +117,14 @@ public class TuringMachine implements Comparable<TuringMachine> {
     return cell;
   }
 
-
-  public int getScore(){
-    return score;
-  }
-
-  public int getShifts(){
-    return shifts;
-  }
-
-  public ArrayList<State> getStates(){
-    return states;
-  }
-
-  public boolean previouslyRun(){
-    return hasRun;
-  }
-
-  //Note: do not use this unless wasAlreadyRun returns true
-  public boolean isHalting(){
-    return !notHalting;
-  }
-
-
   /*
-  Override compareTo for sorting of Turing Machine Collections
+  Method to calculate fitness score
+  (used in genetic algorithm and in sorting TuringMachines)
   */
-
-  @Override
-  public int compareTo(TuringMachine other){
-    //return this.score - other.score; //Wait, descending order makes more sense than ascending?
-    //TODO decide
-    return (other.calculateFitness() - this.calculateFitness());
-  }
 
   protected int calculateFitness(){
     //TODO
-    int fitness = this.score;
+    int fitness = this.score; //Now have a class variable called fitness as well, so yeah don't forget when writin the code
 
     //Fitness Part 1: Is halting
     // -> Has one halt state (TODO numHalts is now set in areStatesReachable code)
@@ -170,7 +142,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
   }
 
-
+  //Helper method for fitness method
   protected void areStatesReachable(int stateNum) {
     if (stateNum == 0) {
       numHalts++;
@@ -183,6 +155,17 @@ public class TuringMachine implements Comparable<TuringMachine> {
     }
   }
 
+
+  /*
+  Overriden methods
+  */
+
+  @Override
+  public int compareTo(TuringMachine other){
+    return (other.getFitness() - this.getFitness());
+  }
+
+  @Override
   public String toString(){
     String str = "State\tRead\tWrite\tMove\tNext State\n";
     int currState = 1;
@@ -194,4 +177,38 @@ public class TuringMachine implements Comparable<TuringMachine> {
     }
     return str;
   }
+
+
+  /*
+  Getters and setters
+  */
+
+  public int getScore(){
+    return score;
+  }
+
+  public int getShifts(){
+    return shifts;
+  }
+
+  public ArrayList<State> getStates(){
+    return states;
+  }
+
+  public int getFitness(){
+    if(fitness == -2000000){ //default for uninitialised int is zero, but fitness could actually be zero
+      fitness = this.calculateFitness();
+    }
+    return fitness;
+  }
+
+  public boolean previouslyRun(){
+    return hasRun;
+  }
+
+  //Note: do not use this unless wasAlreadyRun returns true
+  public boolean isHalting(){
+    return !notHalting;
+  }
+
 }
