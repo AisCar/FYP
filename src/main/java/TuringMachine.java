@@ -1,16 +1,20 @@
 import java.util.ArrayList;
 
 public class TuringMachine implements Comparable<TuringMachine> {
+  //general Turing machine variables
   int score;
   int shifts;
   ArrayList<State> states;
-  boolean notHalting;
-  boolean hasRun;
-  int fitness = -2000000; //int? can change
 
-  //variables for new feature TODO comment
+  //fitness variables
+  int fitness = -2000000;
   boolean stateReachable[];
   int numHalts;
+  int notUsedCounter;
+
+  //other variables
+  boolean notHalting;
+  boolean hasRun;
 
 
   /*
@@ -49,9 +53,10 @@ public class TuringMachine implements Comparable<TuringMachine> {
     score = 0;
     notHalting = true;
     hasRun = true;
+    notUsedCounter = 0;
 
     //For now: halt after 1million shifts (or reach halt condition)- may change later
-    while(notHalting && shifts < 1000){//1000000000){ //remember: max int = 2,147,483,647 //TODO uncomment once tests run
+    while(notHalting && shifts < 1000000){//remember: max int = 2,147,483,647
       //If read one from tape
       if(currentCell.readOne()){
         //write
@@ -67,6 +72,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
           notHalting = false;
           break;
         }
+        currentState.iterationLastUsed = shifts;
         currentState = states.get(stateNum-1);
       }
       //If read zero from tape
@@ -84,8 +90,19 @@ public class TuringMachine implements Comparable<TuringMachine> {
           notHalting = false;
           break;
         }
+        currentState.iterationLastUsed = shifts;
         currentState = states.get(stateNum-1);
       }
+
+      //If any state has not been used in 50*n iterations, increment notUsedCounter
+      if(shifts % (50*states.size()) == 0){
+        for(State s : states){
+          if(shifts - s.iterationLastUsed > 50*states.size()){
+            notUsedCounter++; //this is used to decrease fitness later on
+          }
+        }
+      }
+
     }//End while
 
     if(notHalting){
@@ -123,7 +140,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
   */
 
   protected int calculateFitness(){
-    int fitness = this.score;
+    int fitness = this.score * 3; //score should be important - weight higher?
     //TODO: Should enforce no calculating fitness until after TM has run
     //TODO: Decide on the values I'm adding to/subtracting from fitness
 
@@ -152,8 +169,8 @@ public class TuringMachine implements Comparable<TuringMachine> {
       fitness -= 3;
     }
 
-    //Fitness Part 3: TODO Michael's suggestion from email - started on another branch
-
+    //Fitness Part 3: Only uses a subset of its states for several iterations
+    fitness -= notUsedCounter;
 
     return fitness;
 

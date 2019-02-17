@@ -1,6 +1,7 @@
 public class State {
   private boolean[][] instructions = new boolean[2][2];
   private int oneNextState, zeroNextState;
+  protected int iterationLastUsed;
 
   public State(boolean readZeroWriteOne, boolean readZeroMoveLeft, int zeroNextState,
   boolean readOneWriteOne, boolean readOneMoveLeft, int oneNextState){
@@ -13,6 +14,8 @@ public class State {
     //next state is only instruction that can have more than two values, so use ints.
     this.zeroNextState = zeroNextState;
     this.oneNextState = oneNextState;
+
+    iterationLastUsed = 0;
   }
 
   //true = write one, false = write zero
