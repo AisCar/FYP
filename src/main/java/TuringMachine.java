@@ -10,7 +10,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
   int fitness = -2000000;
   boolean stateReachable[];
   int numHalts;
-  int notUsedCounter;
+  int statesNotUsedCounter;
 
   //other variables
   boolean notHalting;
@@ -34,12 +34,6 @@ public class TuringMachine implements Comparable<TuringMachine> {
     }
   }
 
-  public TuringMachine(){
-    //TODO: Input is bitstream - translate to arraylist
-    //then call above constructor which runs the tm
-    //may not need this depending on later implementation
-  }
-
 
   /*
   main method
@@ -53,7 +47,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
     score = 0;
     notHalting = true;
     hasRun = true;
-    notUsedCounter = 0;
+    statesNotUsedCounter = 0;
 
     //For now: halt after 1million shifts (or reach halt condition)- may change later
     while(notHalting && shifts < 1000000){//remember: max int = 2,147,483,647
@@ -94,11 +88,11 @@ public class TuringMachine implements Comparable<TuringMachine> {
         currentState = states.get(stateNum-1);
       }
 
-      //If any state has not been used in 50*n iterations, increment notUsedCounter
-      if(shifts % (50*states.size()) == 0){
+      //If any state has not been used in 100*n iterations, increment statesNotUsedCounter
+      if(shifts % (100*states.size()) == 0){
         for(State s : states){
-          if(shifts - s.iterationLastUsed > 50*states.size()){
-            notUsedCounter++; //this is used to decrease fitness later on
+          if(shifts - s.iterationLastUsed > 100*states.size()){
+            statesNotUsedCounter++; //this is used to decrease fitness later on
           }
         }
       }
@@ -140,11 +134,10 @@ public class TuringMachine implements Comparable<TuringMachine> {
   */
 
   protected int calculateFitness(){
-    int fitness = this.score * 3; //score should be important - weight higher?
-    //TODO: Should enforce no calculating fitness until after TM has run
-    //TODO: Decide on the values I'm adding to/subtracting from fitness
+    //Fitness Part 1: Busy Beaver score - TODO is multiplying score by 3 better or worse?
+    int fitness = this.score * 3;
 
-    //Fitness Part 1: All states are reachable from the initial state
+    //Fitness Part 2: All states are reachable from the initial state
     areStatesReachable(1);
     for(int i = 0; i < stateReachable.length; i++){
       if(stateReachable[i]){
@@ -155,7 +148,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
       }
     }
 
-    //Fitness Part 2: Is halting
+    //Fitness Part 3: Is halting
     if(numHalts == 0){ //note: numHalts set in areStatesReachable
       //punish TM with no halt conditions
       fitness -= 10;
@@ -169,8 +162,8 @@ public class TuringMachine implements Comparable<TuringMachine> {
       fitness -= 3;
     }
 
-    //Fitness Part 3: Only uses a subset of its states for several iterations
-    fitness -= notUsedCounter;
+    //Fitness Part 4: Only uses a subset of its states for several iterations
+    fitness -= statesNotUsedCounter;
 
     return fitness;
 
