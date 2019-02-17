@@ -57,6 +57,8 @@ public class TuringMachineTest {
 
   @Test
   public void testSortTuringMachinesByFitness(){
+    System.out.println("testSortTuringMachinesByFitness");
+    //TODO: Is this test still viable?
     //Create 1 state Turing Machine
     State state = new State(true, true, 0, true, true, 0);
     ArrayList<State> states = new ArrayList<State>();
@@ -92,7 +94,22 @@ public class TuringMachineTest {
     assertTrue(tm.stateReachable[0]);
     assertTrue(tm.stateReachable[1]);
     assertTrue(!tm.stateReachable[2]);
+  }
 
+  @Test
+  public void testFitnessCalculations(){
+    System.out.println("\n\ntestFitnessCalculations");
+    State state = new State(true, true, 0, true, true, 0);
+    ArrayList<State> states = new ArrayList<State>();
+    states.add(state);
+    TuringMachine tm = new TuringMachine(states);
+    tm.run();
+    //tm.areStatesReachable(1);
+    int fitness = tm.getFitness();
+    System.out.println("Fitness = " + fitness);
+
+    //TODO know num halt conds, how reachable, other fitness factors and
+    //test accordingly
   }
 
 }

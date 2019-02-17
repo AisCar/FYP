@@ -119,24 +119,41 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
   /*
   Method to calculate fitness score
-  (used in genetic algorithm and in sorting TuringMachines)
+  (used in genetic algorithm and for sorting TuringMachines)
   */
 
   protected int calculateFitness(){
-    //TODO
-    int fitness = this.score; //Now have a class variable called fitness as well, so yeah don't forget when writin the code
+    int fitness = this.score;
+    //TODO: Should enforce no calculating fitness until after TM has run
+    //TODO: Decide on the values I'm adding to/subtracting from fitness
 
-    //Fitness Part 1: Is halting
-    // -> Has one halt state (TODO numHalts is now set in areStatesReachable code)
-    // -> Does halt (score != -1) (if has run, obvi)
-
-    //Fitness Part 2: All states are reachable
+    //Fitness Part 1: All states are reachable from the initial state
     areStatesReachable(1);
-    //TODO use the boolean array stateReachable to calculate fitness
+    for(int i = 0; i < stateReachable.length; i++){
+      if(stateReachable[i]){
+        fitness = fitness + 2;
+      }
+      else{
+        fitness = fitness - 5;
+      }
+    }
 
-
+    //Fitness Part 2: Is halting
+    if(numHalts == 0){ //note: numHalts set in areStatesReachable
+      //punish TM with no halt conditions
+      fitness -= 10;
+    }
+    else if(numHalts == 1){
+      //reward TM with exactly one halt condition
+      fitness += 5;
+    }
+    else{
+      //punish TM with multiple halt conditions
+      fitness -= 3;
+    }
 
     //Fitness Part 3: TODO Michael's suggestion from email - started on another branch
+
 
     return fitness;
 
@@ -153,6 +170,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
       areStatesReachable(current.getNextState(false));
       areStatesReachable(current.getNextState(true));
     }
+    //else if (stateReachable[stateNum - 1]) then state has already been assessed
   }
 
 
