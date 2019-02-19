@@ -15,6 +15,8 @@ public class GeneticAlgorithm {
   private boolean increaseMutation;
   private double currentMutationRate;
 
+  private boolean elitismFeature; //feature not yet implemented
+
 
   /*
     Constructors

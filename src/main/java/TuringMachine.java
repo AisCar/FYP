@@ -16,6 +16,11 @@ public class TuringMachine implements Comparable<TuringMachine> {
   boolean notHalting;
   boolean hasRun;
 
+  //feature toggles
+  private boolean reachableFitnessFeature;
+  private boolean numHaltsFitnessFeature;
+  private boolean stateUsageFitnessFeature;
+
 
   /*
   Constructors
@@ -49,8 +54,13 @@ public class TuringMachine implements Comparable<TuringMachine> {
     hasRun = true;
     statesNotUsedCounter = 0;
 
-    //For now: halt after 1million shifts (or reach halt condition)- may change later
-    while(notHalting && shifts < 1000000){//remember: max int = 2,147,483,647
+    /*
+    Note: Current highest known 5-state busy beaver score is 4098, with shift score 47,168,870
+    So don't quit before 50,000,000 shifts (and probably much further if looking for busy
+    beaver score > 4098, but that seems out of scope for this project)
+    (If increasing, remember: max int = 2,147,483,647 - need different datatype)
+     */
+    while(notHalting && shifts < 50000000){
       //If read one from tape
       if(currentCell.readOne()){
         //write
@@ -138,32 +148,39 @@ public class TuringMachine implements Comparable<TuringMachine> {
     int fitness = this.score * 3;
 
     //Fitness Part 2: All states are reachable from the initial state
-    areStatesReachable(1);
-    for(int i = 0; i < stateReachable.length; i++){
-      if(stateReachable[i]){
-        fitness = fitness + 2;
+    if(reachableFitnessFeature){
+      areStatesReachable(1);
+      for(int i = 0; i < stateReachable.length; i++){
+        if(stateReachable[i]){
+          fitness = fitness + 2;
+        }
+        else{
+          fitness = fitness - 5;
+        }
       }
-      else{
-        fitness = fitness - 5;
-      }
+
     }
 
     //Fitness Part 3: Is halting
-    if(numHalts == 0){ //note: numHalts set in areStatesReachable
-      //punish TM with no halt conditions
-      fitness -= 10;
-    }
-    else if(numHalts == 1){
-      //reward TM with exactly one halt condition
-      fitness += 5;
-    }
-    else{
-      //punish TM with multiple halt conditions
-      fitness -= 3;
+    if(numHaltsFitnessFeature){
+      if(numHalts == 0){ //note: numHalts set in areStatesReachable
+        //punish TM with no halt conditions
+        fitness -= 10;
+      }
+      else if(numHalts == 1){
+        //reward TM with exactly one halt condition
+        fitness += 5;
+      }
+      else{
+        //punish TM with multiple halt conditions
+        fitness -= 3;
+      }
     }
 
     //Fitness Part 4: Only uses a subset of its states for several iterations
-    fitness -= statesNotUsedCounter;
+    if(stateUsageFitnessFeature){
+      fitness -= statesNotUsedCounter;
+    }
 
     return fitness;
 
@@ -237,6 +254,24 @@ public class TuringMachine implements Comparable<TuringMachine> {
   //Note: do not use this unless wasAlreadyRun returns true
   public boolean isHalting(){
     return !notHalting;
+  }
+
+  public void setReachableFitnessFeature(boolean reachableFitnessFeature){
+    //sets feature toggle that enables/disables state reachability code in calculateFitness
+    this.reachableFitnessFeature = reachableFitnessFeature;
+
+  }
+
+  public void setNumHaltsFitnessFeature(boolean numHaltsFitnessFeature){
+    //sets feature toggle that enables/disables number of halt conditions code in calculateFitness
+    this.numHaltsFitnessFeature = numHaltsFitnessFeature;
+
+  }
+
+  public void setStateUsageFitnessFeature(boolean stateUsageFitnessFeature){
+    //sets feature toggle that enables/disables state usage code in calculateFitness
+    this.stateUsageFitnessFeature = stateUsageFitnessFeature;
+
   }
 
 }
