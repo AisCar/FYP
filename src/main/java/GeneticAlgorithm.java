@@ -429,13 +429,13 @@ public class GeneticAlgorithm {
 
   }
 
-  public void setNumHaltsFitnessFeature(boolean numHaltsFitnessFeature){
+  public void setNumHaltsFitnessFeature(boolean numHaltsFitnessFeature){ //dont like that these are duplicated here and in TuringMachine
     //sets feature toggle that enables/disables number of halt conditions code in calculateFitness
     this.numHaltsFitnessFeature = numHaltsFitnessFeature;
 
   }
 
-  public void setStateUsageFitnessFeature(boolean stateUsageFitnessFeature){
+  public void setStateUsageFitnessFeature(boolean stateUsageFitnessFeature){ //dont like that these are duplicated here and in TuringMachine
     //sets feature toggle that enables/disables state usage code in calculateFitness
     this.stateUsageFitnessFeature = stateUsageFitnessFeature;
 

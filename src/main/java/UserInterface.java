@@ -314,7 +314,7 @@ public class UserInterface extends JFrame{
     //If user doesn't specify population size or number of generations, set it to 100
     int pop = (populationSize > 0? populationSize : 100);
     int gen = (numGenerations > 0? numGenerations : 10000);
-    int states = (numStates > 0? numStates : 5); //TODO what is a good default value?
+    int states = (numStates > 0? numStates : 5);
 
     crossoverField.setEnabled(false);
     mutationField.setEnabled(false);

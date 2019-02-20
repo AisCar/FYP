@@ -54,13 +54,13 @@ public class TuringMachine implements Comparable<TuringMachine> {
     hasRun = true;
     statesNotUsedCounter = 0;
 
-    /*
-    Note: Current highest known 5-state busy beaver score is 4098, with shift score 47,168,870
-    So don't quit before 50,000,000 shifts (and probably much further if looking for busy
-    beaver score > 4098, but that seems out of scope for this project)
-    (If increasing, remember: max int = 2,147,483,647 - need different datatype)
-     */
-    if(this.haltReachable()){
+    if(this.haltReachable()){ //Don't run if it absolutely cannot halt - just a waste of time (be very very sure that areStatesReachable is working perfectly TODO)
+      /*
+      Note: Current highest known 5-state busy beaver score is 4098, with shift score 47,168,870
+      So don't quit before 50,000,000 shifts (and probably much further if looking for busy
+      beaver score > 4098, but that seems out of scope for this project)
+      (If increasing, remember: max int = 2,147,483,647 - need different datatype)
+      */
       while(notHalting && shifts < 50000000){
         //If read one from tape
         if(currentCell.readOne()){
