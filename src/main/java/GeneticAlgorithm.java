@@ -15,7 +15,11 @@ public class GeneticAlgorithm {
   private boolean increaseMutation;
   private double currentMutationRate;
 
+  //feature toggles
   private boolean elitismFeature; //feature not yet implemented
+  private boolean reachableFitnessFeature;
+  private boolean numHaltsFitnessFeature;
+  private boolean stateUsageFitnessFeature;
 
 
   /*
@@ -74,13 +78,16 @@ public class GeneticAlgorithm {
 
       while(numGenerations < maxGenerations){ //max int value = 2147483647
         //Provide user feedback
-        if(numGenerations % 10000 == 0){
+        //if(numGenerations % 10000 == 0){
           System.out.println("Running generation " + numGenerations + "...");
-        }
+        //} //It's going so slowly now (increased max shifts)
 
         //Run every TuringMachine (that hasn't already been run) in the current population
         for(TuringMachine busyBeaver : population){
           if(!busyBeaver.previouslyRun()){
+            busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature); //TODO: IS this best way to do this?
+            busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);//TODO: IS this best way to do this?
+            busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);//TODO: IS this best way to do this?
             busyBeaver.run();
           }
         }
@@ -108,7 +115,7 @@ public class GeneticAlgorithm {
 
         //Optional feature: If score hasn't increased in many generations, increase the mutation rate
         int generationsSinceChange = numGenerations - increaseGen;
-        if(increaseMutation && (generationsSinceChange > 1) && (generationsSinceChange % 100000 == 0)){
+        if(increaseMutation && (generationsSinceChange > 1) && (generationsSinceChange % 10000 == 0)){
           mutationMultiplier++;
           currentMutationRate = (mutationMultiplier * mutationRate);
           if(currentMutationRate > 1.0){
@@ -415,6 +422,23 @@ public class GeneticAlgorithm {
       }
     }
     return bestTM;
+  }
+  public void setReachableFitnessFeature(boolean reachableFitnessFeature){ //dont like that these are duplicated here and in TuringMachine - consdier a redesign
+    //sets feature toggle that enables/disables state reachability code in calculateFitness
+    this.reachableFitnessFeature = reachableFitnessFeature;
+
+  }
+
+  public void setNumHaltsFitnessFeature(boolean numHaltsFitnessFeature){
+    //sets feature toggle that enables/disables number of halt conditions code in calculateFitness
+    this.numHaltsFitnessFeature = numHaltsFitnessFeature;
+
+  }
+
+  public void setStateUsageFitnessFeature(boolean stateUsageFitnessFeature){
+    //sets feature toggle that enables/disables state usage code in calculateFitness
+    this.stateUsageFitnessFeature = stateUsageFitnessFeature;
+
   }
 
 

@@ -18,10 +18,10 @@ public class UserInterface extends JFrame{
   //TODO: Rename other variables so that you can rename these ones w/o mixing them up
   private double crossover, mutation;
   private int populationSize, numGenerations, numStates;
-  private boolean increaseMutation;
   private JTextField crossoverField, mutationField, generationsField, populationField, numStatesField;
   private JTextArea description;
   private JCheckBox increaseMutationCheckbox, reachabilityFitnessCheckbox, stateUseFitnessCheckbox, numHaltsFitnessCheckbox;
+  private boolean increaseMutation, reachabilityFitnessEnabled, stateUseFitnessEnabled, numHaltsFitnessEnabled;
   //TODO elitism? if time?
 
   public UserInterface(){
@@ -123,17 +123,7 @@ public class UserInterface extends JFrame{
     stateUseFitnessCheckbox.addItemListener(checkboxListener);
     numHaltsFitnessCheckbox = new JCheckBox("encourage Turing machines with exactly one halt condition in fitness calculations");
     numHaltsFitnessCheckbox.addItemListener(checkboxListener);
-    /*
-    p4.add(p4Label);
-    p4.add(increaseMutationCheckbox);
-    p4.add(reachabilityFitnessCheckbox);
-    p4.add(stateUseFitnessCheckbox);
-    p4.add(numHaltsFitnessCheckbox);
 
-    JPanel parentPanel = new JPanel();
-    parentPanel.add(p2);
-    parentPanel.add(p4);
-    */
     p2.add(p4Label);
     p2.add(increaseMutationCheckbox);
     p2.add(reachabilityFitnessCheckbox);
@@ -274,18 +264,18 @@ public class UserInterface extends JFrame{
       if(event.getStateChange() == ItemEvent.SELECTED){
         if(event.getSource() == increaseMutationCheckbox){
           increaseMutation = true;
-          currentDescription = currentDescription + "\nEnabled: Increase mutation rate if score does not increase after __ generations.";
+          currentDescription = currentDescription + "\nEnabled: Increase mutation rate if score does not increase after 10000 generations.";
         }
         else if(event.getSource() == reachabilityFitnessCheckbox){
-          //TODO
+          reachabilityFitnessEnabled = true;
           currentDescription = currentDescription + "\nEnabled: TODO";
         }
         else if(event.getSource() == stateUseFitnessCheckbox){
-          //TODO
+          stateUseFitnessEnabled = true;
           currentDescription = currentDescription + "\nEnabled: TODO";
         }
         else if(event.getSource() == numHaltsFitnessCheckbox){
-          //TODO
+          numHaltsFitnessEnabled = true;
           currentDescription = currentDescription + "\nEnabled: TODO";
         }
 
@@ -297,15 +287,15 @@ public class UserInterface extends JFrame{
           currentDescription = currentDescription + "\nDisabled: Increase mutation rate if score does not increase after __ generations.";
         }
         else if(event.getSource() == reachabilityFitnessCheckbox){
-          //TODO
+          reachabilityFitnessEnabled = false;
           currentDescription = currentDescription + "\nDisabled: TODO";
         }
         else if(event.getSource() == stateUseFitnessCheckbox){
-          //tODO
+          stateUseFitnessEnabled = false;
           currentDescription = currentDescription + "\nDisabled: TODO";
         }
         else if(event.getSource() == numHaltsFitnessCheckbox){
-          //TODO
+          numHaltsFitnessEnabled = false;
           currentDescription = currentDescription + "\nDisabled: TODO";
         }
       }
@@ -338,6 +328,9 @@ public class UserInterface extends JFrame{
 
     //set optional features
     geneticAlgorithm.increaseMutationRate(increaseMutation);
+    geneticAlgorithm.setNumHaltsFitnessFeature(numHaltsFitnessEnabled);
+    geneticAlgorithm.setReachableFitnessFeature(reachabilityFitnessEnabled);
+    geneticAlgorithm.setStateUsageFitnessFeature(stateUseFitnessEnabled);
 
     //run and monitor the genetic algorithm
     geneticAlgorithm.run();
