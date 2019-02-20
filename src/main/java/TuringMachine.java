@@ -60,54 +60,57 @@ public class TuringMachine implements Comparable<TuringMachine> {
     beaver score > 4098, but that seems out of scope for this project)
     (If increasing, remember: max int = 2,147,483,647 - need different datatype)
      */
-    while(notHalting && shifts < 50000000){
-      //If read one from tape
-      if(currentCell.readOne()){
-        //write
-        currentCell.writeOne(currentState.getWrite(true));
-        //adjust score accordingly
-        if(!currentState.getWrite(true)) score--; //Writing a zero decreases score
-        //move
-        currentCell = currentState.getMove(true) ? moveLeft(currentCell) : moveRight(currentCell);
-        shifts++;
-        //next state
-        stateNum = currentState.getNextState(true);
-        if(stateNum == 0) { //check if halting
-          notHalting = false;
-          break;
+    if(this.haltReachable()){
+      while(notHalting && shifts < 50000000){
+        //If read one from tape
+        if(currentCell.readOne()){
+          //write
+          currentCell.writeOne(currentState.getWrite(true));
+          //adjust score accordingly
+          if(!currentState.getWrite(true)) score--; //Writing a zero decreases score
+          //move
+          currentCell = currentState.getMove(true) ? moveLeft(currentCell) : moveRight(currentCell);
+          shifts++;
+          //next state
+          stateNum = currentState.getNextState(true);
+          if(stateNum == 0) { //check if halting
+            notHalting = false;
+            break;
+          }
+          currentState.iterationLastUsed = shifts;
+          currentState = states.get(stateNum-1);
         }
-        currentState.iterationLastUsed = shifts;
-        currentState = states.get(stateNum-1);
-      }
-      //If read zero from tape
-      else{//Read a zero
-        //write
-        currentCell.writeOne(currentState.getWrite(false));
-        //adjust score accordingly
-        if(currentState.getWrite(false)) score++;
-        //move
-        currentCell = currentState.getMove(false) ? moveLeft(currentCell) : moveRight(currentCell);
-        shifts++;
-        //next state
-        stateNum = currentState.getNextState(false);
-        if(stateNum == 0) { //check if halting
-          notHalting = false;
-          break;
+        //If read zero from tape
+        else{//Read a zero
+          //write
+          currentCell.writeOne(currentState.getWrite(false));
+          //adjust score accordingly
+          if(currentState.getWrite(false)) score++;
+          //move
+          currentCell = currentState.getMove(false) ? moveLeft(currentCell) : moveRight(currentCell);
+          shifts++;
+          //next state
+          stateNum = currentState.getNextState(false);
+          if(stateNum == 0) { //check if halting
+            notHalting = false;
+            break;
+          }
+          currentState.iterationLastUsed = shifts;
+          currentState = states.get(stateNum-1);
         }
-        currentState.iterationLastUsed = shifts;
-        currentState = states.get(stateNum-1);
-      }
 
-      //If any state has not been used in 100*n iterations, increment statesNotUsedCounter
-      if(shifts % (100*states.size()) == 0){
-        for(State s : states){
-          if(shifts - s.iterationLastUsed > 100*states.size()){
-            statesNotUsedCounter++; //this is used to decrease fitness later on
+        //If any state has not been used in 100*n iterations, increment statesNotUsedCounter
+        if(shifts % (100*states.size()) == 0){
+          for(State s : states){
+            if(shifts - s.iterationLastUsed > 100*states.size()){
+              statesNotUsedCounter++; //this is used to decrease fitness later on
+            }
           }
         }
-      }
 
-    }//End while
+      }//End while
+
+    }
 
     if(notHalting){
       score = -1;
@@ -149,7 +152,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
     //Fitness Part 2: All states are reachable from the initial state
     if(reachableFitnessFeature){
-      areStatesReachable(1);
+      //areStatesReachable(1); //now called inside run() method
       for(int i = 0; i < stateReachable.length; i++){
         if(stateReachable[i]){
           fitness = fitness + 2;
@@ -198,6 +201,19 @@ public class TuringMachine implements Comparable<TuringMachine> {
       areStatesReachable(current.getNextState(true));
     }
     //else if (stateReachable[stateNum - 1]) then state has already been assessed
+  }
+
+  protected boolean haltReachable(){
+    boolean haltReachable = false;
+    this.areStatesReachable(1);
+    for(int i = 0; i < states.size(); i++){
+      if(states.get(i).getNextState(false) == 0 || states.get(i).getNextState(true) == 0){
+        if(stateReachable[i]){
+          haltReachable = true;
+        }
+      }
+    }
+    return haltReachable;
   }
 
 

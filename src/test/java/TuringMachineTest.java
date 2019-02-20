@@ -1,10 +1,32 @@
 import org.junit.Test;
+import org.junit.Before;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class TuringMachineTest {
+  TuringMachine oneStateHalting;
+  TuringMachine oneStateNonHalting;
+  TuringMachine twoStateNonHalting;
+
+  @Before
+  public void intitialise(){
+    State state1 = new State(true, true, 0, true, true, 0);
+    ArrayList<State> states1 = new ArrayList<State>();
+    states1.add(state1);
+    this.oneStateHalting = new TuringMachine(states1);
+
+    State state2 = new State(true, true, 1, true, true, 1);
+    ArrayList<State> states2 = new ArrayList<State>();
+    states2.add(state2);
+    this.oneStateNonHalting = new TuringMachine(states2);
+
+    ArrayList<State> states3 = new ArrayList<State>();
+    states3.add(state2);
+    states3.add(state1);
+    this.twoStateNonHalting = new TuringMachine(states3);
+  }
 
   @Test
   public void testOneStateBusyBeaver(){
@@ -110,6 +132,13 @@ public class TuringMachineTest {
 
     //TODO know num halt conds, how reachable, other fitness factors and
     //test accordingly
+  }
+
+  @Test
+  public void testHaltReachable(){
+    assertTrue(oneStateHalting.haltReachable());
+    assertTrue(!oneStateNonHalting.haltReachable());
+    assertTrue(!twoStateNonHalting.haltReachable());
   }
 
 }
