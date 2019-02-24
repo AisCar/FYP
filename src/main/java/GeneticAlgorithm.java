@@ -26,10 +26,10 @@ public class GeneticAlgorithm {
     Constructors
    */
 
-  public GeneticAlgorithm(int populationSize, int numStates){//keep? remove?
+  public GeneticAlgorithm(int populationSize, int numStates, ArrayList<TuringMachine> testPopulation){
+    //IMPORTANT: Constructor for testing purposes only
     this.numStates = numStates;
-    pop = new PopulationGenerator(numStates, populationSize);
-    population = pop.getPopulation();
+    population = testPopulation;
     translator = new Translator(numStates);
     crossoverRate = 0.6;
     mutationRate = 0.1;
@@ -109,8 +109,6 @@ public class GeneticAlgorithm {
           System.out.println("New high score achieved in generation " + numGenerations);
           System.out.println("Score = " + score);
           System.out.println(tm.toString());
-
-
         }
 
         //Optional feature: If score hasn't increased in many generations, increase the mutation rate
@@ -163,7 +161,13 @@ public class GeneticAlgorithm {
 
 
     //Perform selection
-    nextGeneration = select();
+    try{
+      nextGeneration = select();
+    }
+    catch(GeneticAlgorithmException gae){
+      //TODO handle - throw back up, should really cancel whole program
+      //like if it gets here then we will have the same population for however many generations are left (well, not true because crossover and mutation but still not ideal yknow)
+    }
 
     //Perform crossover
     nextGeneration = crossover(nextGeneration);
@@ -272,45 +276,53 @@ public class GeneticAlgorithm {
    }
 
 
-   public ArrayList<TuringMachine> select(){
-    int numToSelect = population.size();
-     /*
-     Create an array of cumulative selection probability upperbounds where the
-     first element is k times more likely than the last to be chosen
-     Each interval has size (j/denominator) for j descending in range (1, k)
-     */
-     int k = population.size();
-     int denominator = 0;
-     for(int i = k; i > 0; i--){
-       denominator += i;
-     }
+    public ArrayList<TuringMachine> select() throws GeneticAlgorithmException{
+      int numToSelect = population.size();
+      ArrayList<TuringMachine> selected = new ArrayList<TuringMachine>();
 
-     double[] selectionProbs = new double[population.size()];
+      //In case of negative fitness scores, normalise all fitness values:
+      int adjustment = 0;
+      for(TuringMachine tm : population){
+        if(tm.getFitness() < 0 && Math.abs(tm.getFitness()) > adjustment){
+          adjustment = Math.abs(tm.getFitness()) + 1;//+1 prevents zero probability
+        }
+      }
 
-     if(denominator != 0){
-       double cumulativeProbability = 0.0;
-       for(int i = 0; i < population.size(); i++){
-         double interval = ((float) k) / denominator;
-         cumulativeProbability += interval;
-         selectionProbs[i] = cumulativeProbability;
-         k--;
-       }
-     }
+      //sum all fitnesses (plus adjustments, if needed) for selection probability denominator
+      int denominator = 0;
+      for(TuringMachine tm : population){
+        denominator += (tm.getFitness() + adjustment);
+      }
 
-     //finally select numToSelect TuringMachines and return them in an ArrayList
-     ArrayList<TuringMachine> selected = new ArrayList<TuringMachine>();
-     double rand;
-     while(selected.size() < numToSelect){
-       rand = Math.random();
-       //find the TuringMachine corresponding to rand
-       for(int i = 0; i < selectionProbs.length; i++){
-         if(rand <= selectionProbs[i]){
-           //Add the corresponding TM to the arraylist
-           selected.add(population.get(i));
-           break; //out of for loop, not while
-         }
-       }
-     }
+      //create an array of probabilities of selecting each TuringMachine (sum to 1)
+      double[] selectionProbs = new double[population.size()];
+      double probabilityInterval = 0.0;
+      if(denominator != 0){
+        for(int i = 0; i < population.size(); i++){
+          double numerator = (double) population.get(i).getFitness() + adjustment;
+          //selection probability = fitness of each tm / sum of fitnesses of all tms
+          double intervalSize = numerator / denominator;
+          probabilityInterval += intervalSize;
+          selectionProbs[i] = probabilityInterval;
+        }
+      }
+      else{
+        throw new GeneticAlgorithmException("Zero denominator");
+      }
+
+      //finally select numToSelect TuringMachines and return them in an ArrayList
+      double rand;
+      while(selected.size() < numToSelect){
+        rand = Math.random();
+        //find the TuringMachine corresponding to rand
+        for(int i = 0; i < selectionProbs.length; i++){
+          if(rand <= selectionProbs[i]){
+            //Add the corresponding TM to the arraylist
+            selected.add(population.get(i));
+            break; //out of for loop, not while
+          }
+        }
+      }
      return selected;
    }
 

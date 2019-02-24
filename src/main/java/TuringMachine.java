@@ -7,7 +7,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
   ArrayList<State> states;
 
   //fitness variables
-  int fitness = -2000000;
+  protected int fitness = -2000000;
   boolean stateReachable[];
   int numHalts;
   int statesNotUsedCounter;

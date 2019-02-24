@@ -3,17 +3,31 @@ import org.junit.Before;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
+import static org.mockito.Mockito.*;
+
 
 public class GeneticAlgorithmTest {
   GeneticAlgorithm ga;
 
   @Before
   public void initialise(){
-    ga = new GeneticAlgorithm(1,1);
+    //currently used in testCrossover, testMutation, testSelection
+    ArrayList<TuringMachine> pop = new ArrayList<TuringMachine>();
+    TuringMachine tm1 = mock(TuringMachine.class);
+    TuringMachine tm2 = mock(TuringMachine.class);
+    TuringMachine tm3 = mock(TuringMachine.class);
+    when(tm1.getFitness()).thenReturn(5);
+    when(tm2.getFitness()).thenReturn(10);
+    when(tm3.getFitness()).thenReturn(-5);
+    pop.add(tm1);
+    pop.add(tm2);
+    pop.add(tm3);
+    ga = new GeneticAlgorithm(3, 1, pop);
   }
 
   @Test
-  public void mutationTest(){
+  public void testMutation(){
+    System.out.println("mutationTest");
     boolean[] chromosome = {true, false, true, false, true, false};
     //GeneticAlgorithm ga = new GeneticAlgorithm();
     boolean[] mutatedChromosome = this.ga.mutateSingle(chromosome);
@@ -28,8 +42,8 @@ public class GeneticAlgorithmTest {
   }
 
   @Test
-  public void crossoverTest(){
-    System.out.println("\ncrossoverTest");
+  public void testCrossover(){
+    System.out.println("\ntestCrossover");
     boolean[] parent1 = {true, true, true, true, true, true};
     boolean[] parent2 = {false, false, false, false, false, false};
     boolean[][] children = this.ga.crossoverSingle(parent1, parent2);
@@ -71,36 +85,55 @@ public class GeneticAlgorithmTest {
 
   @Test
   public void testSelection(){
-    //generate 10 1-state TuringMachines
-    GeneticAlgorithm ga2 = new GeneticAlgorithm(10, 1);
-    //select 4 of them
-    ArrayList<TuringMachine> selected = ga2.select();
-    //TODO make test better
-    assertEquals(10, selected.size()); //now redundant - testing old functionality - had to be changed - remove?
-    //assertTrue(!selected.get(0).equals(selected.get(1))); //could coincidentally be same
+    System.out.println("testSelection");
+    //ArrayList<TuringMachine> original = ga.getPopulation();
+    ArrayList<TuringMachine> selected = new ArrayList<TuringMachine>(); //to suppress compilation failure
+    try{
+      selected = ga.select();
+    }
+    catch(GeneticAlgorithmException gae){
+      System.out.println(gae.getMessage());
+      assertTrue(false); //TODO there's a better way to fail a test... fail()?
+    }
+    assertEquals(3, selected.size());
+    //TODO improve this test - would be nice to assert selectionProbs values...
   }
 
 
   @Test
   public void testNextGeneration(){
     System.out.println("\ntestNextGeneration");
-    GeneticAlgorithm ga2 = new GeneticAlgorithm(10, 1);
+    //needs its own ga because otherwise would overwrite mock TMs with real ones
+    GeneticAlgorithm ga2 = new GeneticAlgorithm(10, 1, 0.6, 0.1);
     ArrayList<TuringMachine> initialPop = ga2.getPopulation();
+    int fitness = 1;
+    for(TuringMachine tm : ga2.getPopulation()){
+      //actually running them would take too long so just setting an arbitrary fitness value (used in select())
+      tm.fitness = fitness;
+      fitness++;
+    }
+
+    /*
     for(TuringMachine tm : initialPop){
       System.out.println(tm);
     }
     System.out.println("-----");
-    ga2.nextGeneration(); //note TuringMachines arent run so sorting is pointless
+    */
+    ga2.nextGeneration();
     ArrayList<TuringMachine> nextPop = ga2.getPopulation();
+    /*
     for(TuringMachine tm : nextPop){
       System.out.println(tm);
     }
+    */
+
     //This isn't really a proper test but I'm satisifed just for now
     //TODO more exhaustive tests
   }
 
   @Test
   public void testRun(){
+    System.out.println("testRun");
     /*
     Temporary test: See if GA successfully evolves 2, 3, 4 state machines with highest state Busy Beaver Score
     Known high scores:
@@ -144,7 +177,7 @@ public class GeneticAlgorithmTest {
   @Test
   public void testRepair(){
     System.out.println("\ntestRepair");
-    GeneticAlgorithm ga2 = new GeneticAlgorithm(1, 4);
+    GeneticAlgorithm ga2 = new GeneticAlgorithm(1, 4, 0.6, 0.1);
     //set next state to 5 (101) and 7 (111)
     boolean[] gene = {true, false, true, false, true, false, true, true, true, true};
     //add same gene to chromosome 4 times (4 states are identical)
