@@ -110,30 +110,6 @@ public class Translator {
 
 
 
-
-  //Method to translate TuringMachine objects to state transition tables
-  //(for not-yet-implemented user interface - may change a lot later)
-  public ArrayList<String> toStateTransitionTable(TuringMachine tm){
-    ArrayList<String> strings = new ArrayList<String>();
-    strings.add("State\tRead\tWrite\tMove\tNext State");
-    int stateNum = 1;
-    for(State s : tm.getStates()){
-      String stateString = "";
-      boolean readOne = false;
-      for(int i = 0; i < 2; i++){
-        String direction = s.getMove(readOne)? "left" : "right";
-        int write = s.getWrite(readOne)? 1 : 0;
-        stateString = stateString + stateNum + "\t" + i + "\t " + write +
-          "\t" + direction + "\t" + s.getNextState(readOne) + "\n";
-        readOne = true;
-      }
-      strings.add(stateString);
-      stateNum++;
-    }
-    return strings;
-  }
-
-
   /*
   Helper methods
   */
@@ -186,17 +162,6 @@ public class Translator {
       bitSets.add(toBitArray(tm));
     }
     return bitSets;
-  }
-
-  public ArrayList<String> getStateTransitionTables(ArrayList<TuringMachine> turingMachines){
-    int i = 1;
-    ArrayList<String> strings = new ArrayList<String>();
-    for(TuringMachine tm : turingMachines){
-      strings.add("Turing Machine " + i);
-      i++;
-      strings.addAll(toStateTransitionTable(tm));
-    }
-    return strings;
   }
 
 
