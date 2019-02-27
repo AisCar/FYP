@@ -68,8 +68,9 @@ public class GeneticAlgorithm {
     main genetic algorithm method
   */
     public void run(){
-      numGenerations = 0;
-      int score = 0;
+      numGenerations = 0; //counter for number of generations that have run
+      int score = 0; //highest busy beaver score in this run of the genetic algorithm
+      TuringMachine currBestTM; //best Turing machine in current generation
 
       //increase mutation variables
       this.currentMutationRate = this.mutationRate;
@@ -78,9 +79,9 @@ public class GeneticAlgorithm {
 
       while(numGenerations < maxGenerations){ //max int value = 2147483647
         //Provide user feedback
-        //if(numGenerations % 10000 == 0){
+        if(numStates > 4 || numGenerations % 1000 == 0){ //print less frequently if n <= 4 because these don't run so slowly
           System.out.println("Running generation " + numGenerations + "...");
-        //} //It's going so slowly now (increased max shifts)
+        }
 
         //Run every TuringMachine (that hasn't already been run) in the current population
         for(TuringMachine busyBeaver : population){
@@ -96,8 +97,8 @@ public class GeneticAlgorithm {
         Collections.sort(population);
 
         //Check if score has increased
-        TuringMachine tm = this.getHighestScoringTM();
-        int currBestScore = tm.getScore();
+        currBestTM = this.getHighestScoringTM();
+        int currBestScore = currBestTM.getScore();
         if(currBestScore > score){
           //update variables
           score = currBestScore;
@@ -108,12 +109,13 @@ public class GeneticAlgorithm {
           //Print out details of new highest scoring tm
           System.out.println("New high score achieved in generation " + numGenerations);
           System.out.println("Score = " + score);
-          System.out.println(tm.toString());
+          System.out.println(currBestTM.toString());
+          System.out.println("(Fitness: %d)" + currBestTM.getFitness());
         }
 
         //Optional feature: If score hasn't increased in many generations, increase the mutation rate
         int generationsSinceChange = numGenerations - increaseGen;
-        if(increaseMutation && (generationsSinceChange > 1) && (generationsSinceChange % 10000 == 0)){
+        if(increaseMutation && (generationsSinceChange > 1) && (generationsSinceChange % 100 == 0)){ //NOTE: Changed from 10000(ridiculous) to 100(ok?)
           mutationMultiplier++;
           currentMutationRate = (mutationMultiplier * mutationRate);
           if(currentMutationRate > 1.0){
@@ -121,17 +123,15 @@ public class GeneticAlgorithm {
           }
           System.out.println("Mutation rate is now " + currentMutationRate + "%");
         }
-/*
-        if(numGenerations % 1000 == 0){
+
+        if(numGenerations % 200 == 0){
           //Print out a summary.
-          System.out.println("Current highest scoring tm: ");
-          for(String str : translator.toStateTransitionTable(population.get(0))){
-            System.out.println(str);
-          }
-          System.out.println("Score: " + population.get(0).getScore());
-          System.out.println("Highest score achieved: " + score);
+          System.out.println("Generation " + numGenerations + " Summary\nCurrent highest scoring tm: ");
+          currBestTM = this.getHighestScoringTM();
+          System.out.println(currBestTM.toString());
+          System.out.println("Score: " + currBestTM.getScore() + "\tFitness: " + currBestTM.getFitness());
         }
-        */
+
 
 
         //If max score found, exit
@@ -143,8 +143,19 @@ public class GeneticAlgorithm {
           this.population = nextGeneration();
         }
 
-
         numGenerations++;
+      }
+
+      //Final summary
+      currBestTM = this.getHighestScoringTM();
+      System.out.println("\n\nFinal best scoring:");
+      System.out.println(currBestTM.toString());
+      System.out.println("Score: " + currBestTM.getScore());
+      System.out.println("Highest score achieved: " + score);
+      System.out.println("\nTop 10 highest fitness:");
+      for (int i = 0; i < 10; i++) {
+        currBestTM = population.get(i);
+        System.out.println(currBestTM.toString() + "\nScore: " + currBestTM.getScore() + "\nShifts: " + currBestTM.getShifts() + "\nFitness: " + currBestTM.getFitness());
       }
       //TODO - proper convergence
   }
