@@ -10,6 +10,7 @@ UserInterface will:
 1. Take input parameters for GeneticAlgorithm (population size, crossover rate,
 mutation rate etc.) as well as n (number of states)
 2. Display information about current program run
+3. Enable/Disable optional features
 */
 
 //TODO comments everywhere, this is awful
@@ -21,8 +22,11 @@ public class UserInterface extends JFrame{
   private JTextField crossoverField, mutationField, generationsField, populationField, numStatesField;
   private JTextArea description;
   private JCheckBox increaseMutationCheckbox, reachabilityFitnessCheckbox, stateUseFitnessCheckbox, numHaltsFitnessCheckbox;
+  private JButton runGAButton, stopGAButton;
   private boolean increaseMutation, reachabilityFitnessEnabled, stateUseFitnessEnabled, numHaltsFitnessEnabled;
   //TODO elitism? if time?
+  private GeneticAlgorithm geneticAlgorithm;
+  JPanel p4;
 
   public UserInterface(){
     super("Busy Beavers");
@@ -101,21 +105,15 @@ public class UserInterface extends JFrame{
     p3.add(description);
 
 
-    //Button to run the program
-    JButton runGAButton = new JButton("Run Genetic Algorithm");
-    runGAButton.addActionListener(new ActionListener(){
-      @Override
-      public void actionPerformed(ActionEvent event){
-        description.setText("Now running genetic algorithm...");
-        description.setVisible(true);
-        //TODO set all in panel 2 to not editable - maybe replace em w a new panel?
-        runGeneticAlgorithm();
-      }
-    });
+    //Button to run the program, and button to cancel running the program once it has started
+    runGAButton = new JButton("Run Genetic Algorithm");
+    stopGAButton = new JButton("Stop"); //TODO popup are you sure
+    ButtonHandler buttonHandler = new ButtonHandler();
+    runGAButton.addActionListener(buttonHandler);
+    stopGAButton.addActionListener(buttonHandler);
 
-    //TODO: Optional features panel
+
     //Checkboxes for feature toggles
-    //JPanel p4 = new JPanel();
     JLabel p4Label = new JLabel("Optional Features");
     reachabilityFitnessCheckbox = new JCheckBox("include state reachability in fitness calculations"); // after several generations with no improvement");
     reachabilityFitnessCheckbox.addItemListener(checkboxListener);
@@ -123,6 +121,9 @@ public class UserInterface extends JFrame{
     stateUseFitnessCheckbox.addItemListener(checkboxListener);
     numHaltsFitnessCheckbox = new JCheckBox("encourage Turing machines with exactly one halt condition in fitness calculations");
     numHaltsFitnessCheckbox.addItemListener(checkboxListener);
+
+    p4 = new JPanel();
+    p4.add(runGAButton);
 
     p2.add(p4Label);
     p2.add(increaseMutationCheckbox);
@@ -133,9 +134,9 @@ public class UserInterface extends JFrame{
 
     //Add all panels to the frame
     getContentPane().add(BorderLayout.NORTH, p1);
-    getContentPane().add(BorderLayout.WEST, p2);//p2);
+    getContentPane().add(BorderLayout.WEST, p2);
     getContentPane().add(BorderLayout.EAST, p3);
-    getContentPane().add(BorderLayout.SOUTH, runGAButton);
+    getContentPane().add(BorderLayout.SOUTH, p4);
     setVisible(true);
   }
 
@@ -153,6 +154,75 @@ public class UserInterface extends JFrame{
   /*
   Event handlers
   */
+
+  private class ButtonHandler implements ActionListener {
+    @Override
+    public void actionPerformed(ActionEvent event){
+      if(event.getSource() == runGAButton){
+        //Provide feedback in large text area
+        description.setText("Now running genetic algorithm...");
+        description.setVisible(true);
+
+        //Make all fields not editable
+        crossoverField.setEnabled(false);
+        mutationField.setEnabled(false);
+        generationsField.setEnabled(false);
+        populationField.setEnabled(false);
+        numStatesField.setEnabled(false);
+        increaseMutationCheckbox.setEnabled(false);
+        numHaltsFitnessCheckbox.setEnabled(false);
+        reachabilityFitnessCheckbox.setEnabled(false);
+        stateUseFitnessCheckbox.setEnabled(false);
+
+        //Replace runGAButton with stopGAButton
+        p4.remove(runGAButton);
+        p4.add(stopGAButton);
+        p4.setVisible(true);
+        p4.updateUI();
+
+        //Call method that creates a GeneticAlgorithm object and calls its run method
+        runGeneticAlgorithm();
+
+      }
+      else if(event.getSource() == stopGAButton){
+        if(geneticAlgorithm != null){
+          //Ask if user really wants to stop the genetic algorithm
+          int input = JOptionPane.showConfirmDialog(stopGAButton, "Are you sure you want to stop the genetic algorithm?", "Cancel?",  JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION);//JOptionPane.WARNING_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
+          if(input == 0){
+            //Provide feedback in large text area
+            description.setText("Now stopping genetic algorithm...");
+            description.setVisible(true);
+
+            //Make all fields editable again
+            crossoverField.setEnabled(true);
+            mutationField.setEnabled(true);
+            generationsField.setEnabled(true);
+            populationField.setEnabled(true);
+            numStatesField.setEnabled(true);
+            increaseMutationCheckbox.setEnabled(true);
+            numHaltsFitnessCheckbox.setEnabled(true);
+            reachabilityFitnessCheckbox.setEnabled(true);
+            stateUseFitnessCheckbox.setEnabled(true);
+
+            //replace stopGAButton with runGAButton
+            p4.remove(stopGAButton);
+            p4.add(runGAButton);
+            p4.setVisible(true);
+            p4.updateUI();
+
+            //Stop GeneticAlgorithm's run method (after current generation)
+            geneticAlgorithm.setStopRunning(true);
+            //TODO - summarise?
+
+          } //else user has said cancel so leave genetic algorithm running
+        }
+        else{ //geneticAlgorithm is null
+          //TODO throw an error - even though should be unreachable - button shouldn't appear until after ga created
+        }
+      }
+    }
+
+  }
 
   //ActionListener for crossover rate and mutation rate parameters
   private class DoubleInputHandler implements ActionListener {
@@ -316,15 +386,17 @@ public class UserInterface extends JFrame{
     int gen = (numGenerations > 0? numGenerations : 10000);
     int states = (numStates > 0? numStates : 5);
 
+    /*
     crossoverField.setEnabled(false);
     mutationField.setEnabled(false);
     generationsField.setEnabled(false);
     populationField.setEnabled(false);
     numStatesField.setEnabled(false);
     increaseMutationCheckbox.setEnabled(false);
+    */
 
     //create a GeneticAlgorithm object
-    GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(pop, states, numGenerations, crossover, mutation);
+    geneticAlgorithm = new GeneticAlgorithm(pop, states, numGenerations, crossover, mutation);
 
     //set optional features
     geneticAlgorithm.increaseMutationRate(increaseMutation);
