@@ -27,7 +27,7 @@ public class GeneticAlgorithm {
     Constructors
    */
 
-  public GeneticAlgorithm(int populationSize, int numStates, ArrayList<TuringMachine> testPopulation){
+  public GeneticAlgorithm(int populationSize, int numStates, ArrayList<TuringMachine> testPopulation){//TODO get rid of populationSize parameter
     //IMPORTANT: Constructor for testing purposes only
     this.numStates = numStates;
     population = testPopulation;
@@ -40,17 +40,6 @@ public class GeneticAlgorithm {
     //run();
   }
 
-  public GeneticAlgorithm(int populationSize, int numStates, double crossoverRate, double mutationRate){
-    this.numStates = numStates;
-    pop = new PopulationGenerator(numStates, populationSize);
-    population = pop.getPopulation();
-    translator = new Translator(numStates);
-    this.crossoverRate = crossoverRate;
-    this.mutationRate = mutationRate;
-    currentMutationRate = mutationRate;
-    numGenerations = 0;
-    //run();
-  }
 
   public GeneticAlgorithm(int populationSize, int numStates, int maxGenerations, double crossoverRate, double mutationRate){
     this.numStates = numStates;

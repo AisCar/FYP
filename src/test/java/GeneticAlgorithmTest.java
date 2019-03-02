@@ -104,7 +104,7 @@ public class GeneticAlgorithmTest {
   public void testNextGeneration(){
     System.out.println("\ntestNextGeneration");
     //needs its own ga because otherwise would overwrite mock TMs with real ones
-    GeneticAlgorithm ga2 = new GeneticAlgorithm(10, 1, 0.6, 0.1);
+    GeneticAlgorithm ga2 = new GeneticAlgorithm(10, 1, 1, 0.6, 0.1);
     ArrayList<TuringMachine> initialPop = ga2.getPopulation();
     int fitness = 1;
     for(TuringMachine tm : ga2.getPopulation()){
@@ -131,53 +131,11 @@ public class GeneticAlgorithmTest {
     //TODO more exhaustive tests
   }
 
-  @Test
-  public void testRun(){
-    System.out.println("testRun");
-    /*
-    Temporary test: See if GA successfully evolves 2, 3, 4 state machines with highest state Busy Beaver Score
-    Known high scores:
-    2-state:
-    3-state: 6 (success!)
-    4-state: 13 (success!! eventually)
-     */
-
-    //ok run 4 overnight, see how goes.
-    /*
-    ArrayList<TuringMachine> best = new ArrayList<TuringMachine>();
-    for(int i = 0; i < 4; i++){
-      GeneticAlgorithm bigGA = new GeneticAlgorithm(100, 4);
-      bigGA.run();
-      best.add(bigGA.getPopulation().get(0));
-      System.out.println("Test: " + bigGA.getPopulation().get(0).getScore());
-    }
-    //TODO print out TMs, not just their scores
-    int j = 0;
-    for(TuringMachine tm : best){
-      System.out.println("Best score " + j + ": " + tm.getScore());
-      j++;
-    }
-    */
-
-
-/*
-    GeneticAlgorithm bigGA = new GeneticAlgorithm(200, 4); //change this line as needed
-    ArrayList<TuringMachine> initialPop = bigGA.getPopulation();
-    bigGA.run();
-    ArrayList<TuringMachine> finalPop = bigGA.getPopulation();
-    System.out.println("\ntestRun\n");
-    System.out.println("Population size: " + initialPop.size() + " -> " + finalPop.size());
-    TuringMachine someTM = finalPop.get(0);
-
-    System.out.println("Best score: " + finalPop.get(0).getScore());
-    */
-
-  }
 
   @Test
   public void testRepair(){
     System.out.println("\ntestRepair");
-    GeneticAlgorithm ga2 = new GeneticAlgorithm(1, 4, 0.6, 0.1);
+    GeneticAlgorithm ga2 = new GeneticAlgorithm(1, 4, new ArrayList<TuringMachine>());
     //set next state to 5 (101) and 7 (111)
     boolean[] gene = {true, false, true, false, true, false, true, true, true, true};
     //add same gene to chromosome 4 times (4 states are identical)
