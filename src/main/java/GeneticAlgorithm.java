@@ -27,7 +27,7 @@ public class GeneticAlgorithm {
     Constructors
    */
 
-  public GeneticAlgorithm(int populationSize, int numStates, ArrayList<TuringMachine> testPopulation){//TODO get rid of populationSize parameter
+  public GeneticAlgorithm(int numStates, ArrayList<TuringMachine> testPopulation){
     //IMPORTANT: Constructor for testing purposes only
     this.numStates = numStates;
     population = testPopulation;

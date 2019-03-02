@@ -22,7 +22,7 @@ public class GeneticAlgorithmTest {
     pop.add(tm1);
     pop.add(tm2);
     pop.add(tm3);
-    ga = new GeneticAlgorithm(3, 1, pop);
+    ga = new GeneticAlgorithm(1, pop);
   }
 
   @Test
@@ -135,7 +135,7 @@ public class GeneticAlgorithmTest {
   @Test
   public void testRepair(){
     System.out.println("\ntestRepair");
-    GeneticAlgorithm ga2 = new GeneticAlgorithm(1, 4, new ArrayList<TuringMachine>());
+    GeneticAlgorithm ga2 = new GeneticAlgorithm(4, new ArrayList<TuringMachine>());
     //set next state to 5 (101) and 7 (111)
     boolean[] gene = {true, false, true, false, true, false, true, true, true, true};
     //add same gene to chromosome 4 times (4 states are identical)
