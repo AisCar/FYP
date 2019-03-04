@@ -3,9 +3,8 @@ import java.util.Collections;
 
 public class GeneticAlgorithm {
   //class variables
-  private double mutationRate, crossoverRate;
-  private ArrayList<TuringMachine> population;
-  private PopulationGenerator pop;
+  private double mutationRate, crossoverRate, elitismRate;
+  protected ArrayList<TuringMachine> population;
   private Translator translator;
   private int numStates;
   private int numGenerations;
@@ -17,7 +16,6 @@ public class GeneticAlgorithm {
   private double currentMutationRate;
 
   //feature toggles
-  private boolean elitismFeature; //feature not yet implemented
   private boolean reachableFitnessFeature;
   private boolean numHaltsFitnessFeature;
   private boolean stateUsageFitnessFeature;
@@ -34,23 +32,27 @@ public class GeneticAlgorithm {
     translator = new Translator(numStates);
     crossoverRate = 0.6;
     mutationRate = 0.1;
+    elitismRate = 0.0;
     currentMutationRate = mutationRate;
     this.numStates = numStates;
     numGenerations = 0;
-    //run();
   }
 
 
-  public GeneticAlgorithm(int populationSize, int numStates, int maxGenerations, double crossoverRate, double mutationRate){
+  public GeneticAlgorithm(int populationSize, int numStates, int maxGenerations, double crossoverRate, double mutationRate, double elitismRate) throws GeneticAlgorithmException {
     this.numStates = numStates;
-    pop = new PopulationGenerator(numStates, populationSize);
+    PopulationGenerator pop = new PopulationGenerator(numStates, populationSize);
     population = pop.getPopulation();
     translator = new Translator(numStates);
     this.crossoverRate = crossoverRate;
     this.mutationRate = mutationRate;
+    this.elitismRate = elitismRate;
     currentMutationRate = mutationRate;
     numGenerations = 0;
     this.maxGenerations = maxGenerations;
+    if(elitismRate + crossoverRate > 1.0 || elitismRate + mutationRate > 1.0){
+      throw new GeneticAlgorithmException("Elitism/Crossover/Mutation rate too high");
+    }
   }
 
 
@@ -66,6 +68,10 @@ public class GeneticAlgorithm {
       this.currentMutationRate = this.mutationRate;
       int mutationMultiplier = 1;
       int increaseGen = 0;
+
+      if(elitismRate == 1.0){
+        maxGenerations = 1;
+      }
 
       while((numGenerations < maxGenerations) && !stopRunning){ //max int value = 2147483647
         //Provide user feedback
@@ -163,14 +169,15 @@ public class GeneticAlgorithm {
 
     ArrayList<TuringMachine> nextGeneration = new ArrayList<TuringMachine>();
 
+    int numElite = (int) (population.size() * elitismRate);
 
     //Perform selection
     try{
-      nextGeneration = select();
+      nextGeneration = select(population.size() - numElite);
     }
     catch(GeneticAlgorithmException gae){
+      //As of right now, this is caused by zero denominator which is caused by all zero fitnesses.
       //TODO handle - throw back up, should really cancel whole program
-      //like if it gets here then we will have the same population for however many generations are left (well, not true because crossover and mutation but still not ideal yknow)
     }
 
     //Perform crossover
@@ -178,6 +185,11 @@ public class GeneticAlgorithm {
 
     //Perform mutation
     nextGeneration = mutation(nextGeneration);
+
+    //If elitismRate > 0, add fittest Turing machines to nextGeneration unmodified
+    for(int i = 0; i < numElite; i++){
+      nextGeneration.add(population.get(i));
+    }
 
     //Return the new population
     return nextGeneration;
@@ -199,11 +211,15 @@ public class GeneticAlgorithm {
   protected ArrayList<TuringMachine> crossover(ArrayList<TuringMachine> machines){
     //Shuffle population
     Collections.shuffle(machines);
-    int numToCrossOver = (int) (machines.size() * crossoverRate);
+    int numToCrossOver = (int) (population.size() * crossoverRate);
+    if(numToCrossOver > machines.size()){
+      System.out.println("Warning: Attempted to cross over more chromosomes than were available for crossover");
+      numToCrossOver = machines.size();//is this needed?
+    }
 
     //Make sure to have an even number of parents
     if(numToCrossOver % 2 != 0){
-      numToCrossOver++; //or -- instead?
+      numToCrossOver--; //was ++, now -- in case crossoverRate = 100% (or elitism causes not enough available for crossoverRate)
     }
 
     //Perform crossover on the first numToCrossOver parents in the population
@@ -256,7 +272,14 @@ public class GeneticAlgorithm {
 
   protected ArrayList<TuringMachine> mutation(ArrayList<TuringMachine> machines){
     Collections.shuffle(machines);
-    int numToMutate = (int) (machines.size() * currentMutationRate);
+    int numToMutate = (int) (population.size() * currentMutationRate);
+
+    if(numToMutate > machines.size()){
+      //With increaseMutation enabled, numToMutate could become larger than the number of machines that can be mutated
+      numToMutate = machines.size();
+      //throw new GeneticAlgorithmException("Mutation rate too high: trying to mutate " + numToMutate + " Turing machines, method only received " +  machines.size());
+    }
+
 
     //mutate the first numToMutate TMs in the population
     for(int i = 0; i < numToMutate; i++){
@@ -280,14 +303,13 @@ public class GeneticAlgorithm {
    }
 
 
-    public ArrayList<TuringMachine> select() throws GeneticAlgorithmException{
-      int numToSelect = population.size();
+    public ArrayList<TuringMachine> select(int numToSelect) throws GeneticAlgorithmException{
       ArrayList<TuringMachine> selected = new ArrayList<TuringMachine>();
 
       //In case of negative fitness scores, normalise all fitness values:
       int adjustment = 0;
       for(TuringMachine tm : population){
-        if(tm.getFitness() < 0 && Math.abs(tm.getFitness()) > adjustment){
+        if(tm.getFitness() < 0 && Math.abs(tm.getFitness()) >= adjustment){
           adjustment = Math.abs(tm.getFitness()) + 1;//+1 prevents zero probability
         }
       }
@@ -401,7 +423,6 @@ public class GeneticAlgorithm {
 
      return chromosome; //to prevent compilation errors
    }
-
 
 
 

@@ -2,6 +2,7 @@ import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import static org.mockito.Mockito.*;
 
@@ -16,12 +17,15 @@ public class GeneticAlgorithmTest {
     TuringMachine tm1 = mock(TuringMachine.class);
     TuringMachine tm2 = mock(TuringMachine.class);
     TuringMachine tm3 = mock(TuringMachine.class);
+    TuringMachine tm4 = mock(TuringMachine.class);
     when(tm1.getFitness()).thenReturn(5);
     when(tm2.getFitness()).thenReturn(10);
     when(tm3.getFitness()).thenReturn(-5);
+    when(tm3.getFitness()).thenReturn(0);
     pop.add(tm1);
     pop.add(tm2);
     pop.add(tm3);
+    pop.add(tm4);
     ga = new GeneticAlgorithm(1, pop);
   }
 
@@ -89,44 +93,51 @@ public class GeneticAlgorithmTest {
     //ArrayList<TuringMachine> original = ga.getPopulation();
     ArrayList<TuringMachine> selected = new ArrayList<TuringMachine>(); //to suppress compilation failure
     try{
-      selected = ga.select();
+      selected = ga.select(ga.getPopulation().size());
     }
     catch(GeneticAlgorithmException gae){
       System.out.println(gae.getMessage());
-      assertTrue(false); //TODO there's a better way to fail a test... fail()?
+      fail();
     }
-    assertEquals(3, selected.size());
+    assertEquals(4, selected.size());
     //TODO improve this test - would be nice to assert selectionProbs values...
   }
+
 
 
   @Test
   public void testNextGeneration(){
     System.out.println("\ntestNextGeneration");
     //needs its own ga because otherwise would overwrite mock TMs with real ones
-    GeneticAlgorithm ga2 = new GeneticAlgorithm(10, 1, 1, 0.6, 0.1);
-    ArrayList<TuringMachine> initialPop = ga2.getPopulation();
-    int fitness = 1;
-    for(TuringMachine tm : ga2.getPopulation()){
-      //actually running them would take too long so just setting an arbitrary fitness value (used in select())
-      tm.fitness = fitness;
-      fitness++;
-    }
+    try{
+      GeneticAlgorithm ga2 = new GeneticAlgorithm(10, 1, 1, 0.6, 0.1, 0.0);
+      ArrayList<TuringMachine> initialPop = ga2.getPopulation();
+      int fitness = 1;
+      for(TuringMachine tm : ga2.getPopulation()){
+        //actually running them would take too long so just setting an arbitrary fitness value (used in select())
+        tm.fitness = fitness;
+        fitness++;
+      }
 
-    /*
-    for(TuringMachine tm : initialPop){
-      System.out.println(tm);
-    }
-    System.out.println("-----");
-    */
-    ga2.nextGeneration();
-    ArrayList<TuringMachine> nextPop = ga2.getPopulation();
-    /*
-    for(TuringMachine tm : nextPop){
-      System.out.println(tm);
-    }
-    */
+      /*
+      for(TuringMachine tm : initialPop){
+        System.out.println(tm);
+      }
+      System.out.println("-----");
+      */
 
+      ga2.nextGeneration();
+      ArrayList<TuringMachine> nextPop = ga2.getPopulation();
+
+      /*
+      for(TuringMachine tm : nextPop){
+        System.out.println(tm);
+      }
+      */
+    }
+    catch(GeneticAlgorithmException gae){
+      fail();
+    }
     //This isn't really a proper test but I'm satisifed just for now
     //TODO more exhaustive tests
   }
@@ -153,6 +164,75 @@ public class GeneticAlgorithmTest {
     }
     //TODO asserts etc
   }
+
+
+  @Test
+  public void testElitism(){
+    System.out.println("\ntestElitism");
+    //Create 10 mock TuringMachines
+    ArrayList<TuringMachine> turingMachines = new ArrayList<TuringMachine>();
+    for(int i = 0; i < 10; i++){
+      TuringMachine tm = mock(TuringMachine.class);
+      when(tm.getFitness()).thenReturn(i); //note: collections.sort() wont work on these because theyre mock objs
+      turingMachines.add(tm);
+    }
+
+    //Test that setting elitismRate and crossoverRate to values that sum to > 1 will cause an Exception
+    try{
+      GeneticAlgorithm gaInvalidSpy = spy(new GeneticAlgorithm(10, 1, 1, 0.5, 0.1, 0.6)); //pop size = 10, 1 state
+      fail(); //should throw error before this line executes
+    }
+    catch(GeneticAlgorithmException gae){
+      //do nothing, this is expected
+    }
+
+    //Test Genetic Algorithm with elitismRate = 100%
+    try{
+      GeneticAlgorithm gaElitism100Spy = spy(new GeneticAlgorithm(10, 1, 1, 0.0, 0.0, 1.0));
+      gaElitism100Spy.population = turingMachines; //try this instead
+      ArrayList pop = gaElitism100Spy.nextGeneration();//this is where elitism happens
+      verify(gaElitism100Spy).select(0);
+      assertEquals(10, pop.size());
+      for(int i = 0; i < 10; i++){
+        //note: should be turingMachines(10-i) but sorting doesnt work on mock objects w no compareTo implementation
+        assertEquals(pop.get(i), turingMachines.get(i));
+      }
+    }
+    catch(GeneticAlgorithmException gae){
+      fail();
+    }
+
+    //Test Genetic Algorithm with elitismRate = 50%
+    try{
+      GeneticAlgorithm gaElitism50Spy = spy(new GeneticAlgorithm(10, 1, 1, 0.5, 0.1, 0.5));
+      gaElitism50Spy.population = turingMachines;
+      ArrayList pop = gaElitism50Spy.nextGeneration(); //this is where elitism happens
+      verify(gaElitism50Spy).select(5);
+      assertEquals(10, pop.size());
+      //assertEquals(pop.get(5), turingMachines.get(0));
+      for(int i = 0; i < 5; i++){
+        assertEquals(pop.get(i+5), turingMachines.get(i));
+      }
+    }
+    catch(GeneticAlgorithmException gae){
+      fail();
+    }
+
+    //Test Genetic Algorithm with elitismRate = 0%
+    try{
+      GeneticAlgorithm gaElitism0Spy = spy(new GeneticAlgorithm(10, 1, 1, 0.5, 0.1, 0.0));
+      gaElitism0Spy.population = turingMachines;
+      ArrayList pop = gaElitism0Spy.nextGeneration();//this is where elitism happens
+      verify(gaElitism0Spy).select(10);
+      assertEquals(10, pop.size());
+      //more?
+    }
+    catch(GeneticAlgorithmException gae){
+      fail();
+    }
+  }
+
+  //TODO: Test new Exceptions in mutation and crossover
 
 
 }

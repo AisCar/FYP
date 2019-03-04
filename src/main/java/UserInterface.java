@@ -17,14 +17,13 @@ mutation rate etc.) as well as n (number of states)
 
 public class UserInterface extends JFrame{
   //TODO: Rename other variables so that you can rename these ones w/o mixing them up
-  private double crossover, mutation;
+  private double crossover, mutation, elitismRate;
   private int populationSize, numGenerations, numStates;
   private JTextField crossoverField, mutationField, generationsField, populationField, numStatesField;
   private JTextArea description;
   private JCheckBox increaseMutationCheckbox, reachabilityFitnessCheckbox, stateUseFitnessCheckbox, numHaltsFitnessCheckbox;
   private JButton runGAButton, stopGAButton;
   private boolean increaseMutation, reachabilityFitnessEnabled, stateUseFitnessEnabled, numHaltsFitnessEnabled;
-  //TODO elitism? if time?
   private GeneticAlgorithm geneticAlgorithm;
   JPanel p4;
 
@@ -34,6 +33,7 @@ public class UserInterface extends JFrame{
     //set some default values
     crossover = 0.7;
     mutation = 0.05;
+    elitismRate = 0.0;
     numGenerations = -1;
     populationSize = -1;
     numStates = -1;
@@ -384,7 +384,7 @@ public class UserInterface extends JFrame{
     //If user doesn't specify population size or number of generations, set it to 100
     int pop = (populationSize > 0? populationSize : 100);
     int gen = (numGenerations > 0? numGenerations : 10000);
-    int states = (numStates > 0? numStates : 5);
+    int states = (numStates > 0? numStates : 5);//maybe just dont run instead.. that would make more sense
 
     /*
     crossoverField.setEnabled(false);
@@ -396,7 +396,12 @@ public class UserInterface extends JFrame{
     */
 
     //create a GeneticAlgorithm object
-    geneticAlgorithm = new GeneticAlgorithm(pop, states, numGenerations, crossover, mutation);
+    try{
+      geneticAlgorithm = new GeneticAlgorithm(pop, states, numGenerations, crossover, mutation, elitismRate);
+    }
+    catch(GeneticAlgorithmException gae){
+      //TODO handle
+    }
 
     //set optional features
     geneticAlgorithm.increaseMutationRate(increaseMutation);
