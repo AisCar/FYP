@@ -19,7 +19,7 @@ public class UserInterface extends JFrame{
   //TODO: Rename other variables so that you can rename these ones w/o mixing them up
   private double crossover, mutation, elitismRate;
   private int populationSize, numGenerations, numStates;
-  private JTextField crossoverField, mutationField, generationsField, populationField, numStatesField;
+  private JTextField crossoverField, mutationField, generationsField, populationField, numStatesField, elitismField;
   private JTextArea description;
   private JCheckBox increaseMutationCheckbox, reachabilityFitnessCheckbox, stateUseFitnessCheckbox, numHaltsFitnessCheckbox;
   private JButton runGAButton, stopGAButton;
@@ -39,7 +39,7 @@ public class UserInterface extends JFrame{
     numStates = -1;
 
     //set up window size
-    setSize(650,400);
+    setSize(650,450);
 
     //Panel 1: Header area
     JPanel p1 = new JPanel();
@@ -53,17 +53,20 @@ public class UserInterface extends JFrame{
     size and num generations
     */
     JPanel p2 = new JPanel();
-    p2.setLayout(new GridLayout(16,1));
+    p2.setLayout(new GridLayout(12,1));
     p2.setPreferredSize(new Dimension(200, 500));
 
     //user inputs crossover rate and mutation rate into JTextFields
     JLabel crossoverLabel = new JLabel("crossover rate");
     JLabel mutationLabel = new JLabel("mutation rate");
+    JLabel elitismLabel = new JLabel("elitism rate");
     crossoverField = new JTextField(""+crossover+"");
     DoubleInputHandler rateHandler = new DoubleInputHandler();
     crossoverField.addActionListener(rateHandler);
     mutationField = new JTextField("" + mutation + "");
     mutationField.addActionListener(rateHandler);
+    elitismField = new JTextField("" + elitismRate + "");
+    elitismField.addActionListener(rateHandler);
 
     //checkbox enables increase mutation code path
     CheckboxListener checkboxListener = new CheckboxListener();
@@ -90,6 +93,8 @@ public class UserInterface extends JFrame{
     p2.add(mutationLabel);
     p2.add(mutationField);
     //p2.add(increaseMutationCheckbox);
+    p2.add(elitismLabel);
+    p2.add(elitismField);
     p2.add(popSizeLabel);
     p2.add(populationField);
     p2.add(numGenLabel);
@@ -99,7 +104,7 @@ public class UserInterface extends JFrame{
     //Panel 3: A large text area containing information about the genetic algorithm
     JPanel p3 = new JPanel();
     description = new JTextArea("Input genetic algorithm parameters on the left", 10, 10);
-    description.setPreferredSize(new Dimension(400, 500));
+    description.setPreferredSize(new Dimension(400, 300));
     description.setEditable(false);
     //JScrollPane scrollPane = new JScrollPane(description); //TODO
     p3.add(description);
@@ -107,7 +112,7 @@ public class UserInterface extends JFrame{
 
     //Button to run the program, and button to cancel running the program once it has started
     runGAButton = new JButton("Run Genetic Algorithm");
-    stopGAButton = new JButton("Stop"); //TODO popup are you sure
+    stopGAButton = new JButton("Stop");
     ButtonHandler buttonHandler = new ButtonHandler();
     runGAButton.addActionListener(buttonHandler);
     stopGAButton.addActionListener(buttonHandler);
@@ -123,13 +128,26 @@ public class UserInterface extends JFrame{
     numHaltsFitnessCheckbox.addItemListener(checkboxListener);
 
     p4 = new JPanel();
-    p4.add(runGAButton);
-
+    p4.setLayout(new GridLayout(6,1));
+    p4.setPreferredSize(new Dimension(600, 150));
+    //p4.add(runGAButton);
+/*
     p2.add(p4Label);
     p2.add(increaseMutationCheckbox);
     p2.add(reachabilityFitnessCheckbox);
     p2.add(stateUseFitnessCheckbox);
     p2.add(numHaltsFitnessCheckbox);
+    */
+    //JPanel p4a = new JPanel();
+    //p4a.setLayout(new GridLayout(4,2));
+    p4.add(p4Label);
+    p4.add(increaseMutationCheckbox);
+    p4.add(reachabilityFitnessCheckbox);
+    p4.add(stateUseFitnessCheckbox);
+    p4.add(numHaltsFitnessCheckbox);
+
+    //p4.add(p4a);
+    p4.add(runGAButton);
 
 
     //Add all panels to the frame
