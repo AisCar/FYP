@@ -10,6 +10,7 @@ public class GeneticAlgorithm {
   private int numGenerations;
   private int maxGenerations = 10000;
   private boolean stopRunning = false;
+  private int highestScore;
 
   //increase mutation variables
   private boolean increaseMutation;
@@ -105,7 +106,7 @@ public class GeneticAlgorithm {
           //Print out details of new highest scoring tm
           System.out.println("New high score achieved in generation " + numGenerations);
           System.out.println("Score = " + score);
-          System.out.println("(Fitness: " + currBestTM.getFitness() + " )");
+          System.out.println("(Fitness: " + currBestTM.getFitness() + ")");
           System.out.println(currBestTM.toString());
 
         }
@@ -143,6 +144,8 @@ public class GeneticAlgorithm {
         numGenerations++;
       }
 
+      this.highestScore = score;
+
       //Final summary
       currBestTM = this.getHighestScoringTM();
       System.out.println("\n\nTuring machine with highest Busy Beaver score in final population:");
@@ -150,12 +153,13 @@ public class GeneticAlgorithm {
       System.out.println(currBestTM.toString());
 
       System.out.println("Highest score achieved across all generations: " + score); //This will be redundant if elitism is enabled (not yet implemented)
-
+      /*
       System.out.println("\n\nTop 10 Turing machines with highest fitness in final population:");
       for (int i = 0; i < 10; i++) {
         currBestTM = population.get(i);
         System.out.println(currBestTM.toString() + "\nScore: " + currBestTM.getScore() + "\nShifts: " + currBestTM.getShifts() + "\nFitness: " + currBestTM.getFitness() +"\n\n");
-      }
+      }//TODO if population > 10 (oh ffs)
+      */
       //TODO - proper convergence
   }
 
@@ -482,5 +486,7 @@ public class GeneticAlgorithm {
     this.stopRunning = b;
   }
 
-
+  public int getHighestScore(){
+    return this.highestScore;
+  }
 }
