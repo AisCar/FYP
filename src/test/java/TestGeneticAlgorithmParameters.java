@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class TestGeneticAlgorithmParameters {
   private int fittestNotHighestScoringCounter = 0;
   private int peakScoreNotFinalScoreCounter = 0; //using this to determine if elitism needed
-  private int numGenerations = 10000; //increase to 1,000,000 or more if looking for sigma(4) = 13
+  private int numGenerations = 1000000; //increase to 1,000,000 or more if looking for sigma(4) = 13
 
 
   /*
@@ -24,7 +24,7 @@ public class TestGeneticAlgorithmParameters {
     double[] crossoverRates = {0.2, 0.4, 0.6, 0.8};
     double elitismRate = 0.0; //Added to GA constructor after tests written
     //int numGenerations = 10000;
-    String results = "crossover\tmutation\tpopulation\thigh score overall\t" +
+    String results = "(numGenerations: " + numGenerations + ")\ncrossover\tmutation\tpopulation\thigh score overall\t" +
             "high score current\t(its fitness)\thigh fitness current\t(its score)\n\n";
 
     for(int j = 0; j < crossoverRates.length; j++){
@@ -44,7 +44,7 @@ public class TestGeneticAlgorithmParameters {
     double crossoverRate = 0.7;
     double elitismRate = 0.0; //Added to GA constructor after tests written
     //int numGenerations = 10000;
-    String results = "crossover\tmutation\tpopulation\thigh score overall\t" +
+    String results = "(numGenerations: " + numGenerations + ")\ncrossover\tmutation\tpopulation\thigh score overall\t" +
             "high score current\t(its fitness)\thigh fitness current\t(its score)\n\n";
 
     for(int j = 0; j < mutationRates.length; j++){
@@ -63,7 +63,7 @@ public class TestGeneticAlgorithmParameters {
     double crossoverRate = 0.7; //TODO this is picked randomly, change to best from above?
     double elitismRate = 0.0; //Added to GA constructor after tests written
     //int numGenerations = 10000;
-    String results = "crossover\tmutation\tpopulation\thigh score overall\t" +
+    String results = "(numGenerations: " + numGenerations + ")\ncrossover\tmutation\tpopulation\thigh score overall\t" +
             "high score current\t(its fitness)\thigh fitness current\t(its score)\n\n";
 
     for(int j = 0; j < popSizes.length; j++){
@@ -87,7 +87,7 @@ public class TestGeneticAlgorithmParameters {
     double crossoverRate = 0.7;
     double elitismRate = 0.0;
     //int numGenerations = 10000;
-    String results = "crossover\tmutation\tpopulation\thigh score overall\t" +
+    String results = "(numGenerations: " + numGenerations + ")\ncrossover\tmutation\tpopulation\thigh score overall\t" +
             "high score current\t(its fitness)\thigh fitness current\t(its score)\n\n";
 
     for(int i = 0; i < 3; i++){
@@ -124,7 +124,7 @@ public class TestGeneticAlgorithmParameters {
     double crossoverRate = 0.7;
     double[] elitismRates = {0.0, 0.2, 0.4, 0.6, 0.8};
     //int numGenerations = 10000;
-    String results = "crossover\tmutation\tpopulation\thigh score overall\t" +
+    String results = "(numGenerations: " + numGenerations + ")\ncrossover\tmutation\tpopulation\thigh score overall\t" +
             "high score current\t(its fitness)\thigh fitness current\t(its score)\n\n";
 
     for(int j = 0; j < elitismRates.length; j++){
@@ -193,7 +193,7 @@ public class TestGeneticAlgorithmParameters {
 
   private void writeResults(String fileName, String results){
     try{
-      BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+      BufferedWriter writer = new BufferedWriter(new FileWriter(fileName, true));
       writer.write(results);
       writer.flush();
       writer.close();
