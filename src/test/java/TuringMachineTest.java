@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
+import static org.mockito.Mockito.*;
 
 public class TuringMachineTest {
   TuringMachine oneStateHalting;
@@ -139,6 +140,54 @@ public class TuringMachineTest {
     assertTrue(oneStateHalting.haltReachable());
     assertTrue(!oneStateNonHalting.haltReachable());
     assertTrue(!twoStateNonHalting.haltReachable());
+  }
+
+  @Test
+  public void testIsInNonHaltingCycle(){
+    //create spies here => don't count method invocations from other unit tests on same TMs
+    TuringMachine spy1 = spy(oneStateNonHalting);
+    TuringMachine spy2 = spy(oneStateHalting);
+    State s1 = spy1.getStates().get(0); //There's only one state
+    State s2 = spy2.getStates().get(0);
+    assertTrue(spy1.isInNonHaltingCycle(s1, new TapeCell()));
+    assertTrue(!spy2.isInNonHaltingCycle(s2, new TapeCell()));
+    verify(spy1, times(1)).isMovingOneDirectionIndefinitely(anyInt());//actually, is 1, i think
+    verify(spy2, never()).isMovingOneDirectionIndefinitely(anyInt());
+    //TODO improve? more states?
+  }
+
+  @Test
+  public void testIsMovingOneDirectionIndefinitely(){
+    /* Note: This method should not be called directly w/o first assessing
+    that TM is moving over blank cells. However. 1 state TMs only have 1 state
+    and start on blank cells. So should work out here. */
+    assertTrue(oneStateNonHalting.isMovingOneDirectionIndefinitely(1));
+    assertTrue(!oneStateHalting.isMovingOneDirectionIndefinitely(1));
+    //TODO more states?
+  }
+
+  @Test
+  public void testRunIsCancelledAfter100Shifts(){ //because TM isMovingOneDirectionIndefinitely
+    TuringMachine tmSpy = spy(oneStateNonHalting);
+    when(tmSpy.haltReachable()).thenReturn(true);
+    tmSpy.run();
+    verify(tmSpy, times(1)).isInNonHaltingCycle(any(State.class), any(TapeCell.class));
+    verify(tmSpy, times(1)).isMovingOneDirectionIndefinitely(anyInt());
+    assertEquals(100, tmSpy.getShifts());
+  }
+
+  public void testRunIsNotCancelledAfter100Shifts(){
+    ArrayList<State> states = new ArrayList<State>();
+    states.add(new State(true, false, 2, true, true, 2));
+    states.add(new State(true, true, 1, false, true, 3));
+    states.add(new State(true, false, 0, true, true, 4));
+    states.add(new State(true, false, 4, false, false, 1));
+    TuringMachine tm = new TuringMachine(states);
+    TuringMachine spyTM = spy(tm);
+    spyTM.run();
+    verify(spyTM, times(1)).isInNonHaltingCycle(any(State.class), any(TapeCell.class));
+    verify(spyTM, atMost(1)).isMovingOneDirectionIndefinitely(anyInt()); //is actually never but best not to assuem
+    assertEquals(107, tm.getShifts());
   }
 
 }

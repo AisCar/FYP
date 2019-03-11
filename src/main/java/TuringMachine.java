@@ -117,6 +117,13 @@ public class TuringMachine implements Comparable<TuringMachine> {
           }
         }
 
+        //Check if Turing machine is stuck in a loop every so often
+        if(shifts % 100 == 0){
+          if(isInNonHaltingCycle(currentState, currentCell)){
+            break;
+          }
+        }
+
       }//End while
 
     }
@@ -212,6 +219,12 @@ public class TuringMachine implements Comparable<TuringMachine> {
     //else if (stateReachable[stateNum - 1]) then state has already been assessed
   }
 
+
+  /*
+  Methods to (attempt to) determine whether or not the Turing machine will halt
+  */
+
+  //Determines if a halt condition exists inside a state that is reachable from the initial state
   protected boolean haltReachable(){
     boolean haltReachable = false;
     this.areStatesReachable(1);
@@ -223,6 +236,54 @@ public class TuringMachine implements Comparable<TuringMachine> {
       }
     }
     return haltReachable;
+  }
+
+
+  //Tries to determine if Turing machine is stuck in a loop over uninitialised tape (reading only zeroes)
+  protected boolean isInNonHaltingCycle(State current, TapeCell cell){
+    //Obviously if about to halt, return false (prevents potential AL.get(-1) issue too)
+    int next = current.getNextState(cell.readOne());
+    if(next == 0) {
+      return false;
+    }
+
+    /* If next cell == null, then all cells in that direction contain zeroes,
+    which makes it easier to identify (non halting) cyclic behaviour */
+    TapeCell nextCell = (current.getMove(cell.readOne())? cell.getLeft() : cell.getRight());
+    if(nextCell == null){
+      int stateNum = states.indexOf(current) + 1; //recall +1 because 0 reserved for halt condition
+      if(isMovingOneDirectionIndefinitely(stateNum)){
+        return true;
+      }
+      //else if... Try to identify other cycles TODO (more complicated)
+    }
+
+    return false; //Return false if failed to identify a non-halting cycle
+  }
+
+
+  //Determines if a TuringMachine will continue in one direction indefinitely (over tape which contains zeroes only i.e. TapeCells uninitialised)
+  protected boolean isMovingOneDirectionIndefinitely(int initialStateNum){
+    int current = initialStateNum;
+    for(int i = 0; i <= states.size(); i++){
+      //Check for halt conditions
+      if(current == 0){
+        return false;
+      }
+      int next = states.get(current-1).getNextState(false); //false because reading zeroes
+      if(next == 0){
+        return false;
+      }
+
+      //Check if Turing machine head will change direction
+      if(states.get(current-1).getMove(false) != states.get(next-1).getMove(false)){ //falses because reading zeroes
+        return false;
+      }
+      current = next;
+    }
+    /* If reading only zeroes and not changing direction for >= n shifts,
+    then Turing machine is stuck moving in that direction indefinitely */
+    return true;
   }
 
 
