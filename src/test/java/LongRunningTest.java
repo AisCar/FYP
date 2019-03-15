@@ -9,11 +9,11 @@ public class LongRunningTest {
   @Test
   public void testHowWellThisThingWorks(){
     //Setting these according to results from TestGeneticAlgorithmParameters
-    int numStates = 5; //Should this be command line arg?
+    int numStates = 6; //Should this be command line arg?
     double crossover = 0.6;
     double mutation = 0.15;
     double elitism = 0.1;
-    int numGenerations = 1000000;
+    int numGenerations = 100000; //down from 1,000,000
     int populationSize = 150;
 
 
@@ -37,8 +37,15 @@ public class LongRunningTest {
         System.out.println(ioe.getMessage());
       }
 
-      //run the genetic algorithm
-      ga.run();
+      try{
+        //run the genetic algorithm
+        ga.run();
+      }
+      catch(InterruptedException ie){
+        //If I ctrl-c during GeneticALgorithm.run(), it'd be nice to still
+        //print the details of its final generation to a file
+      }
+
 
       //write final population to another file
       try{
