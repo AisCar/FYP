@@ -64,8 +64,12 @@ public class TuringMachine implements Comparable<TuringMachine> {
     beaver probably isn't manageable in this project.
     */
     int maxShifts = 1000; //for n <= 4
-    if(states.size() >= 5){
+    if(states.size() == 5){
       maxShifts = 5000000;
+    }
+    else if(states.size() > 5){
+      maxShifts = 2000000000; //max int value, known values of S(6) are actually much higher!
+
     }
     //else if(states.size() > 5){maxShifts = 2000000000;} //This will take forever... maybe dont
 
