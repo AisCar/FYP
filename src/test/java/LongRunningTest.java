@@ -37,14 +37,8 @@ public class LongRunningTest {
         System.out.println(ioe.getMessage());
       }
 
-      try{
-        //run the genetic algorithm
-        ga.run();
-      }
-      catch(InterruptedException ie){
-        //If I ctrl-c during GeneticALgorithm.run(), it'd be nice to still
-        //print the details of its final generation to a file
-      }
+      //run the genetic algorithm
+      ga.run();
 
 
       //write final population to another file
