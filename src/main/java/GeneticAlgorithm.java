@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.*;
 
 public class GeneticAlgorithm {
   //class variables
@@ -82,15 +83,34 @@ public class GeneticAlgorithm {
           System.out.println("Running generation " + numGenerations + "...");
         }
 
-        //Run every TuringMachine (that hasn't already been run) in the current population
+        //Create Tasks for all Turing machines in the population (that haven't been run already in a previous generation)
+        int numCores = Runtime.getRuntime().availableProcessors();
+        ExecutorService threadPoolExecutor = Executors.newFixedThreadPool(numCores);
+        ArrayList<Callable<TuringMachineRunTask>> tmTasks = new ArrayList<Callable<TuringMachineRunTask>>();
         for(TuringMachine busyBeaver : population){
           if(!busyBeaver.previouslyRun()){
             busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature); //TODO: IS this best way to do this?
             busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);//TODO: IS this best way to do this?
             busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);//TODO: IS this best way to do this?
-            busyBeaver.run();
+            //busyBeaver.run();
+            tmTasks.add(new TuringMachineRunTask(busyBeaver));
           }
         }
+
+        //Then run all of those tasks (which simply call TuringMachine's run method)
+        try{
+          threadPoolExecutor.invokeAll(tmTasks); //invokeAll blocks
+        }
+        catch(InterruptedException ie){
+          System.out.println("Warning, InterruptedException occurred: " + ie.getMessage() + "\n(Now running remaining Turing machines on single thread for the rest of this generation)");
+          threadPoolExecutor.shutdown(); //finish existing Tasks and shutdown executor
+          for(TuringMachine busyBeaver : population) { //Then run whatever it didn't get around to on single thread
+            if (!busyBeaver.previouslyRun()) {
+              busyBeaver.run();
+            }
+          }
+        }
+
 
         //Sort population (descending by fitness)
         Collections.sort(population);
