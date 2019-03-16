@@ -120,6 +120,16 @@ public class TuringMachineTest {
   }
 
   @Test
+  public void testCountHalts(){
+      this.oneStateHalting.countHalts();
+      assertEquals(2, this.oneStateHalting.numHalts);
+      this.oneStateNonHalting.countHalts();
+      assertEquals(0, this.oneStateNonHalting.numHalts);
+      this.twoStateNonHalting.countHalts();
+      assertEquals(2, this.twoStateNonHalting.numHalts);
+  }
+
+  @Test
   public void testFitnessCalculations(){
     System.out.println("\n\ntestFitnessCalculations");
     State state = new State(true, true, 0, true, true, 0);
