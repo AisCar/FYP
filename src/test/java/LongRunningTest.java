@@ -9,7 +9,7 @@ public class LongRunningTest {
   @Test
   public void testHowWellThisThingWorks(){
     //Setting these according to results from TestGeneticAlgorithmParameters
-    int numStates = 6; //Should this be command line arg?
+    int numStates = 5; //Should this be command line arg?
     double crossover = 0.6;
     double mutation = 0.15;
     double elitism = 0.1;
