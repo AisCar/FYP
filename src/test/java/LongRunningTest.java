@@ -24,6 +24,7 @@ public class LongRunningTest {
       //Create GA w above parameters and increaseMutation on
       GeneticAlgorithm ga = new GeneticAlgorithm(populationSize, numStates, numGenerations, crossover, mutation, elitism);
       ga.increaseMutationRate(true);
+      ga.enableMultithreading(true);
 
       //Write initial population to file
       try{

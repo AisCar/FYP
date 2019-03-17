@@ -21,6 +21,7 @@ public class GeneticAlgorithm {
   private boolean reachableFitnessFeature;
   private boolean numHaltsFitnessFeature;
   private boolean stateUsageFitnessFeature;
+  private boolean multithreading;
 
 
   /*
@@ -83,29 +84,42 @@ public class GeneticAlgorithm {
           System.out.println("Running generation " + numGenerations + "...");
         }
 
-        //Create Tasks for all Turing machines in the population (that haven't been run already in a previous generation)
-        int numCores = Runtime.getRuntime().availableProcessors();
-        ExecutorService threadPoolExecutor = Executors.newFixedThreadPool(numCores);
-        ArrayList<Callable<TuringMachineRunTask>> tmTasks = new ArrayList<Callable<TuringMachineRunTask>>();
-        for(TuringMachine busyBeaver : population){
-          if(!busyBeaver.previouslyRun()){
-            busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature); //TODO: IS this best way to do this?
-            busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);//TODO: IS this best way to do this?
-            busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);//TODO: IS this best way to do this?
-            //busyBeaver.run();
-            tmTasks.add(new TuringMachineRunTask(busyBeaver));
+        //Run all Turing machines in population
+        if(multithreading){
+          //Create Tasks for all Turing machines in the population (that haven't been run already in a previous generation)
+          int numCores = Runtime.getRuntime().availableProcessors();
+          ExecutorService threadPoolExecutor = Executors.newFixedThreadPool(numCores);
+          ArrayList<Callable<TuringMachineRunTask>> tmTasks = new ArrayList<Callable<TuringMachineRunTask>>();
+          for(TuringMachine busyBeaver : population){
+            if(!busyBeaver.previouslyRun()){
+              busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature); //TODO: IS this best way to do this?
+              busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);//TODO: IS this best way to do this?
+              busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);//TODO: IS this best way to do this?
+              tmTasks.add(new TuringMachineRunTask(busyBeaver));
+              //busyBeaver.run();
+            }
+          }
+
+          //Then run all of those tasks (which simply call TuringMachine's run method)
+          try{
+            threadPoolExecutor.invokeAll(tmTasks); //invokeAll blocks
+          }
+          catch(InterruptedException ie){
+            System.out.println("Warning, InterruptedException occurred: " + ie.getMessage() + "\n(Now running remaining Turing machines on single thread for the rest of this generation)");
+            threadPoolExecutor.shutdown(); //finish existing Tasks and shutdown executor
+            for(TuringMachine busyBeaver : population) { //Then run whatever it didn't get around to on single thread
+              if (!busyBeaver.previouslyRun()) {
+                busyBeaver.run();
+              }
+            }
           }
         }
-
-        //Then run all of those tasks (which simply call TuringMachine's run method)
-        try{
-          threadPoolExecutor.invokeAll(tmTasks); //invokeAll blocks
-        }
-        catch(InterruptedException ie){
-          System.out.println("Warning, InterruptedException occurred: " + ie.getMessage() + "\n(Now running remaining Turing machines on single thread for the rest of this generation)");
-          threadPoolExecutor.shutdown(); //finish existing Tasks and shutdown executor
-          for(TuringMachine busyBeaver : population) { //Then run whatever it didn't get around to on single thread
-            if (!busyBeaver.previouslyRun()) {
+        else{ //not multithreading
+          for(TuringMachine busyBeaver : population){
+            if(!busyBeaver.previouslyRun()){
+              busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature); //TODO: IS this best way to do this?
+              busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);//TODO: IS this best way to do this?
+              busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);//TODO: IS this best way to do this?
               busyBeaver.run();
             }
           }
@@ -510,5 +524,9 @@ public class GeneticAlgorithm {
 
   public int getHighestScore(){
     return this.highestScore;
+  }
+
+  public void enableMultithreading(boolean b){
+    this.multithreading = b;
   }
 }
