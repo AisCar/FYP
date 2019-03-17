@@ -276,7 +276,9 @@ public class TuringMachine implements Comparable<TuringMachine> {
       if(isMovingOneDirectionIndefinitely(stateNum)){
         return true;
       }
-      //else if... Try to identify other cycles TODO (more complicated)
+      else if(isMovingMostlyOneDirectionIndefinitely(stateNum)){
+        return true;
+      }
     }
 
     return false; //Return false if failed to identify a non-halting cycle
@@ -305,6 +307,61 @@ public class TuringMachine implements Comparable<TuringMachine> {
     /* If reading only zeroes and not changing direction for >= n shifts,
     then Turing machine is stuck moving in that direction indefinitely */
     return true;
+  }
+
+  //Like method above, but direction can change so long as no ones are written and end up further in same direction
+  protected boolean isMovingMostlyOneDirectionIndefinitely(int initialStateNum){ //TODO rename
+    int lefts = 0;
+    int rights = 0;
+
+    if(initialStateNum == 0){
+      return false; //will halt straight away!
+    }
+
+    boolean movingLeft = states.get(initialStateNum - 1).getMove(false); //True if moving left, false if moving rigth
+
+    int current = initialStateNum;
+    for(int i = 0; i <= states.size(); i++){
+      if(current == 0){//Check for halt condition
+        return false;
+      }
+
+      //If current state writes a 1 to tape, then behaviour is too hard to predict
+      if(states.get(current-1).getWrite(false)){
+        return false;
+      }
+
+      if(states.get(current-1).getMove(false)){ //if tape head moves left
+        lefts++;
+      }
+      else{ //if tape head moves right
+        rights++;
+      }
+
+      int next = states.get(current-1).getNextState(false); //false because reading zeroes
+      if(next == 0){//Check for halt condition
+        return false;
+      }
+
+      current = next;
+    }
+
+    /* If no ones written and tape head is further in same direction (where all
+    cells are uninitialised so there are no ones written to tape), then the
+    tape head will continue to move in that direction forever, without writing
+    any ones or halting */
+    if(movingLeft){
+      if(lefts >= rights){
+        return true;
+      }
+    }
+    else{//moving right
+      if(rights >= lefts){
+        return true;
+      }
+    }
+
+    return false; //Unsure whether or not Turing machine will halt
   }
 
 

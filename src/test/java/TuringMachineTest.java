@@ -177,6 +177,16 @@ public class TuringMachineTest {
   }
 
   @Test
+  public void testIsMovingMostlyOneDirectionIndefinitely(){
+    /* Note: This method should not be called directly w/o first assessing
+    that TM is moving over blank cells. However. 1 state TMs only have 1 state
+    and start on blank cells. So should work out here. */
+    assertTrue(!oneStateNonHalting.isMovingMostlyOneDirectionIndefinitely(1)); //writes ones
+    assertTrue(!oneStateHalting.isMovingMostlyOneDirectionIndefinitely(1)); //next state is 0
+    //TODO more
+  }
+
+  @Test
   public void testRunIsCancelledAfter100Shifts(){ //because TM isMovingOneDirectionIndefinitely
     TuringMachine tmSpy = spy(oneStateNonHalting);
     when(tmSpy.haltReachable()).thenReturn(true);
