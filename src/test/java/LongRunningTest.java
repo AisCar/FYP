@@ -18,6 +18,9 @@ public class LongRunningTest {
 
 
     try{
+      long maxMemory = Runtime.getRuntime().maxMemory();
+      System.out.println("Max memory: " + maxMemory + "Bytes (" +  (maxMemory/(1024*1024)) + "MB)");
+
       //Create GA w above parameters and increaseMutation on
       GeneticAlgorithm ga = new GeneticAlgorithm(populationSize, numStates, numGenerations, crossover, mutation, elitism);
       ga.increaseMutationRate(true);

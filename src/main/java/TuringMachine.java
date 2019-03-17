@@ -130,6 +130,11 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
       }//End while
 
+      if(states.size() > 5){
+        currentCell = null;
+        Runtime.getRuntime().gc(); //Trying to reduce OOM errors for n = 6
+      }
+
     }
 
     if(notHalting){
