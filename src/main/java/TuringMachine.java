@@ -8,9 +8,9 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
   //fitness variables
   protected int fitness = -2000000;
-  boolean stateReachable[];
-  int numHalts;
-  int statesNotUsedCounter;
+  protected boolean stateReachable[];
+  protected int numHalts;
+  protected int statesNotUsedCounter;
 
   //other variables
   boolean notHalting;
@@ -64,8 +64,12 @@ public class TuringMachine implements Comparable<TuringMachine> {
     beaver probably isn't manageable in this project.
     */
     int maxShifts = 1000; //for n <= 4
-    if(states.size() >= 5){
+    if(states.size() == 5){
       maxShifts = 5000000;
+    }
+    else if(states.size() > 5){
+      maxShifts = 2000000000; //max int value, known values of S(6) are actually much higher!
+
     }
     //else if(states.size() > 5){maxShifts = 2000000000;} //This will take forever... maybe dont
 
@@ -126,6 +130,11 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
       }//End while
 
+      if(states.size() > 5){
+        currentCell = null;
+        Runtime.getRuntime().gc(); //Trying to reduce OOM errors for n = 6
+      }
+
     }
 
     if(notHalting){
@@ -181,6 +190,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
     }
 
     //Fitness Part 3: Is halting
+    this.countHalts();
     if(numHaltsFitnessFeature){
       if(numHalts == 0){ //note: numHalts set in areStatesReachable
         //punish TM with no halt conditions
@@ -207,10 +217,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
   //Helper method for fitness method
   protected void areStatesReachable(int stateNum) {
-    if (stateNum == 0) {
-      numHalts++;
-    }
-    else if (!stateReachable[stateNum - 1]) {
+    if(stateNum != 0 && (!stateReachable[stateNum - 1])){
       stateReachable[stateNum - 1] = true;
       State current = states.get(stateNum - 1);
       areStatesReachable(current.getNextState(false));
@@ -218,6 +225,20 @@ public class TuringMachine implements Comparable<TuringMachine> {
     }
     //else if (stateReachable[stateNum - 1]) then state has already been assessed
   }
+
+  //Helper method for fitness method
+  protected void countHalts(){
+      numHalts = 0;
+      for(State state : states){
+          if(state.getNextState(false) == 0){
+              numHalts++;
+          }
+          if(state.getNextState(true) == 0){
+              numHalts++;
+          }
+      }
+  }
+
 
 
   /*

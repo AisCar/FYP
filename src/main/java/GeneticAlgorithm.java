@@ -1,9 +1,10 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.*;
 
 public class GeneticAlgorithm {
   //class variables
-  private double mutationRate, crossoverRate, elitismRate;
+  protected double mutationRate, crossoverRate, elitismRate;
   protected ArrayList<TuringMachine> population;
   private Translator translator;
   private int numStates;
@@ -14,7 +15,7 @@ public class GeneticAlgorithm {
 
   //increase mutation variables
   private boolean increaseMutation;
-  private double currentMutationRate;
+  protected double currentMutationRate;
 
   //feature toggles
   private boolean reachableFitnessFeature;
@@ -67,7 +68,6 @@ public class GeneticAlgorithm {
 
       //increase mutation variables
       this.currentMutationRate = this.mutationRate;
-      int mutationMultiplier = 1;
       int increaseGen = 0;
 
       if(elitismRate == 1.0){
@@ -76,19 +76,41 @@ public class GeneticAlgorithm {
 
       while((numGenerations < maxGenerations) && !stopRunning){ //max int value = 2147483647
         //Provide user feedback
-        if(numStates > 4 || numGenerations % 1000 == 0){ //print less frequently if n <= 4 because these don't run so slowly
+        if(numStates > 4 && (numGenerations < 100 || numGenerations % 100 == 0)){//give an indication of how fast ga is running for n > 4
+          System.out.println("Running generation " + numGenerations + "...");
+        }
+        else if(numGenerations % 1000 == 0){ //print less frequently if n <= 4 because these don't run so slowly
           System.out.println("Running generation " + numGenerations + "...");
         }
 
-        //Run every TuringMachine (that hasn't already been run) in the current population
+        //Create Tasks for all Turing machines in the population (that haven't been run already in a previous generation)
+        int numCores = Runtime.getRuntime().availableProcessors();
+        ExecutorService threadPoolExecutor = Executors.newFixedThreadPool(numCores);
+        ArrayList<Callable<TuringMachineRunTask>> tmTasks = new ArrayList<Callable<TuringMachineRunTask>>();
         for(TuringMachine busyBeaver : population){
           if(!busyBeaver.previouslyRun()){
             busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature); //TODO: IS this best way to do this?
             busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);//TODO: IS this best way to do this?
             busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);//TODO: IS this best way to do this?
-            busyBeaver.run();
+            //busyBeaver.run();
+            tmTasks.add(new TuringMachineRunTask(busyBeaver));
           }
         }
+
+        //Then run all of those tasks (which simply call TuringMachine's run method)
+        try{
+          threadPoolExecutor.invokeAll(tmTasks); //invokeAll blocks
+        }
+        catch(InterruptedException ie){
+          System.out.println("Warning, InterruptedException occurred: " + ie.getMessage() + "\n(Now running remaining Turing machines on single thread for the rest of this generation)");
+          threadPoolExecutor.shutdown(); //finish existing Tasks and shutdown executor
+          for(TuringMachine busyBeaver : population) { //Then run whatever it didn't get around to on single thread
+            if (!busyBeaver.previouslyRun()) {
+              busyBeaver.run();
+            }
+          }
+        }
+
 
         //Sort population (descending by fitness)
         Collections.sort(population);
@@ -102,7 +124,6 @@ public class GeneticAlgorithm {
           increaseGen = numGenerations;
           //update variables for the increase mutation feature
           currentMutationRate = mutationRate;
-          mutationMultiplier = 1;
           //Print out details of new highest scoring tm
           System.out.println("New high score achieved in generation " + numGenerations);
           System.out.println("Score = " + score);
@@ -114,15 +135,14 @@ public class GeneticAlgorithm {
         //Optional feature: If score hasn't increased in many generations, increase the mutation rate
         int generationsSinceChange = numGenerations - increaseGen;
         if(increaseMutation && (generationsSinceChange > 1) && (generationsSinceChange % 100 == 0)){ //NOTE: Changed from 10000(ridiculous) to 100(ok?)
-          mutationMultiplier++;
-          currentMutationRate = (mutationMultiplier * mutationRate);
-          if(currentMutationRate > 1.0){
-            currentMutationRate = 1.0;
+          currentMutationRate = currentMutationRate + 0.05;
+          if(currentMutationRate + elitismRate > 1.0){
+            currentMutationRate = 1.0 - elitismRate;
           }
           System.out.println("Mutation rate is now " + currentMutationRate + "%");
         }
 
-        if(numGenerations % 200 == 0 && numGenerations > 0){
+        if(numStates >= 4 && numGenerations % 200 == 0 && numGenerations > 0){
           //Print out a summary.
           System.out.println("Generation " + numGenerations + " Summary\nCurrent highest scoring tm: ");
           currBestTM = this.getHighestScoringTM();
@@ -440,6 +460,8 @@ public class GeneticAlgorithm {
   public void setCrossoverRate(float crossoverRate){
     this.crossoverRate = crossoverRate;
   }
+
+  //TODO setElitismRate - be wary of too large though
 
   public ArrayList<TuringMachine> getPopulation(){//same name as method in PopulationGenerator ... should rename?
     return this.population;

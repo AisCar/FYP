@@ -232,6 +232,23 @@ public class GeneticAlgorithmTest {
     }
   }
 
+  @Test
+  public void testIncreaseMutation(){
+    TuringMachine tm = mock(TuringMachine.class);
+    when(tm.getFitness()).thenReturn(3);
+    when(tm.getScore()).thenReturn(1);
+    when(tm.previouslyRun()).thenReturn(true);
+    ArrayList<TuringMachine> tmList = new ArrayList<TuringMachine>();
+    tmList.add(tm);
+    GeneticAlgorithm ga = new GeneticAlgorithm(3, tmList);
+    ga.setNumGenerations(2000);
+    ga.increaseMutationRate(true);
+    ga.elitismRate = 0.2;
+    ga.run(); //Should run for 10,000 generations
+    assertEquals(ga.currentMutationRate, 0.8, 0.01);
+
+  }
+
   //TODO: Test new Exceptions in mutation and crossover
 
 
