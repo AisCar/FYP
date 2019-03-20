@@ -14,7 +14,7 @@ public class LongRunningTest {
     double mutation = 0.15;
     double elitism = 0.1;
     int numGenerations = 1000000;
-    int populationSize = 150;
+    int populationSize = 100;
 
 
     try{
