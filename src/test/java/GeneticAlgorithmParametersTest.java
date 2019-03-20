@@ -335,8 +335,8 @@ public class GeneticAlgorithmParametersTest {
       catch(GeneticAlgorithmException gae){
         //TODO
       }
-      Runtime.getRuntime().gc();
     }
+    Runtime.getRuntime().gc();
     return results;
   }
 
