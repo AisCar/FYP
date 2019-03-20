@@ -1,6 +1,7 @@
 /target/*
-TODO.txt
 *.iml
 .idea/*
 *.class
 /junit/*
+*.log
+*.txt
