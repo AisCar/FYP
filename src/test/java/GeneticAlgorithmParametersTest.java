@@ -74,6 +74,12 @@ public class GeneticAlgorithmParametersTest {
    */
 
   @Test
+  public void control(){
+    String results = runThreeTimes(popSize, numStates, numGenerations, crossoverRate, mutationRate, elitismRate);
+    writeResults("F:/4BCT/FYP/testresults/control_noFeaturesEnabled.txt", results);
+  }
+
+  @Test
   public void testIncreaseMutation(){
     String results = "(numGenerations: " + numGenerations + ")\ncrossover\tmutation\tpopulation\thigh score overall\t" +
             "high score current\t(its fitness)\thigh fitness current\t(its score)\n\n";
@@ -329,6 +335,7 @@ public class GeneticAlgorithmParametersTest {
       catch(GeneticAlgorithmException gae){
         //TODO
       }
+      Runtime.getRuntime().gc();
     }
     return results;
   }
