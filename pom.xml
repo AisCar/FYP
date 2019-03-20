@@ -37,7 +37,7 @@
             <version>3.0.0-M3</version>
             <configuration>
               <excludes>
-                <exclude>**/TestGeneticAlgorithmParameters.java</exclude>
+                <exclude>**/GeneticAlgorithmParametersTest.java</exclude>
                 <exclude>**/LongRunningTest.java</exclude>
               </excludes>
             </configuration>
@@ -57,7 +57,7 @@
             <version>3.0.0-M3</version>
             <configuration>
               <includes>
-                <include>**/TestGeneticAlgorithmParameters.java</include>
+                <include>**/GeneticAlgorithmParametersTest.java</include>
               </includes>
             </configuration>
           </plugin>
