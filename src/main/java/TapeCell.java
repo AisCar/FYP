@@ -48,5 +48,10 @@ public class TapeCell{
     this.right = newCell;
   }
 
+  @Override
+  public void finalize(){ //For memory management debugging
+    //System.out.println("TapeCell garbage collected!");
+  }
+
 
 }
