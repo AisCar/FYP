@@ -125,10 +125,19 @@ public class GeneticAlgorithm {
           }
         }
 
-        if(numStates >= 5){
+        if(numStates > 5){
           try{
             Runtime.getRuntime().gc(); //encourage garbage collection
-            Thread.sleep(10000); //put main thread to sleep for 10 seconds (slow! but worth it) so that garbage collector has time to kick in before next generation spawns a bunch of threads
+            Thread.sleep(10000); //put main thread to sleep for 10 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
+          }
+          catch(InterruptedException ie){
+            //Do nothing
+          }
+        }
+        else if(numStates == 5 && (numGenerations + 1) % 100 == 0){
+          try{
+            Runtime.getRuntime().gc(); //encourage garbage collection
+            Thread.sleep(5000); //put main thread to sleep for 5 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
           }
           catch(InterruptedException ie){
             //Do nothing
@@ -137,7 +146,7 @@ public class GeneticAlgorithm {
         else if((numGenerations + 1) % 100000 == 0){ //do it much less often for lower values of n
           try{
             Runtime.getRuntime().gc(); //encourage garbage collection
-            Thread.sleep(10000); //put main thread to sleep for 10 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
+            Thread.sleep(5000); //put main thread to sleep for 5 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
           }
           catch(InterruptedException ie){
             //Do nothing
