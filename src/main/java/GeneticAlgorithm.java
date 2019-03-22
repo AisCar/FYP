@@ -87,8 +87,9 @@ public class GeneticAlgorithm {
         //Run all Turing machines in population
         if(multithreading){
           //Create Tasks for all Turing machines in the population (that haven't been run already in a previous generation)
-          int numCores = Runtime.getRuntime().availableProcessors();
-          ExecutorService threadPoolExecutor = Executors.newFixedThreadPool(numCores);
+          //int numCores = Runtime.getRuntime().availableProcessors();
+          //ExecutorService threadPoolExecutor = Executors.newFixedThreadPool(numCores);
+          ForkJoinPool fjp = new ForkJoinPool(); //uses availableProcessors by default anyway
           ArrayList<Callable<TuringMachineRunTask>> tmTasks = new ArrayList<Callable<TuringMachineRunTask>>();
           for(TuringMachine busyBeaver : population){
             if(!busyBeaver.previouslyRun()){
@@ -102,11 +103,12 @@ public class GeneticAlgorithm {
 
           //Then run all of those tasks (which simply call TuringMachine's run method)
           try{
-            threadPoolExecutor.invokeAll(tmTasks); //invokeAll blocks
+            //threadPoolExecutor.invokeAll(tmTasks); //invokeAll blocks
+            fjp.invokeAll(tmTasks);
           }
-          catch(InterruptedException ie){
-            System.out.println("Warning, InterruptedException occurred: " + ie.getMessage() + "\n(Now running remaining Turing machines on single thread for the rest of this generation)");
-            threadPoolExecutor.shutdown(); //finish existing Tasks and shutdown executor
+          catch(RejectedExecutionException ree){
+            System.out.println("Warning, InterruptedException occurred: " + ree.getMessage() + "\n(Now running remaining Turing machines on single thread for the rest of this generation)");
+            fjp.shutdown(); //finish existing Tasks and shutdown executor
             for(TuringMachine busyBeaver : population) { //Then run whatever it didn't get around to on single thread
               if (!busyBeaver.previouslyRun()) {
                 busyBeaver.run();
