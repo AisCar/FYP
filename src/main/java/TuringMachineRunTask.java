@@ -25,7 +25,7 @@ public class TuringMachineRunTask implements Callable {
   public void finalize(){
     //this will create so much noise but it's worth it to see if it's working
     //TODO remove afterwards
-    if(this.numStates >= 5){ //kinda redundant but w/e
+    if(this.numStates > 5){ //kinda redundant but w/e
       System.out.println("TuringMachineRunTask garbage collected");
     }
   }
