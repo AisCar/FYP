@@ -114,6 +114,7 @@ public class GeneticAlgorithm {
             }
           }
           tmTasks = null; //Can't be garbage collected in this generation if not yet dereferenced
+          threadPoolExecutor = null;
           System.out.println("Memory currently available: " + Runtime.getRuntime().freeMemory());
         }
         else{ //not multithreading
