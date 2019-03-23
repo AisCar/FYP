@@ -129,38 +129,6 @@ public class GeneticAlgorithm {
           }
         }
 
-        if(numStates > 5){
-          try{
-            System.out.println("Memory currently available: " + Runtime.getRuntime().freeMemory());
-            Runtime.getRuntime().gc(); //encourage garbage collection
-            Thread.sleep(10000); //put main thread to sleep for 10 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
-          }
-          catch(InterruptedException ie){
-            //Do nothing
-          }
-        }
-        else if(numStates == 5 && (numGenerations + 1) % 500 == 0){
-          try{
-            System.out.println("Memory currently available: " + Runtime.getRuntime().freeMemory());
-            Runtime.getRuntime().gc(); //encourage garbage collection
-            Thread.sleep(10000); //put main thread to sleep for 10 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
-          }
-          catch(InterruptedException ie){
-            //Do nothing
-          }
-        }
-        else if((numGenerations + 1) % 100000 == 0){ //do it much less often for lower values of n
-          try{
-            System.out.println("Memory currently available: " + Runtime.getRuntime().freeMemory());
-            Runtime.getRuntime().gc(); //encourage garbage collection
-            Thread.sleep(5000); //put main thread to sleep for 5 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
-          }
-          catch(InterruptedException ie){
-            //Do nothing
-          }
-        }
-
-
         //Sort population (descending by fitness)
         Collections.sort(population);
 
@@ -210,6 +178,8 @@ public class GeneticAlgorithm {
           this.population = nextGeneration();
         }
 
+        callGarbageCollector(numGenerations);
+
         numGenerations++;
       }
 
@@ -220,16 +190,6 @@ public class GeneticAlgorithm {
       System.out.println("\n\nTuring machine with highest Busy Beaver score in final population:");
       System.out.println("Score: " + currBestTM.getScore());
       System.out.println(currBestTM.toString());
-
-      System.out.println("Highest score achieved across all generations: " + score); //This will be redundant if elitism is enabled (not yet implemented)
-      /*
-      System.out.println("\n\nTop 10 Turing machines with highest fitness in final population:");
-      for (int i = 0; i < 10; i++) {
-        currBestTM = population.get(i);
-        System.out.println(currBestTM.toString() + "\nScore: " + currBestTM.getScore() + "\nShifts: " + currBestTM.getShifts() + "\nFitness: " + currBestTM.getFitness() +"\n\n");
-      }//TODO if population > 10 (oh ffs)
-      */
-      //TODO - proper convergence
   }
 
 
@@ -273,13 +233,7 @@ public class GeneticAlgorithm {
   genetic operators
    */
 
-  /* //moved to TuringMachine
-  protected int calculateFitness(TuringMachine busyBeaver){
-      int score = busyBeaver.getScore();
-      //Could make this more complicated but for now is fine
-      return score;
-  }
-  */
+   //Fitness function in TuringMachine
 
   protected ArrayList<TuringMachine> crossover(ArrayList<TuringMachine> machines){
     //Shuffle population
@@ -495,6 +449,23 @@ public class GeneticAlgorithm {
      }
 
      return chromosome; //to prevent compilation errors
+   }
+
+
+   /*
+   Method to encourage garbage collection (helper method for run method)
+   */
+   private void callGarbageCollector(int numGenerations){
+     if(numStates > 5 || (numStates == 5 && (numGenerations + 1) % 500 == 0) || (numGenerations + 1) % 100000 == 0){
+      try{
+        System.out.println("Memory currently available: " + Runtime.getRuntime().freeMemory());
+        Runtime.getRuntime().gc(); //encourage garbage collection
+        Thread.sleep(10000); //put main thread to sleep for 10 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
+      }
+      catch(InterruptedException ie){
+        //Do nothing
+      }
+    }
    }
 
 
