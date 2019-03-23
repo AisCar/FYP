@@ -205,13 +205,7 @@ public class GeneticAlgorithm {
     int numElite = (int) (population.size() * elitismRate);
 
     //Perform selection
-    try{
-      nextGeneration = select(population.size() - numElite);
-    }
-    catch(GeneticAlgorithmException gae){
-      //As of right now, this is caused by zero denominator which is caused by all zero fitnesses.
-      //TODO handle - throw back up, should really cancel whole program
-    }
+    nextGeneration = select(population.size() - numElite);
 
     //Perform crossover
     nextGeneration = crossover(nextGeneration);
@@ -330,13 +324,13 @@ public class GeneticAlgorithm {
    }
 
 
-    public ArrayList<TuringMachine> select(int numToSelect) throws GeneticAlgorithmException{
+    public ArrayList<TuringMachine> select(int numToSelect){
       ArrayList<TuringMachine> selected = new ArrayList<TuringMachine>();
 
       //In case of negative fitness scores, normalise all fitness values:
       int adjustment = 0;
       for(TuringMachine tm : population){
-        if(tm.getFitness() < 0 && Math.abs(tm.getFitness()) >= adjustment){
+        if(tm.getFitness() <= 0 && Math.abs(tm.getFitness()) >= adjustment){
           adjustment = Math.abs(tm.getFitness()) + 1;//+1 prevents zero probability
         }
       }
@@ -350,6 +344,7 @@ public class GeneticAlgorithm {
       //create an array of probabilities of selecting each TuringMachine (sum to 1)
       double[] selectionProbs = new double[population.size()];
       double probabilityInterval = 0.0;
+
       if(denominator != 0){
         for(int i = 0; i < population.size(); i++){
           double numerator = (double) population.get(i).getFitness() + adjustment;
@@ -360,7 +355,7 @@ public class GeneticAlgorithm {
         }
       }
       else{
-        throw new GeneticAlgorithmException("Zero denominator");
+        throw new ArithmeticException("Dividing by zero in select method");
       }
 
       //finally select numToSelect TuringMachines and return them in an ArrayList

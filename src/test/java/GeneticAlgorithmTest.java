@@ -31,7 +31,7 @@ public class GeneticAlgorithmTest {
 
   @Test
   public void testMutation(){
-    System.out.println("mutationTest");
+    System.out.println("testMutation");
     boolean[] chromosome = {true, false, true, false, true, false};
     //GeneticAlgorithm ga = new GeneticAlgorithm();
     boolean[] mutatedChromosome = this.ga.mutateSingle(chromosome);
@@ -47,7 +47,7 @@ public class GeneticAlgorithmTest {
 
   @Test
   public void testCrossover(){
-    System.out.println("\ntestCrossover");
+    System.out.println("testCrossover");
     boolean[] parent1 = {true, true, true, true, true, true};
     boolean[] parent2 = {false, false, false, false, false, false};
     boolean[][] children = this.ga.crossoverSingle(parent1, parent2);
@@ -92,17 +92,17 @@ public class GeneticAlgorithmTest {
     System.out.println("testSelection");
     //ArrayList<TuringMachine> original = ga.getPopulation();
     ArrayList<TuringMachine> selected = new ArrayList<TuringMachine>(); //to suppress compilation failure
-    try{
+    //try{
       selected = ga.select(ga.getPopulation().size());
+      /*
     }
     catch(GeneticAlgorithmException gae){
       System.out.println(gae.getMessage());
       fail();
-    }
+    }*/
     assertEquals(4, selected.size());
     //TODO improve this test - would be nice to assert selectionProbs values...
   }
-
 
 
   @Test
@@ -180,7 +180,7 @@ public class GeneticAlgorithmTest {
     //Test that setting elitismRate and crossoverRate to values that sum to > 1 will cause an Exception
     try{
       GeneticAlgorithm gaInvalidSpy = spy(new GeneticAlgorithm(10, 1, 1, 0.5, 0.1, 0.6)); //pop size = 10, 1 state
-      fail(); //should throw error before this line executes
+      fail(); //should throw exception before this line executes
     }
     catch(GeneticAlgorithmException gae){
       //do nothing, this is expected
@@ -234,6 +234,7 @@ public class GeneticAlgorithmTest {
 
   @Test
   public void testIncreaseMutation(){
+    System.out.println("testIncreaseMutation");
     TuringMachine tm = mock(TuringMachine.class);
     when(tm.getFitness()).thenReturn(3);
     when(tm.getScore()).thenReturn(1);
