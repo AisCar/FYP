@@ -117,7 +117,6 @@ public class GeneticAlgorithm {
           }
           tmTasks = null; //Can't be garbage collected in this generation if not yet dereferenced
           threadPoolExecutor = null;
-          System.out.println("Memory currently available: " + Runtime.getRuntime().freeMemory());
         }
         else{ //not multithreading
           for(TuringMachine busyBeaver : population){
@@ -132,6 +131,7 @@ public class GeneticAlgorithm {
 
         if(numStates > 5){
           try{
+            System.out.println("Memory currently available: " + Runtime.getRuntime().freeMemory());
             Runtime.getRuntime().gc(); //encourage garbage collection
             Thread.sleep(10000); //put main thread to sleep for 10 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
           }
@@ -139,8 +139,9 @@ public class GeneticAlgorithm {
             //Do nothing
           }
         }
-        else if(numStates == 5 && (numGenerations + 1) % 1000 == 0){
+        else if(numStates == 5 && (numGenerations + 1) % 500 == 0){
           try{
+            System.out.println("Memory currently available: " + Runtime.getRuntime().freeMemory());
             Runtime.getRuntime().gc(); //encourage garbage collection
             Thread.sleep(10000); //put main thread to sleep for 10 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
           }
@@ -150,6 +151,7 @@ public class GeneticAlgorithm {
         }
         else if((numGenerations + 1) % 100000 == 0){ //do it much less often for lower values of n
           try{
+            System.out.println("Memory currently available: " + Runtime.getRuntime().freeMemory());
             Runtime.getRuntime().gc(); //encourage garbage collection
             Thread.sleep(5000); //put main thread to sleep for 5 seconds so that garbage collector has time to kick in before next generation spawns a bunch of threads
           }
