@@ -6,14 +6,34 @@ import java.io.IOException;
 public class RunProgram {
   public static void main(String[] args) {
     //Setting these according to results from TestGeneticAlgorithmParameters
-    int numStates = 5; //Should this be command line arg?
+    int numStates;
     double crossover = 0.6;
     double mutation = 0.15;
     double elitism = 0.1;
     int numGenerations = 1000000;
     int populationSize = 100;
 
+    //Get number of states from command line
+    if(args.length != 1){
+      System.out.println("Please specify number of states");
+      return;
+    }
+    else{
+      try{
+        numStates = Integer.parseInt(args[0]);
+        if(numStates <= 0){
+          System.out.println("Please enter a positive number of states");
+          return;
+        }
+        //TODO handle ridiculously high input - I mean, can proceed, but should have warning + option not to
+      }
+      catch(NumberFormatException nfe){
+        System.out.println("Please specify number of states");
+        return;
+      }
+    }
 
+    //Create and run a genetic algorithm (with multithreading enabled)
     try{
       long maxMemory = Runtime.getRuntime().maxMemory();
       System.out.println("Max memory: " + maxMemory + "Bytes (" +  (maxMemory/(1024*1024)) + "MB)");
