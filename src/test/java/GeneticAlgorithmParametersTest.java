@@ -24,7 +24,7 @@ public class GeneticAlgorithmParametersTest {
   /*
   Test basic Genetic Algorithm parameters
    */
-
+/*
   @Test
   public void testCrossoverRates(){
     double[] crossoverRates = {0.2, 0.4, 0.6, 0.8};
@@ -53,7 +53,23 @@ public class GeneticAlgorithmParametersTest {
 
     writeResults("F:/4BCT/FYP/testresults/mutationRateResults.txt", results);
   }
+  */
 
+  @Test
+  public void testHigherMutationRates(){
+    double[] mutationRates = {0.4, 0.6, 0.8, 1.0};
+    String results = "(numGenerations: " + numGenerations + ")\ncrossover\tmutation\tpopulation\thigh score overall\t" +
+            "high score current\t(its fitness)\thigh fitness current\t(its score)\n\n";
+
+    for(int j = 0; j < mutationRates.length; j++){
+      double mutationRate = mutationRates[j];
+      results = results + runThreeTimes(popSize, numStates, numGenerations, crossoverRate, mutationRate, elitismRate);
+      results = results + runThreeTimes(popSize, numStates, numGenerations, crossoverRate, mutationRate, elitismRate);
+    }
+
+    writeResults("F:/4BCT/FYP/testresults/moreMutationRateResults.txt", results);
+  }
+/*
   @Test
   public void testPopulationSizes(){
     int[] popSizes = {100, 200, 300, 400, 500};
@@ -66,7 +82,7 @@ public class GeneticAlgorithmParametersTest {
     }
 
     writeResults("F:/4BCT/FYP/testresults/populationSizeResults.txt", results);
-  }
+  }*/
 
 
   /*
@@ -78,6 +94,8 @@ public class GeneticAlgorithmParametersTest {
     String results = runThreeTimes(popSize, numStates, numGenerations, crossoverRate, mutationRate, elitismRate);
     writeResults("F:/4BCT/FYP/testresults/control_noFeaturesEnabled.txt", results);
   }
+
+  /*
 
   @Test
   public void testIncreaseMutation(){
