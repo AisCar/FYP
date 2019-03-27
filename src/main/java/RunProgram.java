@@ -25,7 +25,6 @@ public class RunProgram {
           System.out.println("Please enter a positive number of states");
           return;
         }
-        //TODO handle ridiculously high input - I mean, can proceed, but should have warning + option not to
       }
       catch(NumberFormatException nfe){
         System.out.println("Please specify number of states");

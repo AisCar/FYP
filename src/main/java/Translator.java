@@ -22,45 +22,39 @@ public class Translator {
     int numBitsForNextState = getNumBitsNeeded(this.numStates);
     int stateLength = 2 * (2 + numBitsForNextState);
 
-    if(bitArray.length == (stateLength*numStates)){
-      int k = 0;
-      boolean writeZero, moveZero, writeOne, moveOne;
-      int nextStateZero, nextStateOne;
-      //for all states in bit array
-      for(int i = 0; i < numStates; i++){
-        //convert the binary values to state object parameters
-        writeZero = bitArray[k];
-        k++;
-        moveZero = bitArray[k];
-        k++;
+    int k = 0;
+    boolean writeZero, moveZero, writeOne, moveOne;
+    int nextStateZero, nextStateOne;
+    //for all states in bit array
+    for(int i = 0; i < numStates; i++){
+      //convert the binary values to state object parameters
+      writeZero = bitArray[k];
+      k++;
+      moveZero = bitArray[k];
+      k++;
 
-        boolean[] temp = new boolean[numBitsForNextState];
-        for(int j = 0; j < numBitsForNextState; j++){
-          temp[j] = bitArray[k];
-          k++;
-        }
-        nextStateZero = binaryToInt(temp);
-
-        writeOne = bitArray[k];
+      boolean[] temp = new boolean[numBitsForNextState];
+      for(int j = 0; j < numBitsForNextState; j++){
+        temp[j] = bitArray[k];
         k++;
-        moveOne = bitArray[k];
-        k++;
-
-        temp = new boolean[numBitsForNextState];
-        for(int j = 0; j < numBitsForNextState; j++){
-          temp[j] = bitArray[k];
-          k++;
-        }
-        nextStateOne = binaryToInt(temp);
-
-        //create the corresponding state
-        State state = new State(writeZero, moveZero, nextStateZero, writeOne, moveOne, nextStateOne);
-        states.add(state);
       }
-    }
-    else{
-      //TODO error handling
-      System.out.println("uh oh!");
+      nextStateZero = binaryToInt(temp);
+
+      writeOne = bitArray[k];
+      k++;
+      moveOne = bitArray[k];
+      k++;
+
+      temp = new boolean[numBitsForNextState];
+      for(int j = 0; j < numBitsForNextState; j++){
+        temp[j] = bitArray[k];
+        k++;
+      }
+      nextStateOne = binaryToInt(temp);
+
+      //create the corresponding state
+      State state = new State(writeZero, moveZero, nextStateZero, writeOne, moveOne, nextStateOne);
+      states.add(state);
     }
 
     TuringMachine tm = new TuringMachine(states);

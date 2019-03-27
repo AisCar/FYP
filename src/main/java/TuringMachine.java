@@ -167,7 +167,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
   */
 
   protected int calculateFitness(){
-    //Fitness Part 1: Busy Beaver score - TODO is multiplying score by 3 better or worse?
+    //Fitness Part 1: Busy Beaver score
     int fitness = this.score * 3;
 
     //Fitness Part 2: All states are reachable from the initial state
@@ -187,7 +187,7 @@ public class TuringMachine implements Comparable<TuringMachine> {
     //Fitness Part 3: Is halting
     this.countHalts();
     if(numHaltsFitnessFeature){
-      if(numHalts == 0){ //note: numHalts set in areStatesReachable
+      if(numHalts == 0){
         //punish TM with no halt conditions
         fitness -= 10;
       }

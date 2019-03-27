@@ -229,7 +229,7 @@ public class UserInterface extends JFrame{
             p4.updateUI();
 
             //Stop GeneticAlgorithm's run method (after current generation)
-            geneticAlgorithm.setStopRunning(true);
+            geneticAlgorithm.kill();
             //TODO - summarise?
 
           } //else user has said cancel so leave genetic algorithm running

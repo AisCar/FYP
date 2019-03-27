@@ -87,23 +87,19 @@ public class GeneticAlgorithm {
         //Run all Turing machines in population
         if(multithreading){
           //Create Tasks for all Turing machines in the population (that haven't been run already in a previous generation)
-          //int numCores = Runtime.getRuntime().availableProcessors();
-          //ExecutorService threadPoolExecutor = Executors.newFixedThreadPool(numCores);
-          ForkJoinPool fjp = new ForkJoinPool(); //uses availableProcessors by default anyway
+          ForkJoinPool fjp = new ForkJoinPool();
           ArrayList<Callable<TuringMachineRunTask>> tmTasks = new ArrayList<Callable<TuringMachineRunTask>>();
           for(TuringMachine busyBeaver : population){
             if(!busyBeaver.previouslyRun()){
-              busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature); //TODO: IS this best way to do this?
-              busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);//TODO: IS this best way to do this?
-              busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);//TODO: IS this best way to do this?
+              busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature);
+              busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);
+              busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);
               tmTasks.add(new TuringMachineRunTask(busyBeaver));
-              //busyBeaver.run();
             }
           }
 
           //Then run all of those tasks (which simply call TuringMachine's run method)
           try{
-            //threadPoolExecutor.invokeAll(tmTasks); //invokeAll blocks
             fjp.invokeAll(tmTasks);
           }
           catch(RejectedExecutionException ree){
@@ -121,9 +117,9 @@ public class GeneticAlgorithm {
         else{ //not multithreading
           for(TuringMachine busyBeaver : population){
             if(!busyBeaver.previouslyRun()){
-              busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature); //TODO: IS this best way to do this?
-              busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);//TODO: IS this best way to do this?
-              busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);//TODO: IS this best way to do this?
+              busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature);
+              busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);
+              busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);
               busyBeaver.run();
             }
           }
@@ -151,7 +147,7 @@ public class GeneticAlgorithm {
 
         //Optional feature: If score hasn't increased in many generations, increase the mutation rate
         int generationsSinceChange = numGenerations - increaseGen;
-        if(increaseMutation && (generationsSinceChange > 1) && (generationsSinceChange % 100 == 0)){ //NOTE: Changed from 10000(ridiculous) to 100(ok?)
+        if(increaseMutation && (generationsSinceChange > 1) && (generationsSinceChange % 100 == 0)){
           currentMutationRate = currentMutationRate + 0.05;
           if(currentMutationRate + elitismRate > 1.0){
             currentMutationRate = 1.0 - elitismRate;
@@ -198,7 +194,7 @@ public class GeneticAlgorithm {
   */
   protected ArrayList<TuringMachine> nextGeneration(){
     //Sort current population by fitness (descending)
-    Collections.sort(population); //prob unnecessary - TODO remove
+    Collections.sort(population);
 
     ArrayList<TuringMachine> nextGeneration = new ArrayList<TuringMachine>();
 
@@ -240,7 +236,7 @@ public class GeneticAlgorithm {
 
     //Make sure to have an even number of parents
     if(numToCrossOver % 2 != 0){
-      numToCrossOver--; //was ++, now -- in case crossoverRate = 100% (or elitism causes not enough available for crossoverRate)
+      numToCrossOver--;
     }
 
     //Perform crossover on the first numToCrossOver parents in the population
@@ -264,13 +260,6 @@ public class GeneticAlgorithm {
 
 
   protected boolean[][] crossoverSingle(boolean[] parent1, boolean[] parent2){
-    if(parent1.length != parent2.length){
-      //throw new Exception("Parent chromosomes have different lengths");
-      //todo error handling
-    }
-    /*
-    To consider: Crossover at random points? Crossover only at state boundaries?
-    */
     int crossoverPoint = (int) (Math.random() * (parent1.length - 1));
     boolean[] child1 = new boolean[parent1.length];
     boolean[] child2 = new boolean[parent1.length];
@@ -298,11 +287,9 @@ public class GeneticAlgorithm {
     if(numToMutate > machines.size()){
       //With increaseMutation enabled, numToMutate could become larger than the number of machines that can be mutated
       numToMutate = machines.size();
-      //throw new GeneticAlgorithmException("Mutation rate too high: trying to mutate " + numToMutate + " Turing machines, method only received " +  machines.size());
     }
 
-
-    //mutate the first numToMutate TMs in the population
+    //mutate the first numToMutate TMs in the (shuffled) selected population
     for(int i = 0; i < numToMutate; i++){
         boolean[] encodedChromosome = translator.toBitArray(machines.get(i));
         boolean[] mutatedBitArray = mutateSingle(encodedChromosome);
@@ -355,7 +342,7 @@ public class GeneticAlgorithm {
         }
       }
       else{
-        throw new ArithmeticException("Dividing by zero in select method");
+        throw new ArithmeticException("Dividing by zero");
       }
 
       //finally select numToSelect TuringMachines and return them in an ArrayList
@@ -365,7 +352,6 @@ public class GeneticAlgorithm {
         //find the TuringMachine corresponding to rand
         for(int i = 0; i < selectionProbs.length; i++){
           if(rand <= selectionProbs[i]){
-            //Add the corresponding TM to the arraylist
             selected.add(population.get(i));
             break; //out of for loop, not while
           }
@@ -436,14 +422,8 @@ public class GeneticAlgorithm {
        if(nextStateInt == 0){
          haltConditionExists = true;
        }
-     }//end for loop through all chromosome bits
-
-     //check that a halt condition exists (if not, insert one)
-     if(!haltConditionExists){
-       //TODO introduce one randomly - or not
      }
-
-     return chromosome; //to prevent compilation errors
+     return chromosome;
    }
 
 
@@ -478,7 +458,7 @@ public class GeneticAlgorithm {
 
   //TODO setElitismRate - be wary of too large though
 
-  public ArrayList<TuringMachine> getPopulation(){//same name as method in PopulationGenerator ... should rename?
+  public ArrayList<TuringMachine> getPopulation(){
     return this.population;
   }
 
@@ -501,26 +481,21 @@ public class GeneticAlgorithm {
     }
     return bestTM;
   }
-  public void setReachableFitnessFeature(boolean reachableFitnessFeature){ //dont like that these are duplicated here and in TuringMachine - consdier a redesign
-    //sets feature toggle that enables/disables state reachability code in calculateFitness
+
+  public void setReachableFitnessFeature(boolean reachableFitnessFeature){
     this.reachableFitnessFeature = reachableFitnessFeature;
-
   }
 
-  public void setNumHaltsFitnessFeature(boolean numHaltsFitnessFeature){ //dont like that these are duplicated here and in TuringMachine
-    //sets feature toggle that enables/disables number of halt conditions code in calculateFitness
+  public void setNumHaltsFitnessFeature(boolean numHaltsFitnessFeature){
     this.numHaltsFitnessFeature = numHaltsFitnessFeature;
-
   }
 
-  public void setStateUsageFitnessFeature(boolean stateUsageFitnessFeature){ //dont like that these are duplicated here and in TuringMachine
-    //sets feature toggle that enables/disables state usage code in calculateFitness
+  public void setStateUsageFitnessFeature(boolean stateUsageFitnessFeature){
     this.stateUsageFitnessFeature = stateUsageFitnessFeature;
-
   }
 
-  public void setStopRunning(boolean b){
-    this.stopRunning = b;
+  public void kill(){
+    this.stopRunning = true;
   }
 
   public int getHighestScore(){
