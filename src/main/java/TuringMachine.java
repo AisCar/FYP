@@ -75,42 +75,35 @@ public class TuringMachine implements Comparable<TuringMachine> {
 
     if(this.haltReachable()){ //Don't run if it absolutely cannot halt - just a waste of time (be very very sure that areStatesReachable is working perfectly TODO)
       while(notHalting && shifts < maxShifts){
-        //If read one from tape
-        if(currentCell.readOne()){
-          //write
-          currentCell.writeOne(currentState.getWrite(true));
-          //adjust score accordingly
-          if(!currentState.getWrite(true)) score--; //Writing a zero decreases score
-          //move
-          currentCell = currentState.getMove(true) ? moveLeft(currentCell) : moveRight(currentCell);
-          shifts++;
-          //next state
-          stateNum = currentState.getNextState(true);
-          if(stateNum == 0) { //check if halting
-            notHalting = false;
-            break;
-          }
-          currentState.iterationLastUsed = shifts;
-          currentState = states.get(stateNum-1);
+        //read
+        boolean symbol = currentCell.read();
+
+        //write
+        boolean symbolToWrite = currentState.getWrite(symbol);
+        currentCell.write(symbolToWrite);
+
+        //adjust score accordingly
+        if(symbol && !symbolToWrite) {
+          score--; //Writing a zero over a one decreases score
         }
-        //If read zero from tape
-        else{//Read a zero
-          //write
-          currentCell.writeOne(currentState.getWrite(false));
-          //adjust score accordingly
-          if(currentState.getWrite(false)) score++;
-          //move
-          currentCell = currentState.getMove(false) ? moveLeft(currentCell) : moveRight(currentCell);
-          shifts++;
-          //next state
-          stateNum = currentState.getNextState(false);
-          if(stateNum == 0) { //check if halting
-            notHalting = false;
-            break;
-          }
-          currentState.iterationLastUsed = shifts;
-          currentState = states.get(stateNum-1);
+        else if(!symbol && symbolToWrite) {
+          score++; //Writing a one over a zero increases score
         }
+        //(Writing a symbol over the same symbol does not change the score)
+
+        //move
+        currentCell = currentState.getMove(symbol) ? moveLeft(currentCell) : moveRight(currentCell);
+        shifts++;
+
+        //next state
+        stateNum = currentState.getNextState(symbol);
+        if(stateNum == 0) { //check if halting
+          notHalting = false;
+          break;
+        }
+        currentState.iterationLastUsed = shifts;
+        currentState = states.get(stateNum-1);
+
 
         //If any state has not been used in 100*n iterations, increment statesNotUsedCounter
         if(shifts % (100*states.size()) == 0){
@@ -258,14 +251,14 @@ public class TuringMachine implements Comparable<TuringMachine> {
   //Tries to determine if Turing machine is stuck in a loop over uninitialised tape (reading only zeroes)
   protected boolean isInNonHaltingCycle(State current, TapeCell cell){
     //Obviously if about to halt, return false (prevents potential AL.get(-1) issue too)
-    int next = current.getNextState(cell.readOne());
+    int next = current.getNextState(cell.read());
     if(next == 0) {
       return false;
     }
 
     /* If next cell == null, then all cells in that direction contain zeroes,
     which makes it easier to identify (non halting) cyclic behaviour */
-    TapeCell nextCell = (current.getMove(cell.readOne())? cell.getLeft() : cell.getRight());
+    TapeCell nextCell = (current.getMove(cell.read())? cell.getLeft() : cell.getRight());
     if(nextCell == null){
       int stateNum = states.indexOf(current) + 1; //recall +1 because 0 reserved for halt condition
       if(isMovingOneDirectionIndefinitely(stateNum)){

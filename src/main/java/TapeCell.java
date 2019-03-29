@@ -10,11 +10,11 @@ public class TapeCell{
     right = null;
   }
 
-  public void writeOne(boolean isOne){
+  public void write(boolean isOne){
     this.isOne = isOne;
   }
 
-  public boolean readOne(){
+  public boolean read(){
     return isOne;
   }
 
