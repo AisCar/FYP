@@ -188,6 +188,7 @@ public class TuringMachineTest {
 
   @Test
   public void testRunIsCancelledAfter100Shifts(){ //because TM isMovingOneDirectionIndefinitely
+    System.out.println("testRunIsCancelledAfter100Shifts");
     TuringMachine tmSpy = spy(oneStateNonHalting);
     when(tmSpy.haltReachable()).thenReturn(true);
     tmSpy.run();
@@ -196,7 +197,9 @@ public class TuringMachineTest {
     assertEquals(100, tmSpy.getShifts());
   }
 
+  @Test
   public void testRunIsNotCancelledAfter100Shifts(){
+    System.out.println("testRunIsNotCancelledAfter100Shifts");
     ArrayList<State> states = new ArrayList<State>();
     states.add(new State(true, false, 2, true, true, 2));
     states.add(new State(true, true, 1, false, true, 3));
@@ -207,7 +210,7 @@ public class TuringMachineTest {
     spyTM.run();
     verify(spyTM, times(1)).isInNonHaltingCycle(any(State.class), any(TapeCell.class));
     verify(spyTM, atMost(1)).isMovingOneDirectionIndefinitely(anyInt()); //is actually never but best not to assuem
-    assertEquals(107, tm.getShifts());
+    assertEquals(107, spyTM.getShifts());
   }
 
 }
