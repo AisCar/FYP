@@ -76,6 +76,26 @@ public class TuringMachineTest {
     assertEquals(107, tm.getShifts());
   }
 
+  @Test
+  public void testTime(){
+    //Benchmark against C code (have to comment out extra method calls if actually comparing)
+    //Uses the same Turing machine as 3-state C test
+    State first = new State(true, false,2,true,false,0);
+    State second = new State(false,false,3,true,false,2);
+    State third = new State(true,true,3,true,true,1);
+    ArrayList<State> states = new ArrayList();
+    states.add(first);
+    states.add(second);
+    states.add(third);
+    TuringMachine tm = new TuringMachine(states);
+
+    long start = System.nanoTime();
+    tm.run();
+    long end = System.nanoTime();
+    System.out.println("Time taken: " + (end - start) + "nanoseconds");
+    System.out.println("(Thats " + ((end-start)/1000) + "microseconds)");
+  }
+
   //TODO: non-halting Busy Beaver(s)
 
   @Test
