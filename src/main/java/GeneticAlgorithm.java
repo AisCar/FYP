@@ -89,12 +89,12 @@ public class GeneticAlgorithm {
           //Create Tasks for all Turing machines in the population (that haven't been run already in a previous generation)
           ForkJoinPool fjp = new ForkJoinPool();
           ArrayList<Callable<TuringMachineRunTask>> tmTasks = new ArrayList<Callable<TuringMachineRunTask>>();
-          for(TuringMachine busyBeaver : population){
-            if(!busyBeaver.previouslyRun()){
-              busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature);
-              busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);
-              busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);
-              tmTasks.add(new TuringMachineRunTask(busyBeaver));
+          for(TuringMachine turingMachine : population){
+            if(!turingMachine.previouslyRun()){
+              turingMachine.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature);
+              turingMachine.setReachableFitnessFeature(this.reachableFitnessFeature);
+              turingMachine.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);
+              tmTasks.add(new TuringMachineRunTask(turingMachine));
             }
           }
 
@@ -105,9 +105,9 @@ public class GeneticAlgorithm {
           catch(RejectedExecutionException ree){
             System.out.println("Warning, InterruptedException occurred: " + ree.getMessage() + "\n(Now running remaining Turing machines on single thread for the rest of this generation)");
             fjp.shutdown(); //finish existing Tasks and shutdown executor
-            for(TuringMachine busyBeaver : population) { //Then run whatever it didn't get around to on single thread
-              if (!busyBeaver.previouslyRun()) {
-                busyBeaver.run();
+            for(TuringMachine turingMachine : population) { //Then run whatever it didn't get around to on single thread
+              if (!turingMachine.previouslyRun()) {
+                turingMachine.run();
               }
             }
           }
@@ -115,12 +115,12 @@ public class GeneticAlgorithm {
           fjp = null;
         }
         else{ //not multithreading
-          for(TuringMachine busyBeaver : population){
-            if(!busyBeaver.previouslyRun()){
-              busyBeaver.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature);
-              busyBeaver.setReachableFitnessFeature(this.reachableFitnessFeature);
-              busyBeaver.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);
-              busyBeaver.run();
+          for(TuringMachine turingMachine : population){
+            if(!turingMachine.previouslyRun()){
+              turingMachine.setNumHaltsFitnessFeature(this.numHaltsFitnessFeature);
+              turingMachine.setReachableFitnessFeature(this.reachableFitnessFeature);
+              turingMachine.setStateUsageFitnessFeature(this.stateUsageFitnessFeature);
+              turingMachine.run();
             }
           }
         }
@@ -299,12 +299,12 @@ public class GeneticAlgorithm {
   }
 
   protected boolean[] mutateSingle(boolean[] parent){
-      int geneToMutate = (int) (Math.random() * (parent.length - 1));
+      int bitToMutate = (int) (Math.random() * (parent.length - 1));
       boolean[] child  = new boolean[parent.length];
       for(int i = 0; i < parent.length; i++){
         child[i] = parent[i];
       }
-      child[geneToMutate] = !parent[geneToMutate];
+      child[bitToMutate] = !parent[bitToMutate];
 
       child = repair(child);
       return child;
@@ -329,16 +329,16 @@ public class GeneticAlgorithm {
       }
 
       //create an array of probabilities of selecting each TuringMachine (sum to 1)
-      double[] selectionProbs = new double[population.size()];
-      double probabilityInterval = 0.0;
+      double[] probabilities = new double[population.size()];
+      double probabilitySum = 0.0;
 
       if(denominator != 0){
         for(int i = 0; i < population.size(); i++){
           double numerator = (double) population.get(i).getFitness() + adjustment;
           //selection probability = fitness of each tm / sum of fitnesses of all tms
-          double intervalSize = numerator / denominator;
-          probabilityInterval += intervalSize;
-          selectionProbs[i] = probabilityInterval;
+          double currentProb = numerator / denominator;
+          probabilitySum += currentProb;
+          probabilities[i] = probabilitySum;
         }
       }
       else{
@@ -350,8 +350,8 @@ public class GeneticAlgorithm {
       while(selected.size() < numToSelect){
         rand = Math.random();
         //find the TuringMachine corresponding to rand
-        for(int i = 0; i < selectionProbs.length; i++){
-          if(rand <= selectionProbs[i]){
+        for(int i = 0; i < probabilities.length; i++){
+          if(rand <= probabilities[i]){
             selected.add(population.get(i));
             break; //out of for loop, not while
           }
