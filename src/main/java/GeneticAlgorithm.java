@@ -8,9 +8,10 @@ public class GeneticAlgorithm {
   protected ArrayList<TuringMachine> population;
   private Translator translator;
   private int numStates;
-  private int numGenerations;
+  private int currGeneration;
   private int maxGenerations = 10000;
   private boolean stopRunning = false;
+  private boolean isRunning;
   private int highestScore;
 
   //increase mutation variables
@@ -38,7 +39,7 @@ public class GeneticAlgorithm {
     elitismRate = 0.0;
     currentMutationRate = mutationRate;
     this.numStates = numStates;
-    numGenerations = 0;
+    currGeneration = 0;
   }
 
 
@@ -51,7 +52,7 @@ public class GeneticAlgorithm {
     this.mutationRate = mutationRate;
     this.elitismRate = elitismRate;
     currentMutationRate = mutationRate;
-    numGenerations = 0;
+    currGeneration = 0;
     this.maxGenerations = maxGenerations;
     if(elitismRate + crossoverRate > 1.0 || elitismRate + mutationRate > 1.0){
       throw new GeneticAlgorithmException("Elitism/Crossover/Mutation rate too high");
@@ -63,9 +64,10 @@ public class GeneticAlgorithm {
     main genetic algorithm method
   */
     public void run(){
-      numGenerations = 0; //counter for number of generations that have run
+      currGeneration = 0; //counter for number of generations that have run
       int score = 0; //highest busy beaver score in this run of the genetic algorithm
       TuringMachine currBestTM; //best Turing machine in current generation
+      this.isRunning = true;
 
       //increase mutation variables
       this.currentMutationRate = this.mutationRate;
@@ -75,13 +77,13 @@ public class GeneticAlgorithm {
         maxGenerations = 1;
       }
 
-      while((numGenerations < maxGenerations) && !stopRunning){ //max int value = 2147483647
+      while((currGeneration < maxGenerations) && !stopRunning){ //max int value = 2147483647
         //Provide user feedback
-        if(numStates > 4 && (numGenerations < 100 || numGenerations % 100 == 0)){//give an indication of how fast ga is running for n > 4
-          System.out.println("Running generation " + numGenerations + "...");
+        if(numStates > 4 && (currGeneration < 100 || currGeneration % 100 == 0)){//give an indication of how fast ga is running for n > 4
+          System.out.println("Running generation " + currGeneration + "...");
         }
-        else if(numGenerations % 1000 == 0){ //print less frequently if n <= 4 because these don't run so slowly
-          System.out.println("Running generation " + numGenerations + "...");
+        else if(currGeneration % 1000 == 0){ //print less frequently if n <= 4 because these don't run so slowly
+          System.out.println("Running generation " + currGeneration + "...");
         }
 
         //Run all Turing machines in population
@@ -134,11 +136,11 @@ public class GeneticAlgorithm {
         if(currBestScore > score){
           //update variables
           score = currBestScore;
-          increaseGen = numGenerations;
+          increaseGen = currGeneration;
           //update variables for the increase mutation feature
           currentMutationRate = mutationRate;
           //Print out details of new highest scoring tm
-          System.out.println("New high score achieved in generation " + numGenerations);
+          System.out.println("New high score achieved in generation " + currGeneration);
           System.out.println("Score = " + score);
           System.out.println("(Fitness: " + currBestTM.getFitness() + ")");
           System.out.println(currBestTM.toString());
@@ -146,7 +148,7 @@ public class GeneticAlgorithm {
         }
 
         //Optional feature: If score hasn't increased in many generations, increase the mutation rate
-        int generationsSinceChange = numGenerations - increaseGen;
+        int generationsSinceChange = currGeneration - increaseGen;
         if(increaseMutation && (generationsSinceChange > 1) && (generationsSinceChange % 100 == 0)){
           currentMutationRate = currentMutationRate + 0.05;
           if(currentMutationRate + elitismRate > 1.0){
@@ -155,9 +157,9 @@ public class GeneticAlgorithm {
           System.out.println("Mutation rate is now " + currentMutationRate + "%");
         }
 
-        if(numStates >= 4 && numGenerations % 200 == 0 && numGenerations > 0){
+        if(numStates >= 4 && currGeneration % 200 == 0 && currGeneration > 0){
           //Print out a summary.
-          System.out.println("Generation " + numGenerations + " Summary\nCurrent highest scoring tm: ");
+          System.out.println("Generation " + currGeneration + " Summary\nCurrent highest scoring tm: ");
           currBestTM = this.getHighestScoringTM();
           System.out.println(currBestTM.toString());
           System.out.println("Score: " + currBestTM.getScore() + "\tFitness: " + currBestTM.getFitness());
@@ -170,16 +172,18 @@ public class GeneticAlgorithm {
           break;
         }
         //If running another generation, create that population
-        else if(numGenerations < maxGenerations-1){
+        else if(currGeneration < maxGenerations-1){
           this.population = nextGeneration();
         }
 
-        callGarbageCollector(numGenerations);
+        callGarbageCollector(currGeneration);
 
-        numGenerations++;
+        currGeneration++;
       }
 
       this.highestScore = score;
+
+      this.isRunning = false;
 
       //Final summary
       currBestTM = this.getHighestScoringTM();
@@ -430,8 +434,8 @@ public class GeneticAlgorithm {
    /*
    Method to encourage garbage collection (helper method for run method)
    */
-   private void callGarbageCollector(int numGenerations){
-     if(numStates > 5 || (numStates == 5 && (numGenerations + 1) % 500 == 0) || (numGenerations + 1) % 100000 == 0){
+   private void callGarbageCollector(int currGeneration){
+     if(numStates > 5 || (numStates == 5 && (currGeneration + 1) % 500 == 0) || (currGeneration + 1) % 100000 == 0){
       try{
         System.out.println("Memory currently available: " + Runtime.getRuntime().freeMemory());
         Runtime.getRuntime().gc(); //encourage garbage collection
@@ -498,11 +502,35 @@ public class GeneticAlgorithm {
     this.stopRunning = true;
   }
 
+  public boolean isRunning(){
+    return this.isRunning;
+  }
+
   public int getHighestScore(){
     return this.highestScore;
   }
 
   public void enableMultithreading(boolean b){
     this.multithreading = b;
+  }
+
+  public String getSummary(){
+    String summary = "Running generation " + currGeneration + "...\n\n" +
+    "crossover rate: " + this.crossoverRate + "\tmutation rate: " + this.currentMutationRate +
+    "\nelitism rate: " + this.elitismRate + "\t\tpopulation size: " + population.size();
+    TuringMachine tm = this.getHighestScoringTM();
+    summary = summary + "\n\nCurrent best Turing machine: \n" + tm.toString()
+    + "\nscore = " + tm.getScore() + "\t\tnum shifts = " + tm.getShifts();
+    return summary;
+  }
+
+  public String getFinalSummary(){
+    String summary = "Ran " + currGeneration + " generations\n";
+    TuringMachine tm = this.getHighestScoringTM();
+    summary = summary + "\nCurrent best Turing machine: \n" + tm.toString()
+    + "\nscore = " + tm.getScore() + "\t\tnum shifts = " + tm.getShifts();
+    //TODO more?
+    return summary;
+
   }
 }

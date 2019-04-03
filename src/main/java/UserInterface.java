@@ -120,11 +120,11 @@ public class UserInterface extends JFrame{
 
     //Checkboxes for feature toggles
     JLabel p4Label = new JLabel("Optional Features");
-    reachabilityFitnessCheckbox = new JCheckBox("include state reachability in fitness calculations"); // after several generations with no improvement");
+    reachabilityFitnessCheckbox = new JCheckBox("Fitness: State reachability");//include state reachability in fitness calculations"); // after several generations with no improvement");
     reachabilityFitnessCheckbox.addItemListener(checkboxListener);
-    stateUseFitnessCheckbox = new JCheckBox("punish Turing machines which only use a subset of their states over many iterations fitness calculations"); //TODO rephrase
+    stateUseFitnessCheckbox = new JCheckBox("Fitness: State usage");//"punish Turing machines which only use a subset of their states over many iterations fitness calculations"); //TODO rephrase
     stateUseFitnessCheckbox.addItemListener(checkboxListener);
-    numHaltsFitnessCheckbox = new JCheckBox("encourage Turing machines with exactly one halt condition in fitness calculations");
+    numHaltsFitnessCheckbox = new JCheckBox("Fitness: Number of halt conditions");//encourage Turing machines with exactly one halt condition in fitness calculations");
     numHaltsFitnessCheckbox.addItemListener(checkboxListener);
 
     p4 = new JPanel();
@@ -184,6 +184,7 @@ public class UserInterface extends JFrame{
         //Make all fields not editable
         crossoverField.setEnabled(false);
         mutationField.setEnabled(false);
+        elitismField.setEnabled(false);
         generationsField.setEnabled(false);
         populationField.setEnabled(false);
         numStatesField.setEnabled(false);
@@ -214,6 +215,7 @@ public class UserInterface extends JFrame{
             //Make all fields editable again
             crossoverField.setEnabled(true);
             mutationField.setEnabled(true);
+            elitismField.setEnabled(true);
             generationsField.setEnabled(true);
             populationField.setEnabled(true);
             numStatesField.setEnabled(true);
@@ -404,6 +406,8 @@ public class UserInterface extends JFrame{
     int gen = (numGenerations > 0? numGenerations : 10000);
     int states = (numStates > 0? numStates : 5);//maybe just dont run instead.. that would make more sense
 
+    //TODO default values, and at this point just dont run if any are negative.
+
     /*
     crossoverField.setEnabled(false);
     mutationField.setEnabled(false);
@@ -428,12 +432,59 @@ public class UserInterface extends JFrame{
     geneticAlgorithm.setStateUsageFitnessFeature(stateUseFitnessEnabled);
 
     //run and monitor the genetic algorithm
-    geneticAlgorithm.run();
-    //TODO: update description JTextArea in real time
-    description.setVisible(true);
 
+    Thread runGenAlgThread = new Thread(){
+      public void run(){
+        geneticAlgorithm.run();
+      }
+    };
 
+    Thread liveFeedbackThread = new Thread(){
+      public void run(){
+        //while(geneticAlgorithm.isRunning()){
+        while(true){
+          //System.out.println("DEbug...");
 
+          description.setText(geneticAlgorithm.getSummary());
+          description.setVisible(true);
+          try{
+            Thread.sleep(2000);
+          }
+          catch(InterruptedException ie){
+            //...
+          }
+          if(!geneticAlgorithm.isRunning()){
+            description.setText("Genetic algorithm has finished!\n");
+            description.append(geneticAlgorithm.getFinalSummary());
+
+            break;
+          }
+
+        }
+        //genAlg has stopped - set button to run again
+        //Make all fields editable again
+        crossoverField.setEnabled(true);
+        mutationField.setEnabled(true);
+        elitismField.setEnabled(true);
+        generationsField.setEnabled(true);
+        populationField.setEnabled(true);
+        numStatesField.setEnabled(true);
+        increaseMutationCheckbox.setEnabled(true);
+        numHaltsFitnessCheckbox.setEnabled(true);
+        reachabilityFitnessCheckbox.setEnabled(true);
+        stateUseFitnessCheckbox.setEnabled(true);
+
+        //replace stopGAButton with runGAButton
+        p4.remove(stopGAButton);
+        p4.add(runGAButton);
+        p4.setVisible(true);
+        p4.updateUI();
+
+      }
+    };
+
+    runGenAlgThread.start();
+    liveFeedbackThread.start();
   }
 
 }
