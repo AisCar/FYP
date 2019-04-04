@@ -37,7 +37,7 @@ public class UserInterface extends JFrame{
     numStates = 4;
 
     //set up window size
-    setSize(700,450);
+    setSize(700,500);
     setResizable(false);
 
     //Panel 1: Header area
@@ -114,12 +114,15 @@ public class UserInterface extends JFrame{
 
     //Panel 3: A large text area containing information about the genetic algorithm
     JPanel p3 = new JPanel();
-    description = new JTextArea("Change genetic algorithm parameters on the left", 10, 10);
-    //Ok, that's a little obvious. Instead this should explain what we're doing.
-    //description.setPreferredSize(new Dimension(375, 350));
+    String overview = "The challenge of the busy beaver game is to find the " +
+    "n-state Turing \nmachine that writes the most possible ones to a tape. " +
+    "This program \nuses a genetic algorithm to optimise Turing machines with " +
+    "respect \nto their busy beaver scores.\n\nEnter the desired settings to " +
+    " the right and then press the button \nbelow to begin.";
+    description = new JTextArea(overview, 10, 10);
     description.setEditable(false);
     JScrollPane scrollPane = new JScrollPane(description);
-    scrollPane.setPreferredSize(new Dimension(400, 350));
+    scrollPane.setPreferredSize(new Dimension(415, 350));
     p3.add(scrollPane);
 
 
@@ -172,23 +175,7 @@ public class UserInterface extends JFrame{
         description.setText("Now running genetic algorithm...");
         description.setVisible(true);
 
-        //Make all fields not editable
-        crossoverField.setEnabled(false);
-        mutationField.setEnabled(false);
-        elitismField.setEnabled(false);
-        generationsField.setEnabled(false);
-        populationField.setEnabled(false);
-        numStatesField.setEnabled(false);
-        increaseMutationCheckbox.setEnabled(false);
-        numHaltsFitnessCheckbox.setEnabled(false);
-        reachabilityFitnessCheckbox.setEnabled(false);
-        stateUseFitnessCheckbox.setEnabled(false);
-
-        //Replace runGAButton with stopGAButton
-        p4.remove(runGAButton);
-        p4.add(stopGAButton);
-        p4.setVisible(true);
-        p4.updateUI();
+        disableAllFields();
 
         //Call method that creates a GeneticAlgorithm object and calls its run method
         runGeneticAlgorithm();
@@ -203,23 +190,7 @@ public class UserInterface extends JFrame{
             description.setText("Now stopping genetic algorithm...");
             description.setVisible(true);
 
-            //Make all fields editable again
-            crossoverField.setEnabled(true);
-            mutationField.setEnabled(true);
-            elitismField.setEnabled(true);
-            generationsField.setEnabled(true);
-            populationField.setEnabled(true);
-            numStatesField.setEnabled(true);
-            increaseMutationCheckbox.setEnabled(true);
-            numHaltsFitnessCheckbox.setEnabled(true);
-            reachabilityFitnessCheckbox.setEnabled(true);
-            stateUseFitnessCheckbox.setEnabled(true);
-
-            //replace stopGAButton with runGAButton
-            p4.remove(stopGAButton);
-            p4.add(runGAButton);
-            p4.setVisible(true);
-            p4.updateUI();
+            enableAllFields();
 
             //Stop GeneticAlgorithm's run method (after current generation)
             geneticAlgorithm.kill();
@@ -457,7 +428,24 @@ public class UserInterface extends JFrame{
   }
 
   private void disableAllFields(){
-    //TODO
+    //Make all fields not editable
+    crossoverField.setEnabled(false);
+    mutationField.setEnabled(false);
+    elitismField.setEnabled(false);
+    generationsField.setEnabled(false);
+    populationField.setEnabled(false);
+    numStatesField.setEnabled(false);
+    increaseMutationCheckbox.setEnabled(false);
+    numHaltsFitnessCheckbox.setEnabled(false);
+    reachabilityFitnessCheckbox.setEnabled(false);
+    stateUseFitnessCheckbox.setEnabled(false);
+
+    //Replace runGAButton with stopGAButton
+    p4.remove(runGAButton);
+    p4.add(stopGAButton);
+    p4.setVisible(true);
+    p4.updateUI();
+
   }
 
   private void enableAllFields(){

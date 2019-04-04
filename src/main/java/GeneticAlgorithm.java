@@ -13,6 +13,7 @@ public class GeneticAlgorithm {
   private boolean stopRunning = false;
   private boolean isRunning;
   private int highestScore;
+  private TuringMachine currBestTM;
 
   //increase mutation variables
   private boolean increaseMutation;
@@ -66,7 +67,7 @@ public class GeneticAlgorithm {
     public void run(){
       currGeneration = 0; //counter for number of generations that have run
       int score = 0; //highest busy beaver score in this run of the genetic algorithm
-      TuringMachine currBestTM; //best Turing machine in current generation
+      //TuringMachine currBestTM; //best Turing machine in current generation
       this.isRunning = true;
 
       //increase mutation variables
@@ -518,9 +519,10 @@ public class GeneticAlgorithm {
     String summary = "Running generation " + currGeneration + "...\n\n" +
     "crossover rate: " + this.crossoverRate + "\tmutation rate: " + this.currentMutationRate +
     "\nelitism rate: " + this.elitismRate + "\t\tpopulation size: " + population.size();
-    TuringMachine tm = this.getHighestScoringTM();
-    summary = summary + "\n\nCurrent best Turing machine: \n" + tm.toString()
-    + "\nscore = " + tm.getScore() + "\t\tnum shifts = " + tm.getShifts();
+    if(currBestTM != null){//First generation only
+      summary = summary + "\n\nCurrent best Turing machine: \n" + currBestTM.toString()
+      + "\nscore = " + currBestTM.getScore() + "\t\tnum shifts = " + currBestTM.getShifts();
+    }
     return summary;
   }
 
