@@ -13,10 +13,8 @@ mutation rate etc.) as well as n (number of states)
 3. Enable/Disable optional features
 */
 
-//TODO comments everywhere, this is awful
 
 public class UserInterface extends JFrame{
-  //TODO: Rename other variables so that you can rename these ones w/o mixing them up
   private double crossover, mutation, elitismRate;
   private int populationSize, numGenerations, numStates;
   private JTextField crossoverField, mutationField, generationsField, populationField, numStatesField, elitismField;
@@ -25,7 +23,7 @@ public class UserInterface extends JFrame{
   private JButton runGAButton, stopGAButton;
   private boolean increaseMutation, reachabilityFitnessEnabled, stateUseFitnessEnabled, numHaltsFitnessEnabled;
   private GeneticAlgorithm geneticAlgorithm;
-  JPanel p4;
+  private JPanel p4; //panel for button at bottom accessed outside of constructor
 
   public UserInterface(){
     super("Busy Beavers");
@@ -34,12 +32,13 @@ public class UserInterface extends JFrame{
     crossover = 0.7;
     mutation = 0.05;
     elitismRate = 0.0;
-    numGenerations = -1;
-    populationSize = -1;
-    numStates = -1;
+    numGenerations = 10000;
+    populationSize = 100;
+    numStates = 4;
 
     //set up window size
-    setSize(650,450);
+    setSize(700,450);
+    setResizable(false);
 
     //Panel 1: Header area
     JPanel p1 = new JPanel();
@@ -53,8 +52,7 @@ public class UserInterface extends JFrame{
     size and num generations
     */
     JPanel p2 = new JPanel();
-    p2.setLayout(new GridLayout(12,1));
-    p2.setPreferredSize(new Dimension(200, 500));
+    p2.setLayout(new GridLayout(18,1));
 
     //user inputs crossover rate and mutation rate into JTextFields
     JLabel crossoverLabel = new JLabel("crossover rate");
@@ -68,31 +66,24 @@ public class UserInterface extends JFrame{
     elitismField = new JTextField("" + elitismRate + "");
     elitismField.addActionListener(rateHandler);
 
-    //checkbox enables increase mutation code path
-    CheckboxListener checkboxListener = new CheckboxListener();
-    increaseMutationCheckbox = new JCheckBox("increase mutation rate"); // after several generations with no improvement");
-    increaseMutationCheckbox.addItemListener(checkboxListener);
-
     //user inputs maximum number of generations and population size into JTextFields
     JLabel popSizeLabel = new JLabel("population size");
     JLabel numGenLabel = new JLabel("max number of generations");
     JLabel numStatesLabel = new JLabel("num states in Turing machines");
-    populationField = new JTextField(1);
-    generationsField = new JTextField(1);
-    numStatesField = new JTextField(1);
+    populationField = new JTextField("" + populationSize +"");
+    generationsField = new JTextField("" + numGenerations);
+    numStatesField = new JTextField("" + numStates);
     IntInputHandler popGenHandler = new IntInputHandler();
     populationField.addActionListener(popGenHandler);
     generationsField.addActionListener(popGenHandler);
     numStatesField.addActionListener(popGenHandler);
 
-    //add all the components to panel 2
     p2.add(numStatesLabel);
     p2.add(numStatesField);
     p2.add(crossoverLabel);
     p2.add(crossoverField);
     p2.add(mutationLabel);
     p2.add(mutationField);
-    //p2.add(increaseMutationCheckbox);
     p2.add(elitismLabel);
     p2.add(elitismField);
     p2.add(popSizeLabel);
@@ -100,15 +91,41 @@ public class UserInterface extends JFrame{
     p2.add(numGenLabel);
     p2.add(generationsField);
 
+    //checkbox enables increase mutation code path
+    CheckboxListener checkboxListener = new CheckboxListener();
+    increaseMutationCheckbox = new JCheckBox("increase mutation rate");
+    increaseMutationCheckbox.addItemListener(checkboxListener);
+
+    //Checkboxes for feature toggles
+    JLabel optionsLabel = new JLabel("Optional Features");
+    reachabilityFitnessCheckbox = new JCheckBox("Fitness: State reachability");
+    reachabilityFitnessCheckbox.addItemListener(checkboxListener);
+    stateUseFitnessCheckbox = new JCheckBox("Fitness: State usage");
+    stateUseFitnessCheckbox.addItemListener(checkboxListener);
+    numHaltsFitnessCheckbox = new JCheckBox("Fitness: Number of halt conditions");
+    numHaltsFitnessCheckbox.addItemListener(checkboxListener);
+
+    p2.add(optionsLabel);
+    p2.add(increaseMutationCheckbox);
+    p2.add(reachabilityFitnessCheckbox);
+    p2.add(stateUseFitnessCheckbox);
+    p2.add(numHaltsFitnessCheckbox);
+
 
     //Panel 3: A large text area containing information about the genetic algorithm
     JPanel p3 = new JPanel();
-    description = new JTextArea("Input genetic algorithm parameters on the left", 10, 10);
-    description.setPreferredSize(new Dimension(400, 300));
+    description = new JTextArea("Change genetic algorithm parameters on the left", 10, 10);
+    //Ok, that's a little obvious. Instead this should explain what we're doing.
+    //description.setPreferredSize(new Dimension(375, 350));
     description.setEditable(false);
-    //JScrollPane scrollPane = new JScrollPane(description); //TODO
-    p3.add(description);
+    JScrollPane scrollPane = new JScrollPane(description);
+    scrollPane.setPreferredSize(new Dimension(400, 350));
+    p3.add(scrollPane);
 
+
+
+    //Panel 4: Run/Stop button
+    p4 = new JPanel();
 
     //Button to run the program, and button to cancel running the program once it has started
     runGAButton = new JButton("Run Genetic Algorithm");
@@ -117,36 +134,6 @@ public class UserInterface extends JFrame{
     runGAButton.addActionListener(buttonHandler);
     stopGAButton.addActionListener(buttonHandler);
 
-
-    //Checkboxes for feature toggles
-    JLabel p4Label = new JLabel("Optional Features");
-    reachabilityFitnessCheckbox = new JCheckBox("Fitness: State reachability");//include state reachability in fitness calculations"); // after several generations with no improvement");
-    reachabilityFitnessCheckbox.addItemListener(checkboxListener);
-    stateUseFitnessCheckbox = new JCheckBox("Fitness: State usage");//"punish Turing machines which only use a subset of their states over many iterations fitness calculations"); //TODO rephrase
-    stateUseFitnessCheckbox.addItemListener(checkboxListener);
-    numHaltsFitnessCheckbox = new JCheckBox("Fitness: Number of halt conditions");//encourage Turing machines with exactly one halt condition in fitness calculations");
-    numHaltsFitnessCheckbox.addItemListener(checkboxListener);
-
-    p4 = new JPanel();
-    p4.setLayout(new GridLayout(6,1));
-    p4.setPreferredSize(new Dimension(600, 150));
-    //p4.add(runGAButton);
-/*
-    p2.add(p4Label);
-    p2.add(increaseMutationCheckbox);
-    p2.add(reachabilityFitnessCheckbox);
-    p2.add(stateUseFitnessCheckbox);
-    p2.add(numHaltsFitnessCheckbox);
-    */
-    //JPanel p4a = new JPanel();
-    //p4a.setLayout(new GridLayout(4,2));
-    p4.add(p4Label);
-    p4.add(increaseMutationCheckbox);
-    p4.add(reachabilityFitnessCheckbox);
-    p4.add(stateUseFitnessCheckbox);
-    p4.add(numHaltsFitnessCheckbox);
-
-    //p4.add(p4a);
     p4.add(runGAButton);
 
 
@@ -158,6 +145,9 @@ public class UserInterface extends JFrame{
     setVisible(true);
   }
 
+
+
+
   /*
   Main method
   */
@@ -167,6 +157,7 @@ public class UserInterface extends JFrame{
     UserInterface ui = new UserInterface();
     ui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
   }
+
 
 
   /*
@@ -232,12 +223,8 @@ public class UserInterface extends JFrame{
 
             //Stop GeneticAlgorithm's run method (after current generation)
             geneticAlgorithm.kill();
-            //TODO - summarise?
 
           } //else user has said cancel so leave genetic algorithm running
-        }
-        else{ //geneticAlgorithm is null
-          //TODO throw an error - even though should be unreachable - button shouldn't appear until after ga created
         }
       }
     }
@@ -279,6 +266,22 @@ public class UserInterface extends JFrame{
         }
         catch(NumberFormatException nfe){
           currentDescription = currentDescription + "\nInvalid mutation rate. Please input a double between 0 and 1.";
+        }
+      }
+      //User enters a value into the mutation rate field
+      else if (event.getSource() == elitismField){
+        try{
+          Double d = Double.parseDouble(elitismField.getText());
+          if(d >= 0.0 && d <= 1.0){
+            elitismRate = (double) d;
+            currentDescription = currentDescription + "\nElitism rate: " + elitismRate;
+          }
+          else{
+            currentDescription = currentDescription + "\nInvalid elitism rate. Please input a double between 0 and 1.";
+          }
+        }
+        catch(NumberFormatException nfe){
+          currentDescription = currentDescription + "\nInvalid elitism rate. Please input a double between 0 and 1.";
         }
       }
       //Provide feedback that a change has been made (or an error has ocurred)
@@ -354,19 +357,19 @@ public class UserInterface extends JFrame{
       if(event.getStateChange() == ItemEvent.SELECTED){
         if(event.getSource() == increaseMutationCheckbox){
           increaseMutation = true;
-          currentDescription = currentDescription + "\nEnabled: Increase mutation rate if score does not increase after 10000 generations.";
+          currentDescription = currentDescription + "\nEnabled: Increase mutation rate by 5% for every 100 generations that \nscore does not increase";
         }
         else if(event.getSource() == reachabilityFitnessCheckbox){
           reachabilityFitnessEnabled = true;
-          currentDescription = currentDescription + "\nEnabled: TODO";
+          currentDescription = currentDescription + "\nEnabled: Fitness of a Turing machine is increased for every state that \nis reachable from the initial state, and decreased for every state that is \nnot reachable";
         }
         else if(event.getSource() == stateUseFitnessCheckbox){
           stateUseFitnessEnabled = true;
-          currentDescription = currentDescription + "\nEnabled: TODO";
+          currentDescription = currentDescription + "\nEnabled: Fitness of a Turing machine is decreased every time a state \nremains unused for 100n shifts";
         }
         else if(event.getSource() == numHaltsFitnessCheckbox){
           numHaltsFitnessEnabled = true;
-          currentDescription = currentDescription + "\nEnabled: TODO";
+          currentDescription = currentDescription + "\nEnabled: Fitness of a Turing machine is increased if 1 halt \ncondition exists, decreased if not";
         }
 
           //reachabilityFitnessCheckbox, stateUseFitnessCheckbox, numHaltsFitnessCheckbox
@@ -374,19 +377,19 @@ public class UserInterface extends JFrame{
       else if(event.getStateChange() == ItemEvent.DESELECTED){
         if(event.getSource() == increaseMutationCheckbox){
           increaseMutation = false;
-          currentDescription = currentDescription + "\nDisabled: Increase mutation rate if score does not increase after __ generations.";
+          currentDescription = currentDescription + "\nDisabled: Increase mutation rate by 5% for every 100 generations that \nscore does not increase";
         }
         else if(event.getSource() == reachabilityFitnessCheckbox){
           reachabilityFitnessEnabled = false;
-          currentDescription = currentDescription + "\nDisabled: TODO";
+          currentDescription = currentDescription + "\nDisabled: Fitness of a Turing machine is increased for every state that \nis reachable from the initial state, and decreased for every state that is \nnot reachable";
         }
         else if(event.getSource() == stateUseFitnessCheckbox){
           stateUseFitnessEnabled = false;
-          currentDescription = currentDescription + "\nDisabled: TODO";
+          currentDescription = currentDescription + "\nDisabled:  Fitness of a Turing machine is decreased every time a state \nremains unused for 100n shifts";
         }
         else if(event.getSource() == numHaltsFitnessCheckbox){
           numHaltsFitnessEnabled = false;
-          currentDescription = currentDescription + "\nDisabled: TODO";
+          currentDescription = currentDescription + "\nDisabled: Fitness of a Turing machine is increased if 1 halt \ncondition exists, decreased if not";
         }
       }
       description.setText(currentDescription);
@@ -401,90 +404,80 @@ public class UserInterface extends JFrame{
   */
 
   private void runGeneticAlgorithm(){
-    //If user doesn't specify population size or number of generations, set it to 100
-    int pop = (populationSize > 0? populationSize : 100);
-    int gen = (numGenerations > 0? numGenerations : 10000);
-    int states = (numStates > 0? numStates : 5);//maybe just dont run instead.. that would make more sense
-
-    //TODO default values, and at this point just dont run if any are negative.
-
-    /*
-    crossoverField.setEnabled(false);
-    mutationField.setEnabled(false);
-    generationsField.setEnabled(false);
-    populationField.setEnabled(false);
-    numStatesField.setEnabled(false);
-    increaseMutationCheckbox.setEnabled(false);
-    */
-
     //create a GeneticAlgorithm object
     try{
-      geneticAlgorithm = new GeneticAlgorithm(pop, states, numGenerations, crossover, mutation, elitismRate);
+      geneticAlgorithm = new GeneticAlgorithm(populationSize, numStates, numGenerations, crossover, mutation, elitismRate);
+
+      //set optional features
+      geneticAlgorithm.increaseMutationRate(increaseMutation);
+      geneticAlgorithm.setNumHaltsFitnessFeature(numHaltsFitnessEnabled);
+      geneticAlgorithm.setReachableFitnessFeature(reachabilityFitnessEnabled);
+      geneticAlgorithm.setStateUsageFitnessFeature(stateUseFitnessEnabled);
+
+      //run and monitor the genetic algorithm
+
+      Thread runGenAlgThread = new Thread(){
+        public void run(){
+          geneticAlgorithm.run();
+        }
+      };
+
+      Thread liveFeedbackThread = new Thread(){
+        public void run(){
+          while(true){
+            //Get summary of genetic algorithm run
+            description.setText(geneticAlgorithm.getSummary());
+            description.setVisible(true);
+            //Sleep for 2 seconds
+            try{
+              Thread.sleep(2000);
+            }
+            catch(InterruptedException ie){
+            }
+            //Check if genetic algorithm has finished
+            if(!geneticAlgorithm.isRunning()){
+              description.setText("Genetic algorithm has finished!\n");
+              description.append(geneticAlgorithm.getFinalSummary());
+              break;
+            }
+          }
+          //While loop exited (GA has stopped)
+          enableAllFields();
+        }
+      };//end of liveFeedbackThread
+
+      //Run the two threads
+      runGenAlgThread.start();
+      liveFeedbackThread.start();
     }
     catch(GeneticAlgorithmException gae){
-      //TODO handle
+      description.setText("Couldn't run the genetic alorithm due to the following error:\n" + gae.getMessage());
+      this.enableAllFields();
     }
+  }
 
-    //set optional features
-    geneticAlgorithm.increaseMutationRate(increaseMutation);
-    geneticAlgorithm.setNumHaltsFitnessFeature(numHaltsFitnessEnabled);
-    geneticAlgorithm.setReachableFitnessFeature(reachabilityFitnessEnabled);
-    geneticAlgorithm.setStateUsageFitnessFeature(stateUseFitnessEnabled);
+  private void disableAllFields(){
+    //TODO
+  }
 
-    //run and monitor the genetic algorithm
+  private void enableAllFields(){
+    //Make all fields editable again
+    crossoverField.setEnabled(true);
+    mutationField.setEnabled(true);
+    elitismField.setEnabled(true);
+    generationsField.setEnabled(true);
+    populationField.setEnabled(true);
+    numStatesField.setEnabled(true);
+    increaseMutationCheckbox.setEnabled(true);
+    numHaltsFitnessCheckbox.setEnabled(true);
+    reachabilityFitnessCheckbox.setEnabled(true);
+    stateUseFitnessCheckbox.setEnabled(true);
 
-    Thread runGenAlgThread = new Thread(){
-      public void run(){
-        geneticAlgorithm.run();
-      }
-    };
-
-    Thread liveFeedbackThread = new Thread(){
-      public void run(){
-        //while(geneticAlgorithm.isRunning()){
-        while(true){
-          //System.out.println("DEbug...");
-
-          description.setText(geneticAlgorithm.getSummary());
-          description.setVisible(true);
-          try{
-            Thread.sleep(2000);
-          }
-          catch(InterruptedException ie){
-            //...
-          }
-          if(!geneticAlgorithm.isRunning()){
-            description.setText("Genetic algorithm has finished!\n");
-            description.append(geneticAlgorithm.getFinalSummary());
-
-            break;
-          }
-
-        }
-        //genAlg has stopped - set button to run again
-        //Make all fields editable again
-        crossoverField.setEnabled(true);
-        mutationField.setEnabled(true);
-        elitismField.setEnabled(true);
-        generationsField.setEnabled(true);
-        populationField.setEnabled(true);
-        numStatesField.setEnabled(true);
-        increaseMutationCheckbox.setEnabled(true);
-        numHaltsFitnessCheckbox.setEnabled(true);
-        reachabilityFitnessCheckbox.setEnabled(true);
-        stateUseFitnessCheckbox.setEnabled(true);
-
-        //replace stopGAButton with runGAButton
-        p4.remove(stopGAButton);
-        p4.add(runGAButton);
-        p4.setVisible(true);
-        p4.updateUI();
-
-      }
-    };
-
-    runGenAlgThread.start();
-    liveFeedbackThread.start();
+    //replace stopGAButton with runGAButton
+    p4.remove(stopGAButton);
+    p4.add(runGAButton);
+    p4.setVisible(true);
+    p4.updateUI();
   }
 
 }
