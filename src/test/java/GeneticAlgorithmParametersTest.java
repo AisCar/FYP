@@ -251,62 +251,6 @@ public class GeneticAlgorithmParametersTest {
     writeResults("F:/4BCT/FYP/testresults/stateUsageFitnessTestResults.txt", results);
   }
 
-  public void testPunishShiftsFitness(){
-    String results = "(numGenerations: " + numGenerations + ")\ncrossover\tmutation\tpopulation\thigh score overall\t" +
-            "high score current\t(its fitness)\thigh fitness current\t(its score)\n\n";
-    for(int i = 0; i < 3; i++) {
-      try {
-        GeneticAlgorithm ga = new GeneticAlgorithm(popSize, numStates, numGenerations, crossoverRate, mutationRate, elitismRate);
-        //ga. //TODO
-        ga.run();
-        TuringMachine fittest = ga.getPopulation().get(0);
-        TuringMachine highestScoring = ga.getHighestScoringTM();
-        int highestEverScore = ga.getHighestScore();
-        if (fittest.getScore() != highestScoring.getScore()) {
-          fittestNotHighestScoringCounter++;
-        }
-        if (highestEverScore > highestScoring.getScore()) {
-          peakScoreNotFinalScoreCounter++;
-        }
-        results = results + crossoverRate + "\t" + mutationRate + "\t" + popSize + "\t" + highestEverScore
-                + "\t" + highestScoring.getScore() + "\t" + highestScoring.getFitness() + "\t"
-                + fittest.getFitness() + "\t" + fittest.getScore() + "\n";
-      } catch (GeneticAlgorithmException gae) {
-        //TODO
-      }
-    }
-
-    writeResults("F:/4BCT/FYP/testresults/punishShiftsTestResults.txt", results);
-  }
-
-  public void testRewardShiftsFitness(){
-    String results = "(numGenerations: " + numGenerations + ")\ncrossover\tmutation\tpopulation\thigh score overall\t" +
-            "high score current\t(its fitness)\thigh fitness current\t(its score)\n\n";
-    for(int i = 0; i < 3; i++) {
-      try {
-        GeneticAlgorithm ga = new GeneticAlgorithm(popSize, numStates, numGenerations, crossoverRate, mutationRate, elitismRate);
-        //ga. //TODO
-        ga.run();
-        TuringMachine fittest = ga.getPopulation().get(0);
-        TuringMachine highestScoring = ga.getHighestScoringTM();
-        int highestEverScore = ga.getHighestScore();
-        if (fittest.getScore() != highestScoring.getScore()) {
-          fittestNotHighestScoringCounter++;
-        }
-        if (highestEverScore > highestScoring.getScore()) {
-          peakScoreNotFinalScoreCounter++;
-        }
-        results = results + crossoverRate + "\t" + mutationRate + "\t" + popSize + "\t" + highestEverScore
-                + "\t" + highestScoring.getScore() + "\t" + highestScoring.getFitness() + "\t"
-                + fittest.getFitness() + "\t" + fittest.getScore() + "\n";
-      } catch (GeneticAlgorithmException gae) {
-        //TODO
-      }
-    }
-
-    writeResults("F:/4BCT/FYP/testresults/rewardShiftsTestResults.txt", results);
-  }
-
 
   /*
   Helper Methods

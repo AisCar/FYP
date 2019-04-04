@@ -96,12 +96,9 @@ public class TuringMachineTest {
     System.out.println("(Thats " + ((end-start)/1000) + "microseconds)");
   }
 
-  //TODO: non-halting Busy Beaver(s)
-
   @Test
   public void testSortTuringMachinesByFitness(){
     System.out.println("testSortTuringMachinesByFitness");
-    //TODO: Is this test still viable?
     //Create 1 state Turing Machine
     State state = new State(true, true, 0, true, true, 0);
     ArrayList<State> states = new ArrayList<State>();
@@ -161,8 +158,6 @@ public class TuringMachineTest {
     int fitness = tm.getFitness();
     System.out.println("Fitness = " + fitness);
 
-    //TODO know num halt conds, how reachable, other fitness factors and
-    //test accordingly
   }
 
   @Test
@@ -183,7 +178,7 @@ public class TuringMachineTest {
     assertTrue(!spy2.isInNonHaltingCycle(s2, new TapeCell()));
     verify(spy1, times(1)).isMovingOneDirectionIndefinitely(anyInt());//actually, is 1, i think
     verify(spy2, never()).isMovingOneDirectionIndefinitely(anyInt());
-    //TODO improve? more states?
+    //more states?
   }
 
   @Test
@@ -193,7 +188,6 @@ public class TuringMachineTest {
     and start on blank cells. So should work out here. */
     assertTrue(oneStateNonHalting.isMovingOneDirectionIndefinitely(1));
     assertTrue(!oneStateHalting.isMovingOneDirectionIndefinitely(1));
-    //TODO more states?
   }
 
   @Test
@@ -203,7 +197,6 @@ public class TuringMachineTest {
     and start on blank cells. So should work out here. */
     assertTrue(!oneStateNonHalting.isMovingMostlyOneDirectionIndefinitely(1)); //writes ones
     assertTrue(!oneStateHalting.isMovingMostlyOneDirectionIndefinitely(1)); //next state is 0
-    //TODO more
   }
 
   @Test

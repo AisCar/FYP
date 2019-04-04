@@ -21,11 +21,7 @@ public class MultiThreadingTest {
       System.out.println(e.getMessage() + "\n" + e.getStackTrace());
       fail();
     }
-
     verify(tmSpy, times(1)).run();
-    //How can I check if TapeCells of TM were deallocated?
-
-
   }
 
   @Test

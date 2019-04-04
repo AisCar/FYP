@@ -250,7 +250,5 @@ public class GeneticAlgorithmTest {
 
   }
 
-  //TODO: Test new Exceptions in mutation and crossover
-
 
 }
